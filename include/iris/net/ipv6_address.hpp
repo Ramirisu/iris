@@ -3,7 +3,6 @@
 #include <iris/config.hpp>
 
 #include <cstdint>
-#include <numeric>
 #include <string>
 
 namespace iris::net {

@@ -37,11 +37,11 @@ public:
 
     std::string to_string() const noexcept
     {
-        std::string dot;
+        std::string separator;
         return std::accumulate(std::begin(bytes_), std::end(bytes_),
                                std::string(), [&](auto accumulator, auto& b) {
-                                   accumulator += dot;
-                                   dot = ".";
+                                   accumulator += separator;
+                                   separator = ".";
                                    accumulator += std::to_string(b);
                                    return accumulator;
                                });
