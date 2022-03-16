@@ -9,4 +9,6 @@ namespace iris {
 
 std::optional<std::string> get_host_name() noexcept;
 
+std::optional<std::string> get_user_name() noexcept;
+
 }
