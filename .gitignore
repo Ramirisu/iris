@@ -2,3 +2,4 @@ out
 CMakeSettings.json
 *.user
 .vs
+build
