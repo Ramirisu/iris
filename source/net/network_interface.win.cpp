@@ -1,4 +1,4 @@
-#include <iris/net/interface.hpp>
+#include <iris/net/network_interface.hpp>
 
 #include <iris/win32/win32.hpp>
 
@@ -9,7 +9,7 @@
 
 namespace iris::net {
 
-std::vector<interface> get_interface() noexcept
+std::vector<network_interface> get_network_interface() noexcept
 {
     ULONG size = 0;
     if (GetAdaptersAddresses(AF_UNSPEC, 0, nullptr, nullptr, &size)
@@ -25,7 +25,7 @@ std::vector<interface> get_interface() noexcept
         return {};
     }
 
-    std::vector<interface> interfaces;
+    std::vector<network_interface> nis;
 
     auto adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(buffer.get());
     for (auto adapter = adapters; adapter != nullptr; adapter = adapter->Next) {
@@ -35,7 +35,7 @@ std::vector<interface> get_interface() noexcept
             iflags |= interface_flags::loopback;
             break;
         }
-        interfaces.push_back(interface {
+        nis.push_back(network_interface {
             adapter->AdapterName, adapter->Mtu, iflags,
             mac_address(
                 adapter->PhysicalAddress[0], adapter->PhysicalAddress[1],
@@ -43,7 +43,7 @@ std::vector<interface> get_interface() noexcept
                 adapter->PhysicalAddress[4], adapter->PhysicalAddress[5]) });
     }
 
-    return interfaces;
+    return nis;
 }
 
 }

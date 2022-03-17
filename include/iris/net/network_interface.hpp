@@ -17,13 +17,13 @@ enum class interface_flags : uint32_t {
 
 IRIS_BITWISE_OP(interface_flags)
 
-struct interface {
+struct network_interface {
     std::string name;
     std::uint64_t max_transmission_unit = 0;
     interface_flags iflags = interface_flags::none;
     mac_address mac_addr;
 };
 
-std::vector<interface> get_interface() noexcept;
+std::vector<network_interface> get_network_interface() noexcept;
 
 }
