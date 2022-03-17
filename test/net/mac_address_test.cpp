@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/net/mac_address.hpp>>
+#include <iris/net/mac_address.hpp>
 
 using namespace iris::net;
 
