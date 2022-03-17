@@ -29,10 +29,18 @@ std::vector<interface> get_interface() noexcept
 
     auto adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(buffer.get());
     for (auto adapter = adapters; adapter != nullptr; adapter = adapter->Next) {
-        interfaces.push_back(interface { mac_address(
-            adapter->PhysicalAddress[0], adapter->PhysicalAddress[1],
-            adapter->PhysicalAddress[2], adapter->PhysicalAddress[3],
-            adapter->PhysicalAddress[4], adapter->PhysicalAddress[5]) });
+        auto iflags = interface_flags::none;
+        switch (adapter->IfType) {
+        case IF_TYPE_SOFTWARE_LOOPBACK:
+            iflags |= interface_flags::loopback;
+            break;
+        }
+        interfaces.push_back(interface {
+            adapter->AdapterName, adapter->Mtu, iflags,
+            mac_address(
+                adapter->PhysicalAddress[0], adapter->PhysicalAddress[1],
+                adapter->PhysicalAddress[2], adapter->PhysicalAddress[3],
+                adapter->PhysicalAddress[4], adapter->PhysicalAddress[5]) });
     }
 
     return interfaces;

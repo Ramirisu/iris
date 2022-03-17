@@ -29,17 +29,25 @@ std::vector<interface> get_interface() noexcept
         if (interface_map.find(ifaddr->ifa_name) != end(interface_map)) {
             continue;
         }
+        auto& ifa = interface_map[ifaddr->ifa_name];
+        ifa.name = ifaddr->ifa_name;
 
         ifreq ifr;
         strcpy(ifr.ifr_ifrn.ifrn_name, ifaddr->ifa_name);
+        if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0
+            && (ifr.ifr_ifru.ifru_flags & IFF_LOOPBACK)) {
+            ifa.iflags |= interface_flags::loopback;
+        }
+        if (ioctl(sock, SIOCGIFMTU, &ifr) == 0) {
+            ifa.max_transmission_unit = ifr.ifr_ifru.ifru_mtu;
+        }
         if (ioctl(sock, SIOCGIFHWADDR, &ifr) == 0) {
-            interface_map[ifaddr->ifa_name].mac_addr
-                = mac_address(ifr.ifr_ifru.ifru_hwaddr.sa_data[0],
-                              ifr.ifr_ifru.ifru_hwaddr.sa_data[1],
-                              ifr.ifr_ifru.ifru_hwaddr.sa_data[2],
-                              ifr.ifr_ifru.ifru_hwaddr.sa_data[3],
-                              ifr.ifr_ifru.ifru_hwaddr.sa_data[4],
-                              ifr.ifr_ifru.ifru_hwaddr.sa_data[5]);
+            ifa.mac_addr = mac_address(ifr.ifr_ifru.ifru_hwaddr.sa_data[0],
+                                       ifr.ifr_ifru.ifru_hwaddr.sa_data[1],
+                                       ifr.ifr_ifru.ifru_hwaddr.sa_data[2],
+                                       ifr.ifr_ifru.ifru_hwaddr.sa_data[3],
+                                       ifr.ifr_ifru.ifru_hwaddr.sa_data[4],
+                                       ifr.ifr_ifru.ifru_hwaddr.sa_data[5]);
         }
     }
 
@@ -47,8 +55,8 @@ std::vector<interface> get_interface() noexcept
     close(sock);
 
     std::vector<interface> result;
-    for (auto& [name, i] : interface_map) {
-        result.push_back(std::move(i));
+    for (auto& [name, ifa] : interface_map) {
+        result.push_back(std::move(ifa));
     }
     return result;
 }
