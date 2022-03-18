@@ -5,6 +5,8 @@
 #include <iris/net/ipv4_address.hpp>
 #include <iris/net/ipv6_address.hpp>
 
+#include <optional>
+
 namespace iris::net {
 
 class ip_address {
@@ -49,6 +51,15 @@ public:
     {
         IRIS_ASSERT(family_ == family::ipv6);
         return v6_;
+    }
+
+    static std::optional<ip_address> from_string(std::string_view addr) noexcept
+    {
+        if (addr.find(':') != std::string_view::npos) {
+            return ipv6_address::from_string(addr);
+        }
+
+        return ipv4_address::from_string(addr);
     }
 
 private:

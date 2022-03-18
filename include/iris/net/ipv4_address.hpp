@@ -2,8 +2,10 @@
 
 #include <iris/config.hpp>
 
+#include <charconv>
 #include <cstdint>
 #include <numeric>
+#include <optional>
 #include <string>
 
 namespace iris::net {
@@ -45,6 +47,29 @@ public:
                                    accumulator += std::to_string(b);
                                    return accumulator;
                                });
+    }
+
+    static std::optional<ipv4_address>
+    from_string(std::string_view addr) noexcept
+    {
+        std::uint8_t bytes[4] = {};
+        auto curr_ptr = addr.data();
+        auto last_ptr = addr.data() + addr.size();
+        for (int i = 0; i < 4 && curr_ptr < last_ptr; ++i) {
+            if (auto [ptr, ec]
+                = std::from_chars(curr_ptr, last_ptr, bytes[i], 10);
+                ec == std::errc()) {
+                curr_ptr = ptr + 1;
+            } else {
+                return std::nullopt;
+            }
+        }
+
+        if (curr_ptr != last_ptr + 1) {
+            return std::nullopt;
+        }
+
+        return ipv4_address(bytes[0], bytes[1], bytes[2], bytes[3]);
     }
 };
 

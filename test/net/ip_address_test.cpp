@@ -13,6 +13,10 @@ TEST_CASE("ipv4_address")
     CHECK_EQ(ipv4_address().to_string(), "0.0.0.0");
     CHECK_EQ(ipv4_address(127, 0, 0, 1).to_string(), "127.0.0.1");
     CHECK_EQ(ipv4_address(0x7f000001).to_string(), "127.0.0.1");
+    CHECK(ipv4_address::from_string("1.2.3.4"));
+    CHECK(!ipv4_address::from_string(""));
+    CHECK(!ipv4_address::from_string("1.2.3.4.5"));
+    CHECK(!ipv4_address::from_string("1.2.3.256"));
 }
 
 TEST_CASE("ipv6_address")
@@ -30,6 +34,10 @@ TEST_CASE("ipv6_address")
                           0x0000, 0xcade)
                  .to_string(),
              "2001::25de:25de:0:0:cade");
+    CHECK(ipv6_address::from_string("2001:0:0:25de:25de:0:0:cade"));
+    CHECK(ipv6_address::from_string("2001::25de:25de:0:0:cade"));
+    CHECK(!ipv6_address::from_string("0:0:0:0:0:0:0:0:0"));
+    CHECK(!ipv6_address::from_string("2001::25de:25de::cade"));
 }
 
 TEST_CASE("ip_address")

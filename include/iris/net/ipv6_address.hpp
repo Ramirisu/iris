@@ -2,8 +2,12 @@
 
 #include <iris/config.hpp>
 
+#include <iris/net/ipv4_address.hpp>
+
+#include <algorithm>
 #include <cstdint>
 #include <string>
+#include <vector>
 
 namespace iris::net {
 
@@ -100,6 +104,62 @@ public:
         }
 
         return result;
+    }
+
+    static std::optional<ipv6_address>
+    from_string(std::string_view addr) noexcept
+    {
+        auto parse_partial = [](std::string_view addr)
+            -> std::optional<std::vector<std::uint16_t>> {
+            std::vector<std::uint16_t> dbytes;
+            auto curr_ptr = addr.data();
+            auto last_ptr = addr.data() + addr.size();
+            while (curr_ptr < last_ptr) {
+                std::uint16_t dbyte = 0;
+                if (auto [ptr, ec]
+                    = std::from_chars(curr_ptr, last_ptr, dbyte, 16);
+                    ec == std::errc()) {
+                    if (ptr < last_ptr && *ptr != ':') {
+                        return std::nullopt;
+                    }
+                    dbytes.push_back(dbyte);
+                    curr_ptr = ptr + 1;
+                } else {
+                    return std::nullopt;
+                }
+            }
+
+            if (curr_ptr != last_ptr + 1) {
+                return std::nullopt;
+            }
+
+            return dbytes;
+        };
+
+        // TODO: hybrid dual-stack ipv6/ipv4
+        // "hhhh:hhhh:hhhh:hhhh:hhhh:hhhh:111.111.111.111
+
+        if (auto pos = addr.find("::"); pos != std::string_view::npos) {
+            auto front = parse_partial(addr.substr(0, pos));
+            auto back = parse_partial(addr.substr(pos + 2));
+            if (front && back && front->size() + back->size() <= 7) {
+                front->resize(8 - back->size());
+                front->insert(std::end(*front), std::begin(*back),
+                              std::end(*back));
+                const auto& bytes = front.value();
+                return ipv6_address(bytes[0], bytes[1], bytes[2], bytes[3],
+                                    bytes[4], bytes[5], bytes[6], bytes[7]);
+            }
+        } else {
+            if (auto result = parse_partial(addr);
+                result && result->size() == 8) {
+                const auto& bytes = result.value();
+                return ipv6_address(bytes[0], bytes[1], bytes[2], bytes[3],
+                                    bytes[4], bytes[5], bytes[6], bytes[7]);
+            }
+        }
+
+        return std::nullopt;
     }
 };
 
