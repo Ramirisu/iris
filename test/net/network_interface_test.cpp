@@ -12,6 +12,7 @@ TEST_CASE("get_network_interface()")
     CHECK(!nis.empty());
     for (auto& ni : nis) {
         CHECK(!ni.name.empty());
+        CHECK_GT(ni.unicast_addrs.size() + ni.multicast_addrs.size(), 0);
         CHECK_GT(ni.max_transmission_unit, 0);
     }
 }

@@ -63,7 +63,7 @@ public:
     }
 
 private:
-    enum class family family_;
+    enum family family_;
 
     union {
         ipv4_address v4_;

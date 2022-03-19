@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <iris/net/ip_address.hpp>
 #include <iris/net/mac_address.hpp>
 #include <iris/utility.hpp>
 
@@ -21,6 +22,8 @@ struct network_interface {
     std::string name;
     std::uint64_t max_transmission_unit = 0;
     interface_flags iflags = interface_flags::none;
+    std::vector<ip_address> unicast_addrs;
+    std::vector<ip_address> multicast_addrs;
     mac_address mac_addr;
 };
 

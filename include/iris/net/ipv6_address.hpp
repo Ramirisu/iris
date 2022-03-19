@@ -2,8 +2,6 @@
 
 #include <iris/config.hpp>
 
-#include <iris/net/ipv4_address.hpp>
-
 #include <algorithm>
 #include <cstdint>
 #include <string>
@@ -38,6 +36,17 @@ public:
             static_cast<std::uint8_t>(p6 >> 8), static_cast<std::uint8_t>(p6),
             static_cast<std::uint8_t>(p7 >> 8), static_cast<std::uint8_t>(p7),
         }
+    {
+    }
+
+    ipv6_address(const std::uint8_t (&b)[16])
+        : bytes_ { b[0], b[1], b[2],  b[3],  b[4],  b[5],  b[6],  b[7],
+                   b[8], b[9], b[10], b[11], b[12], b[13], b[14], b[15] }
+    {
+    }
+
+    ipv6_address(const std::uint16_t (&b)[8])
+        : ipv6_address(b[0], b[1], b[2], b[3], b[4], b[5], b[6], b[7])
     {
     }
 

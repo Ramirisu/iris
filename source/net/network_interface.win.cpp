@@ -2,6 +2,7 @@
 
 #include <iris/win32/win32.hpp>
 
+#include <WS2tcpip.h>
 #include <iphlpapi.h>
 
 #include <codecvt>
@@ -35,8 +36,36 @@ std::vector<network_interface> get_network_interface() noexcept
             iflags |= interface_flags::loopback;
             break;
         }
+
+        auto append_addr = [](std::vector<ip_address>& addrs, auto addr) {
+            switch (addr->Address.lpSockaddr->sa_family) {
+            case AF_INET6:
+                addrs.push_back(ipv6_address(
+                    reinterpret_cast<sockaddr_in6*>(addr->Address.lpSockaddr)
+                        ->sin6_addr.u.Word));
+                break;
+            case AF_INET:
+                addrs.push_back(ipv4_address(
+                    reinterpret_cast<sockaddr_in*>(addr->Address.lpSockaddr)
+                        ->sin_addr.S_un.S_addr));
+                break;
+            }
+        };
+
+        std::vector<ip_address> unicast_addrs;
+        for (auto addr = adapter->FirstUnicastAddress; addr != nullptr;
+             addr = addr->Next) {
+            append_addr(unicast_addrs, addr);
+        }
+        std::vector<ip_address> multicast_addrs;
+        for (auto addr = adapter->FirstMulticastAddress; addr != nullptr;
+             addr = addr->Next) {
+            append_addr(multicast_addrs, addr);
+        }
+
         nis.push_back(network_interface {
             adapter->AdapterName, adapter->Mtu, iflags,
+            std::move(unicast_addrs), std::move(multicast_addrs),
             mac_address(
                 adapter->PhysicalAddress[0], adapter->PhysicalAddress[1],
                 adapter->PhysicalAddress[2], adapter->PhysicalAddress[3],
