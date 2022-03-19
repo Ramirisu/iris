@@ -30,10 +30,15 @@ std::vector<network_interface> get_network_interface() noexcept
 
     auto adapters = reinterpret_cast<IP_ADAPTER_ADDRESSES*>(buffer.get());
     for (auto adapter = adapters; adapter != nullptr; adapter = adapter->Next) {
-        auto iflags = interface_flags::none;
+        auto iflags = network_interface_flags::none;
+        switch (adapter->OperStatus) {
+        case IfOperStatusUp:
+            iflags |= network_interface_flags::up;
+            break;
+        }
         switch (adapter->IfType) {
         case IF_TYPE_SOFTWARE_LOOPBACK:
-            iflags |= interface_flags::loopback;
+            iflags |= network_interface_flags::loopback;
             break;
         }
 

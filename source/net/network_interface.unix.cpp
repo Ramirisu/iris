@@ -29,12 +29,15 @@ std::vector<network_interface> get_network_interface() noexcept
         if (ni_map.find(ifaddr->ifa_name) == end(ni_map)) {
             auto& ni = ni_map[ifaddr->ifa_name];
             ni.name = ifaddr->ifa_name;
+            if (ifaddr->ifa_flags & IFF_UP) {
+                ni.iflags |= network_interface_flags::up;
+            }
 
             ifreq ifr;
             strcpy(ifr.ifr_ifrn.ifrn_name, ifaddr->ifa_name);
             if (ioctl(sock, SIOCGIFFLAGS, &ifr) == 0
                 && (ifr.ifr_ifru.ifru_flags & IFF_LOOPBACK)) {
-                ni.iflags |= interface_flags::loopback;
+                ni.iflags |= network_interface_flags::loopback;
             }
             if (ioctl(sock, SIOCGIFMTU, &ifr) == 0) {
                 ni.max_transmission_unit = ifr.ifr_ifru.ifru_mtu;

@@ -11,17 +11,18 @@
 
 namespace iris::net {
 
-enum class interface_flags : uint32_t {
+enum class network_interface_flags : uint32_t {
     none = 0x00000000,
-    loopback = 0x00000001,
+    up = 0x00000001,
+    loopback = 0x00000002,
 };
 
-IRIS_BITWISE_OP(interface_flags)
+IRIS_BITWISE_OP(network_interface_flags)
 
 struct network_interface {
     std::string name;
     std::uint64_t max_transmission_unit = 0;
-    interface_flags iflags = interface_flags::none;
+    network_interface_flags iflags = network_interface_flags::none;
     std::vector<ip_address> unicast_addrs;
     std::vector<ip_address> multicast_addrs;
     mac_address mac_addr;
