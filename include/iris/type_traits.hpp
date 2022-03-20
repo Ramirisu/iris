@@ -2,9 +2,18 @@
 
 #include <iris/config.hpp>
 
+#include <type_traits>
+
 namespace iris {
 
 template <typename T>
 inline constexpr bool always_false_v = false;
+
+template <typename T>
+struct remove_cvref : std::remove_cv<std::remove_reference<T>> {
+};
+
+template <typename T>
+using remove_cvref_t = typename remove_cvref<T>::type;
 
 }

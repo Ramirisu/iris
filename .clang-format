@@ -5,3 +5,4 @@ AlignAfterOpenBracket: Align
 AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakTemplateDeclarations: Yes
 BinPackParameters: false
+IndentRequires: true
