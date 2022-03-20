@@ -7,14 +7,14 @@ on:
     branches: [ main ]
 
 env:
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
 
 jobs:
   build:
     runs-on: windows-latest
     strategy:
       matrix:
-        std: [17, 20]
+        std: [20]
 
     steps:
     - uses: actions/checkout@v2

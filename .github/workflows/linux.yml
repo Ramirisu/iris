@@ -7,19 +7,22 @@ on:
     branches: [ main ]
 
 env:
-  BUILD_TYPE: Release
+  BUILD_TYPE: Debug
 
 jobs:
   build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        std: [17, 20]
+        cxx: [g++-10]
+        std: [20]
 
     steps:
     - uses: actions/checkout@v2
 
     - name: Configure
+      env:
+        CXX: ${{matrix.cxx}}
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DCMAKE_CXX_STANDARD:STRING=${{matrix.std}}
 
     - name: Build
