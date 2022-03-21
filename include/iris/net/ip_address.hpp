@@ -34,7 +34,10 @@ public:
     {
     }
 
-    family family() const noexcept { return family_; }
+    family family() const noexcept
+    {
+        return family_;
+    }
 
     std::string to_string() const noexcept
     {
