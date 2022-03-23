@@ -2,13 +2,15 @@
 
 #include <iris/config.hpp>
 
-#include <optional>
+#include <iris/expected.hpp>
+
 #include <string>
+#include <system_error>
 
 namespace iris {
 
-std::optional<std::string> get_host_name() noexcept;
+expected<std::string, std::error_code> get_host_name() noexcept;
 
-std::optional<std::string> get_user_name() noexcept;
+expected<std::string, std::error_code> get_user_name() noexcept;
 
 }

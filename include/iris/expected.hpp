@@ -5,6 +5,7 @@
 #include <iris/type_traits.hpp>
 
 #include <concepts>
+#include <memory>
 #include <utility>
 
 namespace iris {

@@ -2,11 +2,13 @@
 
 #include <iris/config.hpp>
 
+#include <iris/expected.hpp>
+
 #include <charconv>
 #include <cstdint>
 #include <numeric>
-#include <optional>
 #include <string>
+#include <system_error>
 
 namespace iris::net {
 
@@ -49,7 +51,7 @@ public:
                                });
     }
 
-    static std::optional<ipv4_address>
+    static expected<ipv4_address, std::error_code>
     from_string(std::string_view addr) noexcept
     {
         std::uint8_t bytes[4] = {};
@@ -61,12 +63,14 @@ public:
                 ec == std::errc()) {
                 curr_ptr = ptr + 1;
             } else {
-                return std::nullopt;
+                return iris::unexpected(
+                    std::make_error_code(std::errc::invalid_argument));
             }
         }
 
         if (curr_ptr != last_ptr + 1) {
-            return std::nullopt;
+            return iris::unexpected(
+                std::make_error_code(std::errc::invalid_argument));
         }
 
         return ipv4_address(bytes[0], bytes[1], bytes[2], bytes[3]);

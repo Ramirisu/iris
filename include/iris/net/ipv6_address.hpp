@@ -2,9 +2,13 @@
 
 #include <iris/config.hpp>
 
+#include <iris/expected.hpp>
+
 #include <algorithm>
 #include <cstdint>
+#include <optional>
 #include <string>
+#include <system_error>
 #include <vector>
 
 namespace iris::net {
@@ -115,7 +119,7 @@ public:
         return result;
     }
 
-    static std::optional<ipv6_address>
+    static expected<ipv6_address, std::error_code>
     from_string(std::string_view addr) noexcept
     {
         auto parse_partial = [](std::string_view addr)
@@ -168,7 +172,8 @@ public:
             }
         }
 
-        return std::nullopt;
+        return iris::unexpected(
+            std::make_error_code(std::errc::invalid_argument));
     }
 };
 

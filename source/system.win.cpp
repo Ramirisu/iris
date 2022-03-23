@@ -7,7 +7,7 @@
 
 namespace iris {
 
-std::optional<std::string> get_host_name() noexcept
+expected<std::string, std::error_code> get_host_name() noexcept
 {
     wchar_t buffer[MAX_COMPUTERNAME_LENGTH + 1];
     DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
@@ -17,10 +17,10 @@ std::optional<std::string> get_host_name() noexcept
             .to_bytes(buffer);
     }
 
-    return std::nullopt;
+    return unexpected(std::error_code(GetLastError(), std::system_category()));
 }
 
-std::optional<std::string> get_user_name() noexcept
+expected<std::string, std::error_code> get_user_name() noexcept
 {
     wchar_t buffer[UNLEN + 1] = {};
     DWORD size = UNLEN + 1;
@@ -30,7 +30,7 @@ std::optional<std::string> get_user_name() noexcept
             .to_bytes(buffer);
     }
 
-    return std::nullopt;
+    return unexpected(std::error_code(GetLastError(), std::system_category()));
 }
 
 }
