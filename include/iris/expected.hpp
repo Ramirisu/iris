@@ -109,8 +109,8 @@ public:
     // clang-format off
     template <typename T2>
         requires (std::is_constructible_v<T, T2>
-                && !std::is_same_v<T2, expected>
-                && !std::is_same_v<T2, unexpected<E>>)
+            && !std::is_same_v<T2, expected>
+            && !std::is_same_v<T2, unexpected<E>>)
     // clang-format on
     constexpr expected(T2&& value)
         : state_(state::has_value)
@@ -128,8 +128,8 @@ public:
 
     // clang-format off
     constexpr expected(const expected& other) 
-        requires std::is_copy_constructible_v<T> 
-            && std::is_copy_constructible_v<E>
+        requires (std::is_copy_constructible_v<T> 
+            && std::is_copy_constructible_v<E>)
         : state_(other.state_)
     // clang-format on
     {
@@ -165,6 +165,64 @@ public:
         case state::has_error:
             std::destroy_at(&error_);
             break;
+        }
+    }
+
+    // clang-format off
+    template <typename T2, typename E2>
+    constexpr explicit(!std::is_convertible_v<const T2&, T> || !std::is_convertible_v<const E2&, E>) 
+        expected(const expected<T2, E2>& other) 
+        requires (std::is_constructible_v<T, const T2&>
+            && std::is_constructible_v<E, const E2&> 
+            && !std::is_constructible_v<T, expected<T2, E2>&> 
+            && !std::is_constructible_v<T, expected<T2, E2>> 
+            && !std::is_constructible_v<T, const expected<T2, E2>&>
+            && !std::is_constructible_v<T, const expected<T2, E2>&>
+            && !std::is_convertible_v<expected<T2, E2>&, T>
+            && !std::is_convertible_v<expected<T2, E2>&&, T>
+            && !std::is_convertible_v<const expected<T2, E2>&, T>
+            && !std::is_convertible_v<const expected<T2, E2>&&, T>
+            && !std::is_constructible_v<unexpected<E>, expected<T2, E2>&> 
+            && !std::is_constructible_v<unexpected<E>, expected<T2, E2>> 
+            && !std::is_constructible_v<unexpected<E>, const expected<T2, E2>&>
+            && !std::is_constructible_v<unexpected<E>, const expected<T2, E2>&>)
+    // clang-format on
+    {
+        if (other.has_value()) {
+            std::construct_at(&value_, std::forward<const T2&>(other.value()));
+            state_ = state::has_value;
+        } else {
+            std::construct_at(&error_, std::forward<const E2&>(other.error()));
+            state_ = state::has_error;
+        }
+    }
+
+    // clang-format off
+    template <typename T2, typename E2>
+    constexpr explicit(!std::is_convertible_v<T2, T> || !std::is_convertible_v<E2, E>) 
+        expected(expected<T2, E2>&& other) 
+        requires (std::is_constructible_v<T, T2>
+            && std::is_constructible_v<E, E2> 
+            && !std::is_constructible_v<T, expected<T2, E2>&> 
+            && !std::is_constructible_v<T, expected<T2, E2>> 
+            && !std::is_constructible_v<T, const expected<T2, E2>&>
+            && !std::is_constructible_v<T, const expected<T2, E2>&>
+            && !std::is_convertible_v<expected<T2, E2>&, T>
+            && !std::is_convertible_v<expected<T2, E2>&&, T>
+            && !std::is_convertible_v<const expected<T2, E2>&, T>
+            && !std::is_convertible_v<const expected<T2, E2>&&, T>
+            && !std::is_constructible_v<unexpected<E>, expected<T2, E2>&> 
+            && !std::is_constructible_v<unexpected<E>, expected<T2, E2>> 
+            && !std::is_constructible_v<unexpected<E>, const expected<T2, E2>&>
+            && !std::is_constructible_v<unexpected<E>, const expected<T2, E2>&>)
+    // clang-format on
+    {
+        if (other.has_value()) {
+            std::construct_at(&value_, std::forward<T2>(other.value()));
+            state_ = state::has_value;
+        } else {
+            std::construct_at(&error_, std::forward<E2>(other.error()));
+            state_ = state::has_error;
         }
     }
 
@@ -476,6 +534,46 @@ public:
         case state::has_error:
             std::destroy_at(&error_);
             break;
+        }
+    }
+
+    // clang-format off
+    template <typename T2, typename E2>
+    constexpr explicit(!std::is_convertible_v<const E2&, E>) 
+        expected(const expected<T2, E2>& other) 
+        requires (std::is_void_v<T2>
+            && std::is_constructible_v<E, const E2&> 
+            && !std::is_constructible_v<unexpected<E>, expected<T2, E2>&> 
+            && !std::is_constructible_v<unexpected<E>, expected<T2, E2>> 
+            && !std::is_constructible_v<unexpected<E>, const expected<T2, E2>&>
+            && !std::is_constructible_v<unexpected<E>, const expected<T2, E2>&>)
+    // clang-format on
+    {
+        if (other.has_value()) {
+            state_ = state::has_value;
+        } else {
+            std::construct_at(&error_, std::forward<const E2&>(other.error()));
+            state_ = state::has_error;
+        }
+    }
+
+    // clang-format off
+    template <typename T2, typename E2>
+    constexpr explicit(!std::is_convertible_v<E2, E>) 
+        expected(expected<T2, E2>&& other) 
+        requires (std::is_void_v<T2>
+            && std::is_constructible_v<E, E2> 
+            && !std::is_constructible_v<unexpected<E>, expected<T2, E2>&> 
+            && !std::is_constructible_v<unexpected<E>, expected<T2, E2>> 
+            && !std::is_constructible_v<unexpected<E>, const expected<T2, E2>&>
+            && !std::is_constructible_v<unexpected<E>, const expected<T2, E2>&>)
+    // clang-format on
+    {
+        if (other.has_value()) {
+            state_ = state::has_value;
+        } else {
+            std::construct_at(&error_, std::forward<E2>(other.error()));
+            state_ = state::has_error;
         }
     }
 

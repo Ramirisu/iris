@@ -8,6 +8,7 @@ TEST_SUITE_BEGIN("expected");
 
 enum class error_code {
     timeout = 1,
+    invalid_argument,
 };
 
 TEST_CASE("unexpected")
@@ -27,6 +28,60 @@ TEST_CASE("ctor")
     expected<std::string, error_code> exp21 = "success";
     expected<std::string, error_code> exp22
         = iris::unexpected(error_code::timeout);
+}
+
+TEST_CASE("ctor nested conversion")
+{
+    struct base {
+        int b = 0;
+    };
+
+    struct derived : base {
+        int d = 0;
+    };
+
+    auto inner_func = [](bool inner_success) -> expected<derived, error_code> {
+        if (inner_success) {
+            return derived { base { 1 }, 1 };
+        }
+        return iris::unexpected(error_code::invalid_argument);
+    };
+
+    auto outer_func = [&](bool outer_success,
+                          bool inner_success) -> expected<base, error_code> {
+        auto inner = inner_func(inner_success);
+        if (!inner) {
+            return inner;
+        }
+        if (outer_success) {
+            return 2;
+        }
+        return iris::unexpected(error_code::timeout);
+    };
+
+    SUBCASE("(true, true)")
+    {
+        auto exp = outer_func(true, true);
+        CHECK(exp);
+    }
+    SUBCASE("(false, true)")
+    {
+        auto exp = outer_func(false, true);
+        CHECK(!exp);
+        CHECK_EQ(exp.error(), error_code::timeout);
+    }
+    SUBCASE("(true, false)")
+    {
+        auto exp = outer_func(true, false);
+        CHECK(!exp);
+        CHECK_EQ(exp.error(), error_code::invalid_argument);
+    }
+    SUBCASE("(false, false)")
+    {
+        auto exp = outer_func(false, false);
+        CHECK(!exp);
+        CHECK_EQ(exp.error(), error_code::invalid_argument);
+    }
 }
 
 TEST_CASE("emplace")
