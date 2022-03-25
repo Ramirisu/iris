@@ -6,8 +6,8 @@ using namespace iris;
 
 TEST_SUITE_BEGIN("utf");
 
-static const auto utf8_str = std::string_view("IRIS伊莉絲");
-static const auto utf8_u8str = std::u8string_view(u8"IRIS伊莉絲");
+static const auto utf8_cstr = std::string_view("IRIS伊莉絲");
+static const auto utf8_str = std::u8string_view(u8"IRIS伊莉絲");
 static const auto utf16_str = std::u16string_view(u"IRIS伊莉絲");
 static const auto utf32_str = std::u32string_view(U"IRIS伊莉絲");
 static const auto unicode
@@ -53,31 +53,32 @@ void test_utf_encode(InputRange input, ExpectedRange exp)
 
 TEST_CASE("utf: utf-8")
 {
+    test_utf_decode<char32_t, char8_t>(utf8_cstr, unicode);
+    test_utf_decode<char32_t, char>(utf8_cstr, unicode);
+    test_utf_decode<char32_t, std::uint8_t>(utf8_cstr, unicode);
+    test_utf_decode<std::uint32_t, char8_t>(utf8_cstr, unicode);
+    test_utf_decode<std::uint32_t, char>(utf8_cstr, unicode);
+    test_utf_decode<std::uint32_t, std::uint8_t>(utf8_cstr, unicode);
+
     test_utf_decode<char32_t, char8_t>(utf8_str, unicode);
     test_utf_decode<char32_t, char>(utf8_str, unicode);
     test_utf_decode<char32_t, std::uint8_t>(utf8_str, unicode);
     test_utf_decode<std::uint32_t, char8_t>(utf8_str, unicode);
     test_utf_decode<std::uint32_t, char>(utf8_str, unicode);
     test_utf_decode<std::uint32_t, std::uint8_t>(utf8_str, unicode);
-    test_utf_decode<char32_t, char8_t>(utf8_u8str, unicode);
-    test_utf_decode<char32_t, char>(utf8_u8str, unicode);
-    test_utf_decode<char32_t, std::uint8_t>(utf8_u8str, unicode);
-    test_utf_decode<std::uint32_t, char8_t>(utf8_u8str, unicode);
-    test_utf_decode<std::uint32_t, char>(utf8_u8str, unicode);
-    test_utf_decode<std::uint32_t, std::uint8_t>(utf8_u8str, unicode);
 
+    test_utf_encode<char32_t, char8_t>(unicode, utf8_cstr);
+    test_utf_encode<char32_t, char>(unicode, utf8_cstr);
+    test_utf_encode<char32_t, std::uint8_t>(unicode, utf8_cstr);
+    test_utf_encode<std::uint32_t, char8_t>(unicode, utf8_cstr);
+    test_utf_encode<std::uint32_t, char>(unicode, utf8_cstr);
+    test_utf_encode<std::uint32_t, std::uint8_t>(unicode, utf8_cstr);
     test_utf_encode<char32_t, char8_t>(unicode, utf8_str);
     test_utf_encode<char32_t, char>(unicode, utf8_str);
     test_utf_encode<char32_t, std::uint8_t>(unicode, utf8_str);
     test_utf_encode<std::uint32_t, char8_t>(unicode, utf8_str);
     test_utf_encode<std::uint32_t, char>(unicode, utf8_str);
     test_utf_encode<std::uint32_t, std::uint8_t>(unicode, utf8_str);
-    test_utf_encode<char32_t, char8_t>(unicode, utf8_u8str);
-    test_utf_encode<char32_t, char>(unicode, utf8_u8str);
-    test_utf_encode<char32_t, std::uint8_t>(unicode, utf8_u8str);
-    test_utf_encode<std::uint32_t, char8_t>(unicode, utf8_u8str);
-    test_utf_encode<std::uint32_t, char>(unicode, utf8_u8str);
-    test_utf_encode<std::uint32_t, std::uint8_t>(unicode, utf8_u8str);
 }
 
 TEST_CASE("utf: utf-16")
