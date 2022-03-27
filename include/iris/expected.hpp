@@ -2,8 +2,6 @@
 
 #include <iris/config.hpp>
 
-#include <iris/type_traits.hpp>
-
 #include <concepts>
 #include <memory>
 #include <utility>
