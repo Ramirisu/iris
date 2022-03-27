@@ -17,7 +17,7 @@ class from_utf_view
     : public std::ranges::view_interface<from_utf_view<Range, Unicode, UTF>> {
 public:
     class iterator {
-        using __base_iterator_category = typename std::iterator_traits<
+        using base_iterator_category = typename std::iterator_traits<
             std::ranges::iterator_t<Range>>::iterator_category;
         using utf_type = utf<Unicode, UTF>;
 
@@ -27,7 +27,7 @@ public:
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
         using iterator_category
-            = std::conditional_t<std::derived_from<__base_iterator_category,
+            = std::conditional_t<std::derived_from<base_iterator_category,
                                                    std::forward_iterator_tag>,
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
@@ -40,7 +40,7 @@ public:
 
         constexpr iterator(Range& parent, std::ranges::iterator_t<Range> curr)
             : parent_(&parent)
-            , curr_(curr)
+            , curr_(std::move(curr))
         {
             next();
         }
@@ -51,7 +51,7 @@ public:
         iterator(iterator&&) = default;
         iterator& operator=(iterator&&) = default;
 
-        constexpr const value_type& operator*() const
+        constexpr const value_type& operator*() const noexcept
         {
             return result_;
         }
@@ -78,8 +78,7 @@ public:
     private:
         void next()
         {
-            result_
-                = utf<Unicode, UTF>::decode(curr_, std::ranges::end(*parent_));
+            result_ = utf_type::decode(curr_, std::ranges::end(*parent_));
         }
 
         Range* parent_ {};
@@ -92,7 +91,7 @@ public:
         sentinel() = default;
 
         constexpr sentinel(std::ranges::sentinel_t<Range> last)
-            : last_(last)
+            : last_(std::move(last))
         {
         }
 
@@ -187,7 +186,7 @@ class to_utf_view
     : public std::ranges::view_interface<to_utf_view<Range, Unicode, UTF>> {
 public:
     class iterator {
-        using __base_iterator_category = typename std::iterator_traits<
+        using base_iterator_category = typename std::iterator_traits<
             std::ranges::iterator_t<Range>>::iterator_category;
         using utf_type = utf<Unicode, UTF>;
 
@@ -197,7 +196,7 @@ public:
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
         using iterator_category
-            = std::conditional_t<std::derived_from<__base_iterator_category,
+            = std::conditional_t<std::derived_from<base_iterator_category,
                                                    std::forward_iterator_tag>,
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
@@ -210,7 +209,7 @@ public:
 
         constexpr iterator(Range& parent, std::ranges::iterator_t<Range> curr)
             : parent_(&parent)
-            , curr_(curr)
+            , curr_(std::move(curr))
         {
             next();
             setup_result();
@@ -222,7 +221,7 @@ public:
         iterator(iterator&&) = default;
         iterator& operator=(iterator&&) = default;
 
-        constexpr const value_type& operator*() const
+        constexpr const value_type& operator*() const noexcept
         {
             return result_;
         }
@@ -258,8 +257,7 @@ public:
     private:
         void next()
         {
-            utf_result_
-                = utf<Unicode, UTF>::encode(curr_, std::ranges::end(*parent_));
+            utf_result_ = utf_type::encode(curr_, std::ranges::end(*parent_));
             offset_ = 0;
         }
 
@@ -284,7 +282,7 @@ public:
         sentinel() = default;
 
         constexpr sentinel(std::ranges::sentinel_t<Range> last)
-            : last_(last)
+            : last_(std::move(last))
         {
         }
 
