@@ -12,7 +12,7 @@ namespace iris {
 template <typename T = void>
 class lazy;
 
-namespace detail {
+namespace __lazy_detail {
     template <typename T>
     class lazy_promise_type_base {
     public:
@@ -92,10 +92,10 @@ namespace detail {
 
 template <typename T>
 class [[nodiscard]] lazy {
-    friend class detail::lazy_promise_type<T>;
+    friend class __lazy_detail::lazy_promise_type<T>;
 
 public:
-    using promise_type = detail::lazy_promise_type<T>;
+    using promise_type = __lazy_detail::lazy_promise_type<T>;
     using value_type = T;
 
     lazy(lazy&& other) noexcept
@@ -157,7 +157,7 @@ private:
     std::coroutine_handle<promise_type> handle_;
 };
 
-namespace detail {
+namespace __lazy_detail {
     template <typename T>
     lazy<T> lazy_promise_type<T>::get_return_object()
     {

@@ -8,7 +8,7 @@
 #include <type_traits>
 
 namespace iris {
-namespace detail {
+namespace __coroutine_detail {
     template <typename T>
     struct is_coroutine_handle : std::false_type {
     };
@@ -22,8 +22,9 @@ namespace detail {
     inline constexpr bool is_coroutine_handle_v = is_coroutine_handle<T>::value;
 
     template <typename T>
-    concept suspend_result = std::is_void_v<
-        T> || std::is_same_v<T, bool> || detail::is_coroutine_handle_v<T>;
+    concept suspend_result
+        = std::is_void_v<T> || std::is_same_v<T,
+                                              bool> || is_coroutine_handle_v<T>;
 
     template <typename T, typename Promise>
     concept simple_awaitable
@@ -68,16 +69,17 @@ namespace detail {
 }
 
 template <typename T>
-concept suspend_result = detail::suspend_result<T>;
+concept suspend_result = __coroutine_detail::suspend_result<T>;
 
 template <typename T, typename Promise = void>
-concept simple_awaitable = detail::simple_awaitable<T, Promise>;
+concept simple_awaitable = __coroutine_detail::simple_awaitable<T, Promise>;
 
 template <typename T, typename Promise = void>
-concept has_member_co_await = detail::has_member_co_await<T, Promise>;
+concept has_member_co_await
+    = __coroutine_detail::has_member_co_await<T, Promise>;
 
 template <typename T, typename Promise = void>
-concept has_adl_co_await = detail::has_adl_co_await<T, Promise>;
+concept has_adl_co_await = __coroutine_detail::has_adl_co_await<T, Promise>;
 
 template <typename T, typename Promise = void>
 concept awaitable = has_member_co_await<T, Promise> || has_adl_co_await<
@@ -86,8 +88,8 @@ concept awaitable = has_member_co_await<T, Promise> || has_adl_co_await<
 
 template <typename T>
 struct awaitable_result {
-    using type
-        = decltype(detail::get_awaitable(std::declval<T>()).await_resume());
+    using type = decltype(__coroutine_detail::get_awaitable(std::declval<T>())
+                              .await_resume());
 };
 
 template <typename T>
