@@ -37,10 +37,18 @@ TEST_CASE("to_utf[8/16/32]")
 TEST_CASE("pipe")
 {
     auto unwrap = std::views::transform([](auto exp) { return exp.value(); });
-    auto view = unicode | views::to_utf8 | unwrap | views::from_utf | unwrap
-        | views::to_utf16 | unwrap | views::from_utf | unwrap | views::to_utf32
-        | unwrap | views::from_utf;
-    CHECK(std::ranges::equal(view, unicode));
+    CHECK(std::ranges::equal(
+        utf8_str | views::from_utf | unwrap | views::to_utf16, utf16_str));
+    CHECK(std::ranges::equal(
+        utf8_str | views::from_utf | unwrap | views::to_utf32, utf32_str));
+    CHECK(std::ranges::equal(
+        utf16_str | views::from_utf | unwrap | views::to_utf8, utf8_str));
+    CHECK(std::ranges::equal(
+        utf16_str | views::from_utf | unwrap | views::to_utf32, utf32_str));
+    CHECK(std::ranges::equal(
+        utf32_str | views::from_utf | unwrap | views::to_utf8, utf8_str));
+    CHECK(std::ranges::equal(
+        utf32_str | views::from_utf | unwrap | views::to_utf16, utf16_str));
 }
 
 TEST_SUITE_END();
