@@ -42,6 +42,9 @@ private:
 template <typename Binary, typename Text>
 class base64 {
 public:
+    using binary_result_type = expected<base64_result<Binary, 3>, base64_error>;
+    using text_result_type = expected<base64_result<Text, 4>, base64_error>;
+
     template <typename Iterator, typename Sentinel>
     static constexpr expected<base64_result<Binary, 3>, base64_error>
     decode(Iterator& first, const Sentinel& last) noexcept
