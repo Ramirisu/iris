@@ -110,19 +110,11 @@ public:
     public:
         sentinel() = default;
 
-        constexpr sentinel(std::ranges::sentinel_t<Range> last)
-            : last_(std::move(last))
-        {
-        }
-
         friend constexpr bool operator==(const iterator& lhs,
                                          const sentinel& rhs)
         {
             return !*lhs && (*lhs).error() == base64_error::eof;
         }
-
-    private:
-        std::ranges::sentinel_t<Range> last_;
     };
 
     // clang-format off
@@ -158,9 +150,9 @@ public:
         return { range_, std::ranges::begin(range_) };
     }
 
-    [[nodiscard]] constexpr sentinel end()
+    [[nodiscard]] constexpr sentinel end() noexcept
     {
-        return { std::ranges::end(range_) };
+        return {};
     }
 
     // clang-format off
@@ -317,19 +309,11 @@ public:
     public:
         sentinel() = default;
 
-        constexpr sentinel(std::ranges::sentinel_t<Range> last)
-            : last_(std::move(last))
-        {
-        }
-
         friend constexpr bool operator==(const iterator& lhs,
                                          const sentinel& rhs)
         {
             return !*lhs && (*lhs).error() == base64_error::eof;
         }
-
-    private:
-        std::ranges::sentinel_t<Range> last_;
     };
 
     // clang-format off
@@ -365,9 +349,9 @@ public:
         return { range_, std::ranges::begin(range_) };
     }
 
-    [[nodiscard]] constexpr sentinel end()
+    [[nodiscard]] constexpr sentinel end() noexcept
     {
-        return { std::ranges::end(range_) };
+        return {};
     }
 
 private:
