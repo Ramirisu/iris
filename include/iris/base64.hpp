@@ -4,7 +4,7 @@
 
 #include <iris/expected.hpp>
 
-namespace iris::encoding {
+namespace iris {
 
 enum class base64_error {
     eof = 1,

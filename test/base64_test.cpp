@@ -1,10 +1,10 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/encoding/base64.hpp>
+#include <iris/base64.hpp>
 
-using namespace iris::encoding;
+using namespace iris;
 
-TEST_SUITE_BEGIN("encoding/base64");
+TEST_SUITE_BEGIN("base64");
 
 struct test_cast_t {
     std::string_view binary;

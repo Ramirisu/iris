@@ -7,7 +7,7 @@
 
 #include <ranges>
 
-namespace iris {
+namespace iris::ranges {
 
 template <std::ranges::input_range Range, typename Unicode, typename UTF>
     // clang-format off
@@ -439,4 +439,9 @@ namespace views {
     inline constexpr __to_utf32_view_fn to_utf32 {};
 #endif
 }
+
+}
+
+namespace iris {
+namespace views = ranges::views;
 }

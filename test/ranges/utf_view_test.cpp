@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/utf_view.hpp>
+#include <iris/ranges/utf_view.hpp>
 
 #include <algorithm>
 #include <string>
@@ -8,7 +8,7 @@
 
 using namespace iris;
 
-TEST_SUITE_BEGIN("utf_view");
+TEST_SUITE_BEGIN("ranges/utf_view");
 
 static const auto utf8_cstr = std::string_view("IRIS伊莉絲");
 static const auto utf8_str = std::u8string_view(u8"IRIS伊莉絲");
