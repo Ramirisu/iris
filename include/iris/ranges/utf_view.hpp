@@ -52,20 +52,23 @@ public:
         iterator(iterator&&) = default;
         iterator& operator=(iterator&&) = default;
 
-        constexpr const std::ranges::iterator_t<Range>& base() const& noexcept
+        // clang-format off
+        [[nodiscard]] constexpr const std::ranges::iterator_t<Range>& base() const& 
+            noexcept
+        // clang-format on
         {
             return curr_;
         }
 
         // clang-format off
-        constexpr std::ranges::iterator_t<Range> base() && 
+        [[nodiscard]] constexpr std::ranges::iterator_t<Range> base() && 
             noexcept(std::is_nothrow_move_constructible_v<std::ranges::iterator_t<Range>>)
         // clang-format on
         {
             return std::move(curr_);
         }
 
-        constexpr const value_type& operator*() const noexcept
+        [[nodiscard]] constexpr const value_type& operator*() const noexcept
         {
             return value_;
         }
@@ -92,8 +95,8 @@ public:
             return tmp;
         }
 
-        friend constexpr bool operator==(const iterator& lhs,
-                                         const iterator& rhs)
+        [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
+                                                       const iterator& rhs)
         {
             return lhs.curr_ == rhs.curr_;
         }
@@ -125,8 +128,8 @@ public:
     public:
         sentinel() = default;
 
-        friend constexpr bool operator==(const iterator& lhs,
-                                         const sentinel& rhs)
+        [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
+                                                       const sentinel& rhs)
         {
             return !*lhs && (*lhs).error() == utf_error::eof;
         }
@@ -333,20 +336,23 @@ public:
         iterator(iterator&&) = default;
         iterator& operator=(iterator&&) = default;
 
-        constexpr const std::ranges::iterator_t<Range>& base() const& noexcept
+        // clang-format off
+        [[nodiscard]] constexpr const std::ranges::iterator_t<Range>& base() const& 
+            noexcept
+        // clang-format on
         {
             return curr_;
         }
 
         // clang-format off
-        constexpr std::ranges::iterator_t<Range> base() && 
+        [[nodiscard]] constexpr std::ranges::iterator_t<Range> base() && 
             noexcept(std::is_nothrow_move_constructible_v<std::ranges::iterator_t<Range>>)
         // clang-format on
         {
             return std::move(curr_);
         }
 
-        constexpr const value_type& operator*() const noexcept
+        [[nodiscard]] constexpr const value_type& operator*() const noexcept
         {
             return value_;
         }
@@ -364,8 +370,8 @@ public:
             return tmp;
         }
 
-        friend constexpr bool operator==(const iterator& lhs,
-                                         const iterator& rhs)
+        [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
+                                                       const iterator& rhs)
         {
             return lhs.curr_ == rhs.curr_;
         }
@@ -385,8 +391,8 @@ public:
     public:
         sentinel() = default;
 
-        friend constexpr bool operator==(const iterator& lhs,
-                                         const sentinel& rhs)
+        [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
+                                                       const sentinel& rhs)
         {
             return !*lhs && (*lhs).error() == utf_error::eof;
         }
