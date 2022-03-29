@@ -17,21 +17,21 @@ class from_utf_view
     : public std::ranges::view_interface<from_utf_view<Range, Unicode, UTF>> {
 public:
     class iterator {
-        using base_iterator_category = typename std::iterator_traits<
-            std::ranges::iterator_t<Range>>::iterator_category;
-        using utf_type = utf<Unicode, UTF>;
+        using encoder = utf<Unicode, UTF>;
 
     public:
         using iterator_concept
             = std::conditional_t<std::ranges::forward_range<Range>,
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
-        using iterator_category
-            = std::conditional_t<std::derived_from<base_iterator_category,
-                                                   std::forward_iterator_tag>,
-                                 std::forward_iterator_tag,
-                                 std::input_iterator_tag>;
-        using value_type = typename utf_type::unicode_result_type;
+        using iterator_category = std::conditional_t<
+            std::derived_from<
+                typename std::iterator_traits<
+                    std::ranges::iterator_t<Range>>::iterator_category,
+                std::forward_iterator_tag>,
+            std::forward_iterator_tag,
+            std::input_iterator_tag>;
+        using value_type = typename encoder::unicode_result_type;
         using difference_type = std::ptrdiff_t;
 
         iterator() requires
@@ -53,7 +53,7 @@ public:
 
         constexpr const value_type& operator*() const noexcept
         {
-            return result_;
+            return value_;
         }
 
         constexpr iterator& operator++()
@@ -78,12 +78,12 @@ public:
     private:
         void next()
         {
-            result_ = utf_type::decode(curr_, std::ranges::end(*parent_));
+            value_ = encoder::decode(curr_, std::ranges::end(*parent_));
         }
 
         Range* parent_ {};
         std::ranges::iterator_t<Range> curr_ {};
-        value_type result_;
+        value_type value_;
     };
 
     class sentinel {
@@ -186,20 +186,20 @@ class to_utf_view
     : public std::ranges::view_interface<to_utf_view<Range, Unicode, UTF>> {
 public:
     class iterator {
-        using base_iterator_category = typename std::iterator_traits<
-            std::ranges::iterator_t<Range>>::iterator_category;
-        using utf_type = utf<Unicode, UTF>;
+        using encoder = utf<Unicode, UTF>;
 
     public:
         using iterator_concept
             = std::conditional_t<std::ranges::forward_range<Range>,
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
-        using iterator_category
-            = std::conditional_t<std::derived_from<base_iterator_category,
-                                                   std::forward_iterator_tag>,
-                                 std::forward_iterator_tag,
-                                 std::input_iterator_tag>;
+        using iterator_category = std::conditional_t<
+            std::derived_from<
+                typename std::iterator_traits<
+                    std::ranges::iterator_t<Range>>::iterator_category,
+                std::forward_iterator_tag>,
+            std::forward_iterator_tag,
+            std::input_iterator_tag>;
         using value_type = expected<UTF, utf_error>;
         using difference_type = std::ptrdiff_t;
 
@@ -223,14 +223,14 @@ public:
 
         constexpr const value_type& operator*() const noexcept
         {
-            return result_;
+            return value_;
         }
 
         constexpr iterator& operator++()
         {
-            if (utf_result_) {
+            if (result_) {
                 ++offset_;
-                if (offset_ == utf_result_.value().size()) {
+                if (offset_ == result_.value().size()) {
                     next();
                 }
             } else {
@@ -257,24 +257,24 @@ public:
     private:
         void next()
         {
-            utf_result_ = utf_type::encode(curr_, std::ranges::end(*parent_));
+            result_ = encoder::encode(curr_, std::ranges::end(*parent_));
             offset_ = 0;
         }
 
         void setup_result()
         {
-            if (utf_result_) {
-                result_ = utf_result_.value()[offset_];
+            if (result_) {
+                value_ = result_.value()[offset_];
             } else {
-                result_ = unexpected(utf_result_.error());
+                value_ = unexpected(result_.error());
             }
         }
 
         Range* parent_ {};
         std::ranges::iterator_t<Range> curr_ {};
-        typename utf_type::utf_result_type utf_result_ {};
+        encoder::utf_result_type result_ {};
         std::size_t offset_ {};
-        value_type result_;
+        value_type value_;
     };
 
     class sentinel {
