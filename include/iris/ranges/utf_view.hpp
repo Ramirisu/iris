@@ -115,16 +115,20 @@ public:
     {
     }
 
-    [[nodiscard]] constexpr Range
-    base() const& noexcept(std::is_nothrow_copy_constructible_v<Range>) requires
-        std::copy_constructible<Range>
+    // clang-format off
+    [[nodiscard]] constexpr Range base() const& 
+        noexcept(std::is_nothrow_copy_constructible_v<Range>) 
+        requires std::copy_constructible<Range>
+    // clang-format on
     {
         return range_;
     }
 
-    [[nodiscard]] constexpr Range
-    base() && noexcept(std::is_nothrow_move_constructible_v<Range>) requires
-        std::move_constructible<Range>
+    // clang-format off
+    [[nodiscard]] constexpr Range base() && 
+        noexcept(std::is_nothrow_move_constructible_v<Range>) 
+        requires std::move_constructible<Range>
+    // clang-format on
     {
         return std::move(range_);
     }
@@ -139,7 +143,18 @@ public:
         return { std::ranges::end(range_) };
     }
 
+    // clang-format off
+    [[nodiscard]] constexpr auto size()  
+        noexcept(noexcept(std::ranges::size(range_))) 
+        requires (sizeof(UTF) == 4 && std::ranges::sized_range<Range>)
+    // clang-format on
+    {
+        return std::ranges::size(range_);
+    }
+
+    // clang-format off
 private:
+    // clang-format on
     Range range_ {};
 };
 
@@ -306,16 +321,20 @@ public:
     {
     }
 
-    [[nodiscard]] constexpr Range
-    base() const& noexcept(std::is_nothrow_copy_constructible_v<Range>) requires
-        std::copy_constructible<Range>
+    // clang-format off
+    [[nodiscard]] constexpr Range base() const& 
+        noexcept(std::is_nothrow_copy_constructible_v<Range>) 
+        requires std::copy_constructible<Range>
+    // clang-format on
     {
         return range_;
     }
 
-    [[nodiscard]] constexpr Range
-    base() && noexcept(std::is_nothrow_move_constructible_v<Range>) requires
-        std::move_constructible<Range>
+    // clang-format off
+    [[nodiscard]] constexpr Range base() && 
+        noexcept(std::is_nothrow_move_constructible_v<Range>) 
+        requires std::move_constructible<Range>
+    // clang-format on
     {
         return std::move(range_);
     }
@@ -330,7 +349,18 @@ public:
         return { std::ranges::end(range_) };
     }
 
+    // clang-format off
+    [[nodiscard]] constexpr auto size()  
+        noexcept(noexcept(std::ranges::size(range_))) 
+        requires (sizeof(UTF) == 4 && std::ranges::sized_range<Range>)
+    // clang-format on
+    {
+        return std::ranges::size(range_);
+    }
+
+    // clang-format off
 private:
+    // clang-format on
     Range range_ {};
 };
 
