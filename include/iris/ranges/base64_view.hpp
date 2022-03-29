@@ -50,6 +50,19 @@ public:
         iterator(iterator&&) = default;
         iterator& operator=(iterator&&) = default;
 
+        constexpr const std::ranges::iterator_t<Range>& base() const& noexcept
+        {
+            return curr_;
+        }
+
+        // clang-format off
+        constexpr std::ranges::iterator_t<Range> base() && 
+            noexcept(std::is_nothrow_move_constructible_v<std::ranges::iterator_t<Range>>)
+        // clang-format on
+        {
+            return std::move(curr_);
+        }
+
         constexpr const value_type& operator*() const noexcept
         {
             return value_;
@@ -248,6 +261,19 @@ public:
 
         iterator(iterator&&) = default;
         iterator& operator=(iterator&&) = default;
+
+        constexpr const std::ranges::iterator_t<Range>& base() const& noexcept
+        {
+            return curr_;
+        }
+
+        // clang-format off
+        constexpr std::ranges::iterator_t<Range> base() && 
+            noexcept(std::is_nothrow_move_constructible_v<std::ranges::iterator_t<Range>>)
+        // clang-format on
+        {
+            return std::move(curr_);
+        }
 
         constexpr const value_type& operator*() const noexcept
         {
