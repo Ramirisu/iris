@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <iris/detail/static_storage.hpp>
 #include <iris/expected.hpp>
 
 namespace iris {
@@ -13,31 +14,7 @@ enum class base64_error {
 };
 
 template <typename T, std::size_t N>
-class base64_result {
-public:
-    base64_result() = default;
-
-    template <typename... Ts>
-    base64_result(Ts&&... ts) requires(sizeof...(Ts) <= N)
-        : data_ { static_cast<T>(std::forward<Ts>(ts))... }
-        , size_(sizeof...(Ts))
-    {
-    }
-
-    const T& operator[](std::size_t index) const noexcept
-    {
-        return data_[index];
-    }
-
-    std::size_t size() const noexcept
-    {
-        return size_;
-    }
-
-private:
-    T data_[N] {};
-    std::size_t size_ = 0;
-};
+using base64_result = detail::static_storage<T, N>;
 
 template <typename Binary, typename Text>
 class base64 {

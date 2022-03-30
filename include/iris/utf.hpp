@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <iris/detail/static_storage.hpp>
 #include <iris/expected.hpp>
 
 #include <concepts>
@@ -18,38 +19,20 @@ enum class utf_error {
 template <typename Unicode, typename UTF, std::size_t = sizeof(UTF)>
 class utf;
 
-template <typename T, std::size_t N>
-class utf_result {
-public:
-    utf_result() = default;
+template <typename T>
+using utf8_code_units = detail::static_storage<T, 4>;
 
-    template <typename... Ts>
-    utf_result(Ts&&... ts) requires(sizeof...(Ts) <= N)
-        : data_ { static_cast<T>(std::forward<Ts>(ts))... }
-        , size_(sizeof...(Ts))
-    {
-    }
+template <typename T>
+using utf16_code_units = detail::static_storage<T, 2>;
 
-    const T& operator[](std::size_t index) const noexcept
-    {
-        return data_[index];
-    }
-
-    std::size_t size() const noexcept
-    {
-        return size_;
-    }
-
-private:
-    T data_[N] {};
-    std::size_t size_ = 0;
-};
+template <typename T>
+using utf32_code_units = detail::static_storage<T, 1>;
 
 template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 1> {
 public:
     using unicode_result_type = expected<Unicode, utf_error>;
-    using utf_result_type = expected<utf_result<UTF, 4>, utf_error>;
+    using utf_result_type = expected<utf8_code_units<UTF>, utf_error>;
 
     template <typename Iterator, typename Sentinel>
     static constexpr unicode_result_type decode(Iterator& first,
@@ -118,22 +101,22 @@ public:
 
         if (*first <= 0x7f) {
             auto b0 = *first++;
-            return utf_result<UTF, 4> { b0 };
+            return utf8_code_units<UTF> { b0 };
         } else if (*first <= 0x07ff) {
             auto b0 = ((*first >> 6) & 0x1f) | 0xc0;
             auto b1 = (*first++ & 0x3f) | 0x80;
-            return utf_result<UTF, 4> { b0, b1 };
+            return utf8_code_units<UTF> { b0, b1 };
         } else if (*first <= 0xffff) {
             auto b0 = ((*first >> 12) & 0xff) | 0xe0;
             auto b1 = ((*first >> 6) & 0x3f) | 0x80;
             auto b2 = (*first++ & 0x3f) | 0x80;
-            return utf_result<UTF, 4> { b0, b1, b2 };
+            return utf8_code_units<UTF> { b0, b1, b2 };
         } else if (*first <= 0x1fffff) {
             auto b0 = ((*first >> 18) & 0x7) | 0xf0;
             auto b1 = ((*first >> 12) & 0x3f) | 0x80;
             auto b2 = ((*first >> 6) & 0x3f) | 0x80;
             auto b3 = (*first++ & 0x3f) | 0x80;
-            return utf_result<UTF, 4> { b0, b1, b2, b3 };
+            return utf8_code_units<UTF> { b0, b1, b2, b3 };
         }
 
         ++first;
@@ -169,7 +152,7 @@ template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 2> {
 public:
     using unicode_result_type = expected<Unicode, utf_error>;
-    using utf_result_type = expected<utf_result<UTF, 2>, utf_error>;
+    using utf_result_type = expected<utf16_code_units<UTF>, utf_error>;
 
     template <typename Iterator, typename Sentinel>
     static constexpr unicode_result_type decode(Iterator& first,
@@ -205,11 +188,11 @@ public:
 
         std::uint32_t codepoint = *first++;
         if (codepoint <= 0xd7ff || codepoint >= 0xe000 && codepoint <= 0xffff) {
-            return utf_result<UTF, 2> { codepoint };
+            return utf16_code_units<UTF> { codepoint };
         } else if (codepoint >= 0x10000 && codepoint <= 0x10ffff) {
             codepoint -= 0x10000;
-            return utf_result<UTF, 2> { (codepoint >> 10) | 0xd800,
-                                        (codepoint & 0x3ff) | 0xdc00 };
+            return utf16_code_units<UTF> { (codepoint >> 10) | 0xd800,
+                                           (codepoint & 0x3ff) | 0xdc00 };
         }
 
         return unexpected(utf_error::illegal_character);
@@ -231,7 +214,7 @@ template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 4> {
 public:
     using unicode_result_type = expected<Unicode, utf_error>;
-    using utf_result_type = expected<utf_result<UTF, 1>, utf_error>;
+    using utf_result_type = expected<utf32_code_units<UTF>, utf_error>;
 
     template <typename Iterator, typename Sentinel>
     static constexpr unicode_result_type decode(Iterator& first,
@@ -259,7 +242,7 @@ public:
 
         std::uint32_t lead = *first++;
         if (is_valid_codepoint(lead)) {
-            return lead;
+            return utf32_code_units<UTF> { lead };
         }
 
         return unexpected(utf_error::illegal_character);
