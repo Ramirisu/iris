@@ -93,6 +93,11 @@ public:
             return tmp;
         }
 
+        [[nodiscard]] constexpr bool operator==(std::default_sentinel_t) const
+        {
+            return !value_ && value_.error() == base64_error::eof;
+        }
+
         [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
                                                        const iterator& rhs)
         {
@@ -120,17 +125,6 @@ public:
         encoder::text_result_type result_ {};
         std::size_t offset_ {};
         value_type value_;
-    };
-
-    class sentinel {
-    public:
-        sentinel() = default;
-
-        [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
-                                                       const sentinel& rhs)
-        {
-            return !*lhs && (*lhs).error() == base64_error::eof;
-        }
     };
 
     // clang-format off
@@ -166,7 +160,7 @@ public:
         return { range_, std::ranges::begin(range_) };
     }
 
-    [[nodiscard]] constexpr sentinel end() noexcept
+    [[nodiscard]] constexpr std::default_sentinel_t end() noexcept
     {
         return {};
     }
@@ -308,6 +302,11 @@ public:
             return tmp;
         }
 
+        [[nodiscard]] constexpr bool operator==(std::default_sentinel_t) const
+        {
+            return !value_ && value_.error() == base64_error::eof;
+        }
+
         [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
                                                        const iterator& rhs)
         {
@@ -335,17 +334,6 @@ public:
         encoder::binary_result_type result_ {};
         std::size_t offset_ {};
         value_type value_;
-    };
-
-    class sentinel {
-    public:
-        sentinel() = default;
-
-        [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
-                                                       const sentinel& rhs)
-        {
-            return !*lhs && (*lhs).error() == base64_error::eof;
-        }
     };
 
     // clang-format off
@@ -381,7 +369,7 @@ public:
         return { range_, std::ranges::begin(range_) };
     }
 
-    [[nodiscard]] constexpr sentinel end() noexcept
+    [[nodiscard]] constexpr std::default_sentinel_t end() noexcept
     {
         return {};
     }
