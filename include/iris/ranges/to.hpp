@@ -87,6 +87,47 @@ constexpr auto to(Range&& range, Args&&... args)
     }
 }
 
+template <template <typename...> class Container,
+          std::ranges::input_range Range,
+          typename... Args>
+constexpr auto to(Range&& range, Args&&... args)
+{
+    struct input_iterator {
+        using iterator_category = std::input_iterator_tag;
+        using value_type = std::ranges::range_value_t<Range>;
+        using difference_type = std::ptrdiff_t;
+        using pointer
+            = std::add_pointer_t<std::ranges::range_reference_t<Range>>;
+        using reference = std::ranges::range_reference_t<Range>;
+        reference operator*() const;
+        pointer operator->() const;
+        input_iterator& operator++();
+        input_iterator operator++(int);
+        bool operator==(const input_iterator&) const;
+    };
+
+    if constexpr (requires {
+                      Container(std::declval<Range>(), std::declval<Args>()...);
+                  }) {
+        using type = decltype(Container(std::declval<Range>(),
+                                        std::declval<Args>()...));
+        return to<type>(std::forward<Range>(range),
+                        std::forward<Args>(args)...);
+    } else if constexpr (requires {
+                             Container(std::declval<input_iterator>(),
+                                       std::declval<input_iterator>(),
+                                       std::declval<Args>()...);
+                         }) {
+        using type = decltype(Container(std::declval<input_iterator>(),
+                                        std::declval<input_iterator>(),
+                                        std::declval<Args>()...));
+        return to<type>(std::forward<Range>(range),
+                        std::forward<Args>(args)...);
+    } else {
+        static_assert(always_false_v<Range>);
+    }
+}
+
 #if defined(_MSC_VER) || defined(__GNUC__) && __GNUC__ >= 11
 template <typename Container>
 struct __to_fn {
@@ -109,6 +150,38 @@ constexpr auto to(Args&&... args)
     };
 #elif defined(__GNUC__) && __GNUC__ >= 11
     return std::ranges::views::__adaptor::_Partial<__to_fn<Container>, Args...>(
+        std::forward<Args>(args)...);
+#elif defined(__GNUC__) && __GNUC__ == 10
+    return std::ranges::views::__adaptor::_RangeAdaptorClosure(
+        []<typename Range>(Range&& range, auto&&... args) {
+            return to<Container>(std::forward<Range>(range),
+                                 std::forward<decltype(args)>(args)...);
+        });
+#endif
+}
+
+#if defined(_MSC_VER) || defined(__GNUC__) && __GNUC__ >= 11
+template <template <typename...> class Container>
+struct __to_auto_fn {
+    template <typename Range, typename... Args>
+    constexpr auto operator()(Range&& range, Args&&... args) const
+    {
+        return to<Container>(std::forward<Range>(range),
+                             std::forward<Args>(args)...);
+    }
+};
+#endif
+
+template <template <typename...> class Container, typename... Args>
+constexpr auto to(Args&&... args)
+{
+#if defined(_MSC_VER)
+    return std::ranges::_Range_closure<__to_auto_fn<Container>, Args...> {
+        std::forward<Args>(args)...
+    };
+#elif defined(__GNUC__) && __GNUC__ >= 11
+    return std::ranges::views::__adaptor::_Partial<__to_auto_fn<Container>,
+                                                   Args...>(
         std::forward<Args>(args)...);
 #elif defined(__GNUC__) && __GNUC__ == 10
     return std::ranges::views::__adaptor::_RangeAdaptorClosure(

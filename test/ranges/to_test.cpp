@@ -86,4 +86,28 @@ TEST_CASE("pipe")
     CHECK(std::ranges::equal(to, to_type { 0, 1, 2, 3, 4 }));
 }
 
+TEST_CASE("[auto deduce] directly constructible")
+{
+    using to_type = std::vector<int>;
+    auto to = ranges::to<std::vector>(std::vector<int> { 0, 1, 2, 3, 4 });
+    static_assert(std::is_same_v<decltype(to), to_type>);
+    CHECK(std::ranges::equal(to, std::vector<int> { 0, 1, 2, 3, 4 }));
+}
+
+TEST_CASE("[auto deduce] range constructible")
+{
+    using to_type = std::vector<int>;
+    auto to = ranges::to<std::vector>(std::views::iota(0, 5));
+    static_assert(std::is_same_v<decltype(to), to_type>);
+    CHECK(std::ranges::equal(to, std::vector<int> { 0, 1, 2, 3, 4 }));
+}
+
+TEST_CASE("[auto deduce] pipe")
+{
+    using to_type = std::vector<int>;
+    auto to = std::views::iota(0, 5) | ranges::to<std::vector>();
+    static_assert(std::is_same_v<decltype(to), to_type>);
+    CHECK(std::ranges::equal(to, to_type { 0, 1, 2, 3, 4 }));
+}
+
 TEST_SUITE_END();
