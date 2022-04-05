@@ -10,8 +10,7 @@
 namespace iris {
 
 enum class utf_error {
-    none,
-    eof,
+    eof = 1,
     incomplete,
     illegal_character,
 };
