@@ -7,16 +7,16 @@
 ## Feature
 
 * Range Adaptors
-  * `ranges::base64_encode_view<Range, Binary, Text>`
-  * `ranges::base64_decode_view<Range, Binary, Text>`
+  * `ranges::to_base64_view<Range, Binary, Text>`
+  * `ranges::from_base64_view<Range, Binary, Text>`
   * `ranges::to_utf_view<Range, Unicode, UTF>`
   * `ranges::from_utf_view<Range, Unicode, UTF>`
 * Range Utilities
   * `ranges::to`
   * `ranges::elements_of`
 * Range Adaptor Objects
-  * `views::base64_encode`
-  * `views::base64_decode`
+  * `views::to_base64`
+  * `views::from_base64`
   * `views::to_utf8_char`
   * `views::to_utf8`
   * `views::to_utf16`

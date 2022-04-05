@@ -11,8 +11,8 @@ namespace iris::ranges {
 
 template <std::ranges::input_range Range, typename Binary, typename Text>
     requires std::ranges::view<Range>
-class base64_encode_view : public std::ranges::view_interface<
-                               base64_encode_view<Range, Binary, Text>> {
+class to_base64_view
+    : public std::ranges::view_interface<to_base64_view<Range, Binary, Text>> {
 public:
     class iterator {
         using encoder = base64<Binary, Text>;
@@ -128,10 +128,10 @@ public:
     };
 
     // clang-format off
-    base64_encode_view() requires std::default_initializable<Range> = default;
+    to_base64_view() requires std::default_initializable<Range> = default;
     // clang-format on
 
-    constexpr explicit base64_encode_view(Range range) noexcept(
+    constexpr explicit to_base64_view(Range range) noexcept(
         std::is_nothrow_move_constructible_v<Range>)
         : range_(std::move(range))
     {
@@ -181,25 +181,24 @@ private:
 };
 
 template <typename Range>
-base64_encode_view(Range&&)
-    -> base64_encode_view<std::views::all_t<Range>,
-                          std::ranges::range_value_t<Range>,
-                          std::uint8_t>;
+to_base64_view(Range&&) -> to_base64_view<std::views::all_t<Range>,
+                                          std::ranges::range_value_t<Range>,
+                                          std::uint8_t>;
 
 namespace views {
 #if defined(__GNUC__) && __GNUC__ == 10
     inline constexpr std::ranges::views::__adaptor::_RangeAdaptorClosure
-        base64_encode
+        to_base64
         = []<std::ranges::viewable_range Range>(Range&& range) {
-              return base64_encode_view<std::views::all_t<Range>,
-                                        std::ranges::range_value_t<Range>,
-                                        std::uint8_t> { std::forward<Range>(
+              return to_base64_view<std::views::all_t<Range>,
+                                    std::ranges::range_value_t<Range>,
+                                    std::uint8_t> { std::forward<Range>(
                   range) };
           };
 #else
-    struct __base64_encode_view_fn
+    struct __to_base64_view_fn
 #if defined(_MSC_VER)
-        : std::ranges::_Pipe::_Base<__base64_encode_view_fn>
+        : std::ranges::_Pipe::_Base<__to_base64_view_fn>
 #elif defined(__GNUC__) && __GNUC__ >= 11
         : std::ranges::views::__adaptor::_RangeAdaptorClosure
 #endif
@@ -207,21 +206,20 @@ namespace views {
         template <std::ranges::viewable_range Range>
         [[nodiscard]] constexpr auto operator()(Range&& range) const
         {
-            return base64_encode_view<std::views::all_t<Range>,
-                                      std::ranges::range_value_t<Range>,
-                                      std::uint8_t> { std::forward<Range>(
-                range) };
+            return to_base64_view<std::views::all_t<Range>,
+                                  std::ranges::range_value_t<Range>,
+                                  std::uint8_t> { std::forward<Range>(range) };
         }
     };
 
-    inline constexpr __base64_encode_view_fn base64_encode {};
+    inline constexpr __to_base64_view_fn to_base64 {};
 #endif
 }
 
 template <std::ranges::input_range Range, typename Binary, typename Text>
     requires std::ranges::view<Range>
-class base64_decode_view : public std::ranges::view_interface<
-                               base64_decode_view<Range, Binary, Text>> {
+class from_base64_view : public std::ranges::view_interface<
+                             from_base64_view<Range, Binary, Text>> {
 public:
     class iterator {
         using encoder = base64<Binary, Text>;
@@ -337,10 +335,10 @@ public:
     };
 
     // clang-format off
-    base64_decode_view() requires std::default_initializable<Range> = default;
+    from_base64_view() requires std::default_initializable<Range> = default;
     // clang-format on
 
-    constexpr explicit base64_decode_view(Range range) noexcept(
+    constexpr explicit from_base64_view(Range range) noexcept(
         std::is_nothrow_move_constructible_v<Range>)
         : range_(std::move(range))
     {
@@ -379,25 +377,25 @@ private:
 };
 
 template <typename Range>
-base64_decode_view(Range&&)
-    -> base64_decode_view<std::views::all_t<Range>,
-                          std::uint8_t,
-                          std::ranges::range_value_t<Range>>;
+from_base64_view(Range&&)
+    -> from_base64_view<std::views::all_t<Range>,
+                        std::uint8_t,
+                        std::ranges::range_value_t<Range>>;
 
 namespace views {
 #if defined(__GNUC__) && __GNUC__ == 10
     inline constexpr std::ranges::views::__adaptor::_RangeAdaptorClosure
-        base64_decode
+        from_base64
         = []<std::ranges::viewable_range Range>(Range&& range) {
-              return base64_decode_view<std::views::all_t<Range>,
-                                        std::ranges::range_value_t<Range>,
-                                        std::uint8_t> { std::forward<Range>(
+              return from_base64_view<std::views::all_t<Range>,
+                                      std::ranges::range_value_t<Range>,
+                                      std::uint8_t> { std::forward<Range>(
                   range) };
           };
 #else
-    struct __base64_decode_view_fn
+    struct __from_base64_view_fn
 #if defined(_MSC_VER)
-        : std::ranges::_Pipe::_Base<__base64_decode_view_fn>
+        : std::ranges::_Pipe::_Base<__from_base64_view_fn>
 #elif defined(__GNUC__) && __GNUC__ >= 11
         : std::ranges::views::__adaptor::_RangeAdaptorClosure
 #endif
@@ -405,14 +403,14 @@ namespace views {
         template <std::ranges::viewable_range Range>
         [[nodiscard]] constexpr auto operator()(Range&& range) const
         {
-            return base64_decode_view<std::views::all_t<Range>, std::uint8_t,
-                                      std::ranges::range_value_t<Range>> {
+            return from_base64_view<std::views::all_t<Range>, std::uint8_t,
+                                    std::ranges::range_value_t<Range>> {
                 std::forward<Range>(range)
             };
         }
     };
 
-    inline constexpr __base64_decode_view_fn base64_decode {};
+    inline constexpr __from_base64_view_fn from_base64 {};
 #endif
 }
 
