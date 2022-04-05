@@ -31,6 +31,9 @@
   * `net::ipv6_address`
   * `net::ip_address`
   * `net::network_interface`
+* Encoding
+  * `base64<Binary, Text>`
+  * `utf<Unicode, UTF>`
 * Utilities
   * `expected<T, E>`
   * `semver`
