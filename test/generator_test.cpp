@@ -60,6 +60,22 @@ TEST_CASE("co_yield lvalue for generator<T&&>")
     CHECK_EQ(iter, std::ranges::end(expected));
 }
 
+generator<const int&> throws_exception()
+{
+    throw std::exception();
+    co_yield 1;
+}
+
+TEST_CASE("generator body throws exception")
+{
+    auto run = []() {
+        for (auto&& value : throws_exception()) {
+            IRIS_UNUSED(value);
+        }
+    };
+    CHECK_THROWS_AS(run(), std::exception);
+}
+
 generator<const int&> iota(int start, int end)
 {
     for (int i = start; i < end; ++i) {
@@ -116,6 +132,21 @@ TEST_CASE("co_yield deeply nested generators")
         std::views::iota(0, 20) | std::views::transform([](auto value) {
             return (value / 2) + ((value % 2) == 1 ? 10 : 0);
         })));
+}
+
+generator<const int&> nested_throws_exception()
+{
+    co_yield ranges::elements_of(throws_exception());
+}
+
+TEST_CASE("nested generator body throws exception")
+{
+    auto run = []() {
+        for (auto&& value : nested_throws_exception()) {
+            IRIS_UNUSED(value);
+        }
+    };
+    CHECK_THROWS_AS(run(), std::exception);
 }
 
 TEST_SUITE_END();

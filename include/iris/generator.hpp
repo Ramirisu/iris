@@ -63,7 +63,8 @@ public:
                     // leaf coroutine is done, return control to parent
                     // coroutine.
                     if (handle.promise().parent_) {
-                        handle.promise().root_ = handle.promise().parent_;
+                        handle.promise().root_.promise().root_
+                            = handle.promise().parent_;
                         return handle.promise().parent_;
                     }
 
@@ -78,7 +79,16 @@ public:
 
         void unhandled_exception()
         {
-            std::terminate();
+            if (root_.address()
+                == std::coroutine_handle<promise_type>::from_promise(*this)
+                       .address()) {
+                // coroutine associated with this promise object is the sole
+                // element of the coroutine stack
+                throw;
+            }
+
+            // propagate to root
+            root_.promise().exception_ = std::current_exception();
         }
 
         auto yield_value(yielded value) noexcept
@@ -150,7 +160,13 @@ public:
                 return child_.handle();
             }
 
-            void await_resume() noexcept { }
+            void await_resume()
+            {
+                auto& root_promise = child_.handle().promise().root_.promise();
+                if (root_promise.exception_) {
+                    std::rethrow_exception(root_promise.exception_);
+                }
+            }
 
         private:
             yield_generator_awaitable(generator child)
@@ -200,6 +216,7 @@ public:
 
     private:
         std::add_pointer_t<yielded> value_ = nullptr;
+        std::exception_ptr exception_;
         std::coroutine_handle<promise_type> root_;
         std::coroutine_handle<promise_type> parent_;
     };
