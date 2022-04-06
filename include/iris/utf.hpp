@@ -33,9 +33,9 @@ public:
     using unicode_result_type = expected<Unicode, utf_error>;
     using utf_result_type = expected<utf8_code_units<UTF>, utf_error>;
 
-    template <typename Iterator, typename Sentinel>
-    static constexpr unicode_result_type decode(Iterator& first,
-                                                const Sentinel& last) noexcept
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr unicode_result_type decode(I& first,
+                                                const S& last) noexcept
     {
         if (first == last) {
             return unexpected(utf_error::eof);
@@ -90,9 +90,8 @@ public:
         return codepoint;
     }
 
-    template <typename Iterator, typename Sentinel>
-    static constexpr utf_result_type encode(Iterator& first,
-                                            const Sentinel& last) noexcept
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr utf_result_type encode(I& first, const S& last) noexcept
     {
         if (first == last) {
             return unexpected(utf_error::eof);
@@ -153,9 +152,9 @@ public:
     using unicode_result_type = expected<Unicode, utf_error>;
     using utf_result_type = expected<utf16_code_units<UTF>, utf_error>;
 
-    template <typename Iterator, typename Sentinel>
-    static constexpr unicode_result_type decode(Iterator& first,
-                                                const Sentinel& last) noexcept
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr unicode_result_type decode(I& first,
+                                                const S& last) noexcept
     {
         if (first == last) {
             return unexpected(utf_error::eof);
@@ -177,9 +176,8 @@ public:
         return unexpected(utf_error::illegal_character);
     }
 
-    template <typename Iterator, typename Sentinel>
-    static constexpr utf_result_type encode(Iterator& first,
-                                            const Sentinel& last) noexcept
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr utf_result_type encode(I& first, const S& last) noexcept
     {
         if (first == last) {
             return unexpected(utf_error::eof);
@@ -215,9 +213,9 @@ public:
     using unicode_result_type = expected<Unicode, utf_error>;
     using utf_result_type = expected<utf32_code_units<UTF>, utf_error>;
 
-    template <typename Iterator, typename Sentinel>
-    static constexpr unicode_result_type decode(Iterator& first,
-                                                const Sentinel& last) noexcept
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr unicode_result_type decode(I& first,
+                                                const S& last) noexcept
     {
         if (first == last) {
             return unexpected(utf_error::eof);
@@ -231,9 +229,8 @@ public:
         return unexpected(utf_error::illegal_character);
     }
 
-    template <typename Iterator, typename Sentinel>
-    static constexpr utf_result_type encode(Iterator& first,
-                                            const Sentinel& last) noexcept
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr utf_result_type encode(I& first, const S& last) noexcept
     {
         if (first == last) {
             return unexpected(utf_error::eof);
