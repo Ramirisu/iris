@@ -34,12 +34,27 @@ namespace __expected_detail {
 template <typename E>
 class unexpected {
 public:
-    template <typename E2>
-        requires std::is_convertible_v<E2, E>
+    // clang-format off
+    template <typename E2 = E>        
+        requires(!std::is_same_v<std::remove_cvref_t<E2>, unexpected> 
+            && !std::is_same_v<std::remove_cvref_t<E2>, std::in_place_t> 
+            && std::is_constructible_v<E, E2>)
+    // clang-format on
     constexpr explicit unexpected(E2&& e)
         : value_(std::forward<E2>(e))
     {
     }
+
+    template <typename... Args>
+        requires std::is_constructible_v<E, Args...>
+    constexpr explicit unexpected(std::in_place_t, Args&&... args)
+        : value_(std::forward<Args>(args)...)
+    {
+    }
+
+    constexpr unexpected(const unexpected&) = default;
+
+    constexpr unexpected(unexpected&&) = default;
 
     constexpr const E& value() const& noexcept
     {
@@ -88,6 +103,12 @@ private:
 template <typename E>
 unexpected(E) -> unexpected<E>;
 
+struct unexpect_t {
+    explicit unexpect_t() = default;
+};
+
+inline constexpr unexpect_t unexpect {};
+
 template <typename T, typename E>
 class expected {
     enum class state {
@@ -99,6 +120,9 @@ public:
     using value_type = T;
     using error_type = E;
     using unexpected_type = unexpected<E>;
+
+    template <typename T2>
+    using rebind = expected<T2, error_type>;
 
     constexpr expected() requires std::is_default_constructible_v<T>
         : state_(state::has_value), value_()
@@ -114,6 +138,22 @@ public:
     constexpr expected(T2&& value)
         : state_(state::has_value)
         , value_(std::forward<T2>(value))
+    {
+    }
+
+    template <typename... Args>
+        requires std::is_constructible_v<T, Args...>
+    constexpr explicit expected(std::in_place_t, Args&&... args)
+        : state_(state::has_value)
+        , value_(std::forward<Args>(args)...)
+    {
+    }
+
+    template <typename... Args>
+        requires std::is_constructible_v<E, Args...>
+    constexpr explicit expected(unexpect_t, Args&&... args)
+        : state_(state::has_error)
+        , error_(std::forward<Args>(args)...)
     {
     }
 
@@ -523,6 +563,14 @@ public:
         if (!has_value()) {
             std::construct_at(&error_, std::move(other.error()));
         }
+    }
+
+    template <typename... Args>
+        requires std::is_constructible_v<E, Args...>
+    constexpr explicit expected(unexpect_t, Args&&... args)
+        : state_(state::has_error)
+        , error_(std::forward<Args>(args)...)
+    {
     }
 
     constexpr ~expected()

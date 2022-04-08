@@ -19,15 +19,20 @@ TEST_CASE("unexpected")
 
 TEST_CASE("ctor")
 {
-    expected<void, error_code> exp00;
-    expected<void, error_code> exp02 = iris::unexpected(error_code::timeout);
-    expected<int, error_code> exp10;
-    expected<int, error_code> exp11 = 100;
-    expected<int, error_code> exp12 = iris::unexpected(error_code::timeout);
-    expected<std::string, error_code> exp20;
-    expected<std::string, error_code> exp21 = "success";
-    expected<std::string, error_code> exp22
-        = iris::unexpected(error_code::timeout);
+    CHECK(expected<void, error_code>());
+    CHECK(!expected<void, error_code>(iris::unexpected(error_code::timeout)));
+    CHECK(!expected<void, error_code>(unexpect, error_code::timeout));
+    CHECK(expected<int, error_code>());
+    CHECK(expected<int, error_code>(100));
+    CHECK(!expected<int, error_code>(iris::unexpected(error_code::timeout)));
+    CHECK(expected<int, error_code>(std::in_place, 0));
+    CHECK(!expected<int, error_code>(unexpect, error_code::timeout));
+    CHECK(expected<std::string, error_code>());
+    CHECK(expected<std::string, error_code>("success"));
+    CHECK(!expected<std::string, error_code>(
+        iris::unexpected(error_code::timeout)));
+    CHECK(expected<std::string, error_code>(std::in_place, 0, 1));
+    CHECK(!expected<std::string, error_code>(unexpect, error_code::timeout));
 }
 
 TEST_CASE("ctor nested conversion")
