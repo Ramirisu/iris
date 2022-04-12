@@ -40,4 +40,8 @@
   * `on_scope_exit`
   * `on_scope_failure`
   * `on_scope_success`
+  * `out_ptr`
+  * `inout_ptr`
   * `to_underlying`
+  * `bind_front`
+  * `bind_back`
