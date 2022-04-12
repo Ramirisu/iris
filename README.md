@@ -34,6 +34,9 @@
 * Encoding
   * `base64<Binary, Text>`
   * `utf<Unicode, UTF>`
+* Type Traits
+  * `is_specialized_of`
+  * `is_scoped_enum`
 * Utilities
   * `expected<T, E>`
   * `semver`
