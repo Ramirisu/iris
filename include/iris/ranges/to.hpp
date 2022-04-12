@@ -73,7 +73,7 @@ constexpr auto to(Range&& range, Args&&... args)
                     std::ranges::range_reference_t<Range>>(container));
             return container;
         } else {
-            static_assert(always_false_v<Container>);
+            static_assert(detail::always_false_v<Container>);
         }
     } else if constexpr (std::ranges::input_range<
                              std::ranges::range_reference_t<Range>>) {
@@ -83,7 +83,7 @@ constexpr auto to(Range&& range, Args&&... args)
                     std::forward<decltype(element)>(element));
             }));
     } else {
-        static_assert(always_false_v<Container>);
+        static_assert(detail::always_false_v<Container>);
     }
 }
 
@@ -124,7 +124,7 @@ constexpr auto to(Range&& range, Args&&... args)
         return to<type>(std::forward<Range>(range),
                         std::forward<Args>(args)...);
     } else {
-        static_assert(always_false_v<Range>);
+        static_assert(detail::always_false_v<Range>);
     }
 }
 

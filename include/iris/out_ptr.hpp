@@ -98,7 +98,7 @@ public:
                     },
                     std::move(args_));
             } else {
-                static_assert(always_false_v<Smart>);
+                static_assert(detail::always_false_v<Smart>);
             }
         }
     }
@@ -174,7 +174,7 @@ public:
                     },
                     std::move(args_));
             } else {
-                static_assert(always_false_v<Smart>);
+                static_assert(detail::always_false_v<Smart>);
             }
         }
     }

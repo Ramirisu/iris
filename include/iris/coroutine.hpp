@@ -5,7 +5,6 @@
 #include <iris/type_traits.hpp>
 
 #include <coroutine>
-#include <type_traits>
 
 namespace iris {
 namespace __coroutine_detail {
@@ -63,7 +62,7 @@ namespace __coroutine_detail {
         } else if constexpr (has_adl_co_await<T, void>) {
             return operator co_await(std::forward<T>(t));
         } else {
-            static_assert(always_false_v<T>);
+            static_assert(detail::always_false_v<T>);
         }
     }
 }

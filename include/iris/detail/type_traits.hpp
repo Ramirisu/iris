@@ -6,6 +6,9 @@
 
 namespace iris::detail {
 
+template <typename T>
+inline constexpr bool always_false_v = false;
+
 template <typename T, typename = void>
 inline constexpr bool has_member_pointer_v = false;
 
