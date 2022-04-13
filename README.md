@@ -40,9 +40,9 @@
 * Utilities
   * `expected<T, E>`
   * `semver`
-  * `on_scope_exit`
-  * `on_scope_failure`
-  * `on_scope_success`
+  * `scope_exit`
+  * `scope_failure`
+  * `scope_success`
   * `out_ptr`
   * `inout_ptr`
   * `to_underlying`
