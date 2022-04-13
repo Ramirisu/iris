@@ -19,7 +19,15 @@ public:
     }
 
     scope_exit(const scope_exit&) = delete;
+
+    scope_exit(scope_exit&& other)
+        : fn_(std::move(other.fn_))
+        , release_(std::exchange(other.release_, true))
+    {
+    }
+
     scope_exit& operator=(const scope_exit&) = delete;
+    scope_exit& operator=(scope_exit&&) = delete;
 
     ~scope_exit() noexcept
     {
@@ -54,7 +62,15 @@ public:
     }
 
     scope_failure(const scope_failure&) = delete;
+
+    scope_failure(scope_failure&& other)
+        : fn_(std::move(other.fn_))
+        , release_(std::exchange(other.release_, true))
+    {
+    }
+
     scope_failure& operator=(const scope_failure&) = delete;
+    scope_failure& operator=(scope_failure&&) = delete;
 
     ~scope_failure() noexcept
     {
@@ -90,7 +106,15 @@ public:
     }
 
     scope_success(const scope_success&) = delete;
+
+    scope_success(scope_success&& other)
+        : fn_(std::move(other.fn_))
+        , release_(std::exchange(other.release_, true))
+    {
+    }
+
     scope_success& operator=(const scope_success&) = delete;
+    scope_success& operator=(scope_success&&) = delete;
 
     ~scope_success() noexcept
     {
