@@ -7,15 +7,16 @@
 namespace iris {
 
 template <typename T, template <typename...> class U>
-struct is_specialized_of : std::false_type {
+struct is_specialization_of : std::false_type {
 };
 
 template <template <typename...> class U, typename... Args>
-struct is_specialized_of<U<Args...>, U> : std::true_type {
+struct is_specialization_of<U<Args...>, U> : std::true_type {
 };
 
 template <typename T, template <typename...> class U>
-inline constexpr bool is_specialized_of_v = is_specialized_of<T, U>::value;
+inline constexpr bool is_specialization_of_v
+    = is_specialization_of<T, U>::value;
 
 template <typename E, bool = std::is_enum_v<E>>
 struct is_scoped_enum : std::false_type {

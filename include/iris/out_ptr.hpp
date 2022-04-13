@@ -133,7 +133,7 @@ auto out_ptr(Smart& smart, Args&&... args)
 
 template <typename Smart, typename Pointer, typename... Args>
 class inout_ptr_t {
-    static_assert(!is_specialized_of_v<Smart, std::shared_ptr>);
+    static_assert(!is_specialization_of_v<Smart, std::shared_ptr>);
 
 public:
     explicit inout_ptr_t(Smart& smart, Args... args)

@@ -12,8 +12,8 @@ TEST_SUITE_BEGIN("type_traits");
 
 TEST_CASE("is_specialized_of")
 {
-    static_assert(is_specialized_of_v<std::vector<int>, std::vector>);
-    static_assert(!is_specialized_of_v<std::vector<int>, std::list>);
+    static_assert(is_specialization_of_v<std::vector<int>, std::vector>);
+    static_assert(!is_specialization_of_v<std::vector<int>, std::list>);
 }
 
 TEST_CASE("is_scoped_enum")
