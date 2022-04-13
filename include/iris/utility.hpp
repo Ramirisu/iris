@@ -7,7 +7,7 @@
 namespace iris {
 
 template <typename Enum>
-auto to_underlying(Enum e)
+constexpr auto to_underlying(Enum e) noexcept
 {
     return static_cast<std::underlying_type_t<Enum>>(e);
 }
