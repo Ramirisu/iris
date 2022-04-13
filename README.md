@@ -16,6 +16,7 @@
   * `ranges::from_base64_view<Range, Binary, Text>`
   * `ranges::to_utf_view<Range, Unicode, UTF>`
   * `ranges::from_utf_view<Range, Unicode, UTF>`
+  * `ranges::join_with_view<Range, Pattern>`
 * Range Utilities
   * `ranges::to`
   * `ranges::elements_of`
@@ -27,6 +28,7 @@
   * `views::to_utf16`
   * `views::to_utf32`
   * `views::from_utf`
+  * `views::join_with`
 * Coroutine Types
   * `lazy<T>`
   * `generator<R, V, Allocator>`
