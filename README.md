@@ -4,6 +4,11 @@
 [![Linux CI](https://github.com/Ramirisu/iris/actions/workflows/linux.yml/badge.svg)](https://github.com/Ramirisu/iris/actions/workflows/linux.yml)
 [![Windows CI](https://github.com/Ramirisu/iris/actions/workflows/windows.yml/badge.svg)](https://github.com/Ramirisu/iris/actions/workflows/windows.yml)
 
+## Supported Compilers
+
+* Visual Studio 2022 19.2 (`/std:c++20`)
+* GCC 11.1 (`-std=c++20`)
+
 ## Feature
 
 * Range Adaptors

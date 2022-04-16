@@ -186,16 +186,6 @@ to_base64_view(Range&&) -> to_base64_view<std::views::all_t<Range>,
                                           std::uint8_t>;
 
 namespace views {
-#if defined(__GNUC__) && __GNUC__ == 10
-    inline constexpr std::ranges::views::__adaptor::_RangeAdaptorClosure
-        to_base64
-        = []<std::ranges::viewable_range Range>(Range&& range) {
-              return to_base64_view<std::views::all_t<Range>,
-                                    std::ranges::range_value_t<Range>,
-                                    std::uint8_t> { std::forward<Range>(
-                  range) };
-          };
-#else
     struct __to_base64_view_fn
 #if defined(_MSC_VER)
         : std::ranges::_Pipe::_Base<__to_base64_view_fn>
@@ -213,7 +203,6 @@ namespace views {
     };
 
     inline constexpr __to_base64_view_fn to_base64 {};
-#endif
 }
 
 template <std::ranges::input_range Range, typename Binary, typename Text>
@@ -383,16 +372,6 @@ from_base64_view(Range&&)
                         std::ranges::range_value_t<Range>>;
 
 namespace views {
-#if defined(__GNUC__) && __GNUC__ == 10
-    inline constexpr std::ranges::views::__adaptor::_RangeAdaptorClosure
-        from_base64
-        = []<std::ranges::viewable_range Range>(Range&& range) {
-              return from_base64_view<std::views::all_t<Range>,
-                                      std::ranges::range_value_t<Range>,
-                                      std::uint8_t> { std::forward<Range>(
-                  range) };
-          };
-#else
     struct __from_base64_view_fn
 #if defined(_MSC_VER)
         : std::ranges::_Pipe::_Base<__from_base64_view_fn>
@@ -411,7 +390,6 @@ namespace views {
     };
 
     inline constexpr __from_base64_view_fn from_base64 {};
-#endif
 }
 
 }

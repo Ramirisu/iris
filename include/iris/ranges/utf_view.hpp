@@ -183,14 +183,6 @@ private:
 };
 
 namespace views {
-#if defined(__GNUC__) && __GNUC__ == 10
-    inline constexpr std::ranges::views::__adaptor::_RangeAdaptorClosure
-        to_utf8_char
-        = []<std::ranges::viewable_range Range>(Range&& range) {
-              return to_utf_view<std::views::all_t<Range>, std::uint32_t,
-                                 char> { std::forward<Range>(range) };
-          };
-#else
     struct __to_utf8_char_view_fn
 #if defined(_MSC_VER)
         : std::ranges::_Pipe::_Base<__to_utf8_char_view_fn>
@@ -208,15 +200,7 @@ namespace views {
     };
 
     inline constexpr __to_utf8_char_view_fn to_utf8_char {};
-#endif
 
-#if defined(__GNUC__) && __GNUC__ == 10
-    inline constexpr std::ranges::views::__adaptor::_RangeAdaptorClosure to_utf8
-        = []<std::ranges::viewable_range Range>(Range&& range) {
-              return to_utf_view<std::views::all_t<Range>, std::uint32_t,
-                                 char8_t> { std::forward<Range>(range) };
-          };
-#else
     struct __to_utf8_view_fn
 #if defined(_MSC_VER)
         : std::ranges::_Pipe::_Base<__to_utf8_view_fn>
@@ -233,16 +217,7 @@ namespace views {
     };
 
     inline constexpr __to_utf8_view_fn to_utf8 {};
-#endif
 
-#if defined(__GNUC__) && __GNUC__ == 10
-    inline constexpr std::ranges::views::__adaptor::_RangeAdaptorClosure
-        to_utf16
-        = []<std::ranges::viewable_range Range>(Range&& range) {
-              return to_utf_view<std::views::all_t<Range>, std::uint32_t,
-                                 char16_t> { std::forward<Range>(range) };
-          };
-#else
     struct __to_utf16_view_fn
 #if defined(_MSC_VER)
         : std::ranges::_Pipe::_Base<__to_utf16_view_fn>
@@ -259,16 +234,7 @@ namespace views {
     };
 
     inline constexpr __to_utf16_view_fn to_utf16 {};
-#endif
 
-#if defined(__GNUC__) && __GNUC__ == 10
-    inline constexpr std::ranges::views::__adaptor::_RangeAdaptorClosure
-        to_utf32
-        = []<std::ranges::viewable_range Range>(Range&& range) {
-              return to_utf_view<std::views::all_t<Range>, std::uint32_t,
-                                 char32_t> { std::forward<Range>(range) };
-          };
-#else
     struct __to_utf32_view_fn
 #if defined(_MSC_VER)
         : std::ranges::_Pipe::_Base<__to_utf32_view_fn>
@@ -285,7 +251,6 @@ namespace views {
     };
 
     inline constexpr __to_utf32_view_fn to_utf32 {};
-#endif
 }
 
 template <std::ranges::input_range Range, typename Unicode, typename UTF>
@@ -445,13 +410,6 @@ from_utf_view(Range&&) -> from_utf_view<std::ranges::views::all_t<Range>,
                                         std::ranges::range_value_t<Range>>;
 
 namespace views {
-#if defined(__GNUC__) && __GNUC__ == 10
-    inline constexpr std::ranges::views::__adaptor::_RangeAdaptorClosure
-        from_utf
-        = []<std::ranges::viewable_range Range>(Range&& range) {
-              return from_utf_view { std::forward<Range>(range) };
-          };
-#else
     struct __from_utf_view_fn
 #if defined(_MSC_VER)
         : std::ranges::_Pipe::_Base<__from_utf_view_fn>
@@ -471,7 +429,6 @@ namespace views {
     };
 
     inline constexpr __from_utf_view_fn from_utf {};
-#endif
 }
 
 }

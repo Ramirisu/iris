@@ -128,7 +128,6 @@ constexpr auto to(Range&& range, Args&&... args)
     }
 }
 
-#if defined(_MSC_VER) || defined(__GNUC__) && __GNUC__ >= 11
 template <typename Container>
 struct __to_fn {
     template <typename Range, typename... Args>
@@ -138,7 +137,6 @@ struct __to_fn {
                              std::forward<Args>(args)...);
     }
 };
-#endif
 
 template <typename Container, typename... Args>
     requires(!std::ranges::view<Container>)
@@ -151,16 +149,9 @@ constexpr auto to(Args&&... args)
 #elif defined(__GNUC__) && __GNUC__ >= 11
     return std::ranges::views::__adaptor::_Partial<__to_fn<Container>, Args...>(
         std::forward<Args>(args)...);
-#elif defined(__GNUC__) && __GNUC__ == 10
-    return std::ranges::views::__adaptor::_RangeAdaptorClosure(
-        []<typename Range>(Range&& range, auto&&... args) {
-            return to<Container>(std::forward<Range>(range),
-                                 std::forward<decltype(args)>(args)...);
-        });
 #endif
 }
 
-#if defined(_MSC_VER) || defined(__GNUC__) && __GNUC__ >= 11
 template <template <typename...> class Container>
 struct __to_auto_fn {
     template <typename Range, typename... Args>
@@ -170,7 +161,6 @@ struct __to_auto_fn {
                              std::forward<Args>(args)...);
     }
 };
-#endif
 
 template <template <typename...> class Container, typename... Args>
 constexpr auto to(Args&&... args)
@@ -183,12 +173,6 @@ constexpr auto to(Args&&... args)
     return std::ranges::views::__adaptor::_Partial<__to_auto_fn<Container>,
                                                    Args...>(
         std::forward<Args>(args)...);
-#elif defined(__GNUC__) && __GNUC__ == 10
-    return std::ranges::views::__adaptor::_RangeAdaptorClosure(
-        []<typename Range>(Range&& range, auto&&... args) {
-            return to<Container>(std::forward<Range>(range),
-                                 std::forward<decltype(args)>(args)...);
-        });
 #endif
 }
 
