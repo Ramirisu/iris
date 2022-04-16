@@ -4,8 +4,7 @@
 
 #include <iris/base64.hpp>
 #include <iris/expected.hpp>
-
-#include <ranges>
+#include <iris/ranges/base.hpp>
 
 namespace iris::ranges {
 
@@ -186,13 +185,11 @@ to_base64_view(Range&&) -> to_base64_view<std::views::all_t<Range>,
                                           std::uint8_t>;
 
 namespace views {
-    struct __to_base64_view_fn
-#if defined(_MSC_VER)
-        : std::ranges::_Pipe::_Base<__to_base64_view_fn>
-#elif defined(__GNUC__) && __GNUC__ >= 11
-        : std::ranges::views::__adaptor::_RangeAdaptorClosure
-#endif
-    {
+    class __to_base64_view_fn
+        : public range_adaptor_closure<__to_base64_view_fn> {
+    public:
+        constexpr __to_base64_view_fn() noexcept = default;
+
         template <std::ranges::viewable_range Range>
         [[nodiscard]] constexpr auto operator()(Range&& range) const
         {
@@ -372,13 +369,11 @@ from_base64_view(Range&&)
                         std::ranges::range_value_t<Range>>;
 
 namespace views {
-    struct __from_base64_view_fn
-#if defined(_MSC_VER)
-        : std::ranges::_Pipe::_Base<__from_base64_view_fn>
-#elif defined(__GNUC__) && __GNUC__ >= 11
-        : std::ranges::views::__adaptor::_RangeAdaptorClosure
-#endif
-    {
+    class __from_base64_view_fn
+        : public range_adaptor_closure<__from_base64_view_fn> {
+    public:
+        constexpr __from_base64_view_fn() noexcept = default;
+
         template <std::ranges::viewable_range Range>
         [[nodiscard]] constexpr auto operator()(Range&& range) const
         {

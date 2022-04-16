@@ -3,9 +3,8 @@
 #include <iris/config.hpp>
 
 #include <iris/expected.hpp>
+#include <iris/ranges/base.hpp>
 #include <iris/utf.hpp>
-
-#include <ranges>
 
 namespace iris::ranges {
 
@@ -183,13 +182,12 @@ private:
 };
 
 namespace views {
-    struct __to_utf8_char_view_fn
-#if defined(_MSC_VER)
-        : std::ranges::_Pipe::_Base<__to_utf8_char_view_fn>
-#elif defined(__GNUC__) && __GNUC__ >= 11
-        : std::ranges::views::__adaptor::_RangeAdaptorClosure
-#endif
-    {
+
+    class __to_utf8_char_view_fn
+        : public range_adaptor_closure<__to_utf8_char_view_fn> {
+    public:
+        constexpr __to_utf8_char_view_fn() noexcept = default;
+
         template <std::ranges::viewable_range Range>
         [[nodiscard]] constexpr auto operator()(Range&& range) const
         {
@@ -201,13 +199,10 @@ namespace views {
 
     inline constexpr __to_utf8_char_view_fn to_utf8_char {};
 
-    struct __to_utf8_view_fn
-#if defined(_MSC_VER)
-        : std::ranges::_Pipe::_Base<__to_utf8_view_fn>
-#elif defined(__GNUC__) && __GNUC__ >= 11
-        : std::ranges::views::__adaptor::_RangeAdaptorClosure
-#endif
-    {
+    class __to_utf8_view_fn : public range_adaptor_closure<__to_utf8_view_fn> {
+    public:
+        constexpr __to_utf8_view_fn() noexcept = default;
+
         template <std::ranges::viewable_range Range>
         [[nodiscard]] constexpr auto operator()(Range&& range) const
         {
@@ -218,13 +213,11 @@ namespace views {
 
     inline constexpr __to_utf8_view_fn to_utf8 {};
 
-    struct __to_utf16_view_fn
-#if defined(_MSC_VER)
-        : std::ranges::_Pipe::_Base<__to_utf16_view_fn>
-#elif defined(__GNUC__) && __GNUC__ >= 11
-        : std::ranges::views::__adaptor::_RangeAdaptorClosure
-#endif
-    {
+    class __to_utf16_view_fn
+        : public range_adaptor_closure<__to_utf16_view_fn> {
+    public:
+        constexpr __to_utf16_view_fn() noexcept = default;
+
         template <std::ranges::viewable_range Range>
         [[nodiscard]] constexpr auto operator()(Range&& range) const
         {
@@ -235,13 +228,11 @@ namespace views {
 
     inline constexpr __to_utf16_view_fn to_utf16 {};
 
-    struct __to_utf32_view_fn
-#if defined(_MSC_VER)
-        : std::ranges::_Pipe::_Base<__to_utf32_view_fn>
-#elif defined(__GNUC__) && __GNUC__ >= 11
-        : std::ranges::views::__adaptor::_RangeAdaptorClosure
-#endif
-    {
+    class __to_utf32_view_fn
+        : public range_adaptor_closure<__to_utf32_view_fn> {
+    public:
+        constexpr __to_utf32_view_fn() noexcept = default;
+
         template <std::ranges::viewable_range Range>
         [[nodiscard]] constexpr auto operator()(Range&& range) const
         {
@@ -410,13 +401,11 @@ from_utf_view(Range&&) -> from_utf_view<std::ranges::views::all_t<Range>,
                                         std::ranges::range_value_t<Range>>;
 
 namespace views {
-    struct __from_utf_view_fn
-#if defined(_MSC_VER)
-        : std::ranges::_Pipe::_Base<__from_utf_view_fn>
-#elif defined(__GNUC__) && __GNUC__ >= 11
-        : std::ranges::views::__adaptor::_RangeAdaptorClosure
-#endif
-    {
+    class __from_utf_view_fn
+        : public range_adaptor_closure<__from_utf_view_fn> {
+    public:
+        constexpr __from_utf_view_fn() noexcept = default;
+
         template <std::ranges::viewable_range Range>
         [[nodiscard]] constexpr auto operator()(Range&& range) const
             // clang-format off
