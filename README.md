@@ -17,6 +17,7 @@
   * `ranges::to_utf_view<Range, Unicode, UTF>`
   * `ranges::from_utf_view<Range, Unicode, UTF>`
   * `ranges::join_with_view<Range, Pattern>`
+  * `ranges::chunk_view<Range, Size>`
 * Range Utilities
   * `ranges::to`
   * `ranges::elements_of`
@@ -29,6 +30,7 @@
   * `views::to_utf32`
   * `views::from_utf`
   * `views::join_with`
+  * `views::chunk`
 * Coroutine Types
   * `lazy<T>`
   * `generator<R, V, Allocator>`
