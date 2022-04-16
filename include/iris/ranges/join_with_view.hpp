@@ -170,9 +170,8 @@ public:
         {
             while (true) {
                 if (inner_it_.index() == 0) {
-                    auto e1 = std::get<0>(inner_it_);
-                    auto e2 = std::ranges::end(parent_->pattern_);
-                    if (e1 != e2) {
+                    if (std::get<0>(inner_it_)
+                        != std::ranges::end(parent_->pattern_)) {
                         break;
                     }
 
