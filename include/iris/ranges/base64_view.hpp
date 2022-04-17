@@ -8,23 +8,23 @@
 
 namespace iris::ranges {
 
-template <std::ranges::input_range Range, typename Binary, typename Text>
-    requires std::ranges::view<Range>
+template <std::ranges::input_range View, typename Binary, typename Text>
+    requires std::ranges::view<View>
 class to_base64_view
-    : public std::ranges::view_interface<to_base64_view<Range, Binary, Text>> {
+    : public std::ranges::view_interface<to_base64_view<View, Binary, Text>> {
 public:
     class iterator {
         using encoder = base64<Binary, Text>;
 
     public:
         using iterator_concept
-            = std::conditional_t<std::ranges::forward_range<Range>,
+            = std::conditional_t<std::ranges::forward_range<View>,
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
         using iterator_category = std::conditional_t<
             std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<Range>>::iterator_category,
+                    std::ranges::iterator_t<View>>::iterator_category,
                 std::forward_iterator_tag>,
             std::forward_iterator_tag,
             std::input_iterator_tag>;
@@ -32,11 +32,11 @@ public:
         using difference_type = std::ptrdiff_t;
 
         iterator() requires
-            std::default_initializable<std::ranges::iterator_t<Range>>
+            std::default_initializable<std::ranges::iterator_t<View>>
         = default;
 
-        constexpr iterator(Range& parent, std::ranges::iterator_t<Range> curr)
-            : parent_(&parent)
+        constexpr iterator(View& base, std::ranges::iterator_t<View> curr)
+            : base_(std::addressof(base))
             , curr_(std::move(curr))
         {
             next();
@@ -49,18 +49,14 @@ public:
         iterator(iterator&&) = default;
         iterator& operator=(iterator&&) = default;
 
-        // clang-format off
-        [[nodiscard]] constexpr const std::ranges::iterator_t<Range>& base() const& 
-            noexcept
-        // clang-format on
+        constexpr const std::ranges::iterator_t<View>& base() const& noexcept
         {
             return curr_;
         }
 
-        // clang-format off
-        [[nodiscard]] constexpr std::ranges::iterator_t<Range> base() && 
-            noexcept(std::is_nothrow_move_constructible_v<std::ranges::iterator_t<Range>>)
-        // clang-format on
+        constexpr std::ranges::iterator_t<View> base() && //
+            noexcept(std::is_nothrow_move_constructible_v<
+                     std::ranges::iterator_t<View>>)
         {
             return std::move(curr_);
         }
@@ -92,13 +88,13 @@ public:
             return tmp;
         }
 
-        [[nodiscard]] constexpr bool operator==(std::default_sentinel_t) const
+        constexpr bool operator==(std::default_sentinel_t) const
         {
             return !value_ && value_.error() == base64_error::eof;
         }
 
-        [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
-                                                       const iterator& rhs)
+        friend constexpr bool operator==(const iterator& lhs,
+                                         const iterator& rhs)
         {
             return lhs.curr_ == rhs.curr_;
         }
@@ -106,7 +102,7 @@ public:
     private:
         void next()
         {
-            result_ = encoder::encode(curr_, std::ranges::end(*parent_));
+            result_ = encoder::encode(curr_, std::ranges::end(*base_));
             offset_ = 0;
         }
 
@@ -119,64 +115,61 @@ public:
             }
         }
 
-        Range* parent_ {};
-        std::ranges::iterator_t<Range> curr_ {};
+        View* base_ {};
+        std::ranges::iterator_t<View> curr_ {};
         encoder::text_result_type result_ {};
         std::size_t offset_ {};
         value_type value_;
     };
 
     // clang-format off
-    to_base64_view() requires std::default_initializable<Range> = default;
+    to_base64_view()
+        requires std::default_initializable<View> = default;
     // clang-format on
 
-    constexpr explicit to_base64_view(Range range) noexcept(
-        std::is_nothrow_move_constructible_v<Range>)
-        : range_(std::move(range))
+    constexpr explicit to_base64_view(View view) //
+        noexcept(std::is_nothrow_move_constructible_v<View>)
+        : base_(std::move(view))
     {
     }
 
-    // clang-format off
-    [[nodiscard]] constexpr Range base() const& 
-        noexcept(std::is_nothrow_copy_constructible_v<Range>) 
-        requires std::copy_constructible<Range>
-    // clang-format on
+    constexpr View base() const& //
+        noexcept(std::is_nothrow_copy_constructible_v<View>) //
+        requires std::copy_constructible<View>
     {
-        return range_;
+        return base_;
     }
 
-    // clang-format off
-    [[nodiscard]] constexpr Range base() && 
-        noexcept(std::is_nothrow_move_constructible_v<Range>) 
-        requires std::move_constructible<Range>
-    // clang-format on
+    constexpr View base() && //
+        noexcept(std::is_nothrow_move_constructible_v<View>) //
+        requires std::move_constructible<View>
     {
-        return std::move(range_);
+        return std::move(base_);
     }
 
-    [[nodiscard]] constexpr iterator begin()
+    constexpr iterator begin()
     {
-        return { range_, std::ranges::begin(range_) };
+        return { base_, std::ranges::begin(base_) };
     }
 
-    [[nodiscard]] constexpr std::default_sentinel_t end() noexcept
+    constexpr std::default_sentinel_t end() noexcept
     {
         return {};
     }
 
-    // clang-format off
-    [[nodiscard]] constexpr auto size()  
-        noexcept(noexcept(std::ranges::size(range_))) 
-        requires std::ranges::sized_range<Range>
-    // clang-format on
+    constexpr auto size() //
+        noexcept(noexcept(std::ranges::size(base_))) //
+        requires std::ranges::sized_range<View>
     {
-        return (std::ranges::size(range_) + 2) / 3 * 4;
+        return (std::ranges::size(base_) + 2) / 3 * 4;
     }
 
-    // clang-format off
+#if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
+    void __placeholder();
+#endif
+
 private:
-    // clang-format on
-    Range range_;
+    View base_;
 };
 
 template <typename Range>
@@ -185,40 +178,42 @@ to_base64_view(Range&&) -> to_base64_view<std::views::all_t<Range>,
                                           std::uint8_t>;
 
 namespace views {
-    class __to_base64_view_fn
-        : public range_adaptor_closure<__to_base64_view_fn> {
+    class __to_base64_fn : public range_adaptor_closure<__to_base64_fn> {
     public:
-        constexpr __to_base64_view_fn() noexcept = default;
+        constexpr __to_base64_fn() noexcept = default;
 
         template <std::ranges::viewable_range Range>
-        [[nodiscard]] constexpr auto operator()(Range&& range) const
+        constexpr auto operator()(Range&& range) const
+            noexcept(noexcept(to_base64_view {
+                std::forward<Range>(range) })) requires requires
         {
-            return to_base64_view<std::views::all_t<Range>,
-                                  std::ranges::range_value_t<Range>,
-                                  std::uint8_t> { std::forward<Range>(range) };
+            to_base64_view { std::forward<Range>(range) };
+        }
+        {
+            return to_base64_view { std::forward<Range>(range) };
         }
     };
 
-    inline constexpr __to_base64_view_fn to_base64 {};
+    inline constexpr __to_base64_fn to_base64 {};
 }
 
-template <std::ranges::input_range Range, typename Binary, typename Text>
-    requires std::ranges::view<Range>
-class from_base64_view : public std::ranges::view_interface<
-                             from_base64_view<Range, Binary, Text>> {
+template <std::ranges::input_range View, typename Binary, typename Text>
+    requires std::ranges::view<View>
+class from_base64_view
+    : public std::ranges::view_interface<from_base64_view<View, Binary, Text>> {
 public:
     class iterator {
         using encoder = base64<Binary, Text>;
 
     public:
         using iterator_concept
-            = std::conditional_t<std::ranges::forward_range<Range>,
+            = std::conditional_t<std::ranges::forward_range<View>,
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
         using iterator_category = std::conditional_t<
             std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<Range>>::iterator_category,
+                    std::ranges::iterator_t<View>>::iterator_category,
                 std::forward_iterator_tag>,
             std::forward_iterator_tag,
             std::input_iterator_tag>;
@@ -226,11 +221,11 @@ public:
         using difference_type = std::ptrdiff_t;
 
         iterator() requires
-            std::default_initializable<std::ranges::iterator_t<Range>>
+            std::default_initializable<std::ranges::iterator_t<View>>
         = default;
 
-        constexpr iterator(Range& parent, std::ranges::iterator_t<Range> curr)
-            : parent_(&parent)
+        constexpr iterator(View& base, std::ranges::iterator_t<View> curr)
+            : base_(std::addressof(base))
             , curr_(std::move(curr))
         {
             next();
@@ -243,23 +238,18 @@ public:
         iterator(iterator&&) = default;
         iterator& operator=(iterator&&) = default;
 
-        // clang-format off
-        [[nodiscard]] constexpr const std::ranges::iterator_t<Range>& base() const& 
-            noexcept
-        // clang-format on
+        constexpr const std::ranges::iterator_t<View>& base() const& noexcept
         {
             return curr_;
         }
 
-        // clang-format off
-        [[nodiscard]] constexpr std::ranges::iterator_t<Range> base() && 
-            noexcept(std::is_nothrow_move_constructible_v<std::ranges::iterator_t<Range>>)
-        // clang-format on
+        constexpr std::ranges::iterator_t<View> base() && noexcept(
+            std::is_nothrow_move_constructible_v<std::ranges::iterator_t<View>>)
         {
             return std::move(curr_);
         }
 
-        [[nodiscard]] constexpr const value_type& operator*() const noexcept
+        constexpr const value_type& operator*() const noexcept
         {
             return value_;
         }
@@ -286,13 +276,13 @@ public:
             return tmp;
         }
 
-        [[nodiscard]] constexpr bool operator==(std::default_sentinel_t) const
+        constexpr bool operator==(std::default_sentinel_t) const
         {
             return !value_ && value_.error() == base64_error::eof;
         }
 
-        [[nodiscard]] friend constexpr bool operator==(const iterator& lhs,
-                                                       const iterator& rhs)
+        friend constexpr bool operator==(const iterator& lhs,
+                                         const iterator& rhs)
         {
             return lhs.curr_ == rhs.curr_;
         }
@@ -300,7 +290,7 @@ public:
     private:
         void next()
         {
-            result_ = encoder::decode(curr_, std::ranges::end(*parent_));
+            result_ = encoder::decode(curr_, std::ranges::end(*base_));
             offset_ = 0;
         }
 
@@ -313,53 +303,48 @@ public:
             }
         }
 
-        Range* parent_ {};
-        std::ranges::iterator_t<Range> curr_ {};
+        View* base_ {};
+        std::ranges::iterator_t<View> curr_ {};
         encoder::binary_result_type result_ {};
         std::size_t offset_ {};
         value_type value_;
     };
 
-    // clang-format off
-    from_base64_view() requires std::default_initializable<Range> = default;
-    // clang-format on
+    from_base64_view() requires std::default_initializable<View>
+    = default;
 
-    constexpr explicit from_base64_view(Range range) noexcept(
-        std::is_nothrow_move_constructible_v<Range>)
-        : range_(std::move(range))
+    constexpr explicit from_base64_view(View base) noexcept(
+        std::is_nothrow_move_constructible_v<View>)
+        : base_(std::move(base))
     {
     }
 
-    // clang-format off
-    [[nodiscard]] constexpr Range base() const& 
-        noexcept(std::is_nothrow_copy_constructible_v<Range>) 
-        requires std::copy_constructible<Range>
-    // clang-format on
+    constexpr View base() const& //
+        noexcept(std::is_nothrow_copy_constructible_v<View>) //
+        requires std::copy_constructible<View>
     {
-        return range_;
+        return base_;
     }
 
-    // clang-format off
-    [[nodiscard]] constexpr Range base() && 
-        noexcept(std::is_nothrow_move_constructible_v<Range>) 
-        requires std::move_constructible<Range>
-    // clang-format on
+    constexpr View base() && //
+        noexcept(std::is_nothrow_move_constructible_v<View>) //
+        requires std::move_constructible<View>
     {
-        return std::move(range_);
+        return std::move(base_);
     }
 
-    [[nodiscard]] constexpr iterator begin()
+    constexpr iterator begin()
     {
-        return { range_, std::ranges::begin(range_) };
+        return { base_, std::ranges::begin(base_) };
     }
 
-    [[nodiscard]] constexpr std::default_sentinel_t end() noexcept
+    constexpr std::default_sentinel_t end() noexcept
     {
         return {};
     }
 
 private:
-    Range range_;
+    View base_;
 };
 
 template <typename Range>
@@ -369,22 +354,23 @@ from_base64_view(Range&&)
                         std::ranges::range_value_t<Range>>;
 
 namespace views {
-    class __from_base64_view_fn
-        : public range_adaptor_closure<__from_base64_view_fn> {
+    class __from_base64_fn : public range_adaptor_closure<__from_base64_fn> {
     public:
-        constexpr __from_base64_view_fn() noexcept = default;
+        constexpr __from_base64_fn() noexcept = default;
 
         template <std::ranges::viewable_range Range>
-        [[nodiscard]] constexpr auto operator()(Range&& range) const
+        constexpr auto operator()(Range&& range) const
+            noexcept(noexcept(from_base64_view {
+                std::forward<Range>(range) })) requires requires
         {
-            return from_base64_view<std::views::all_t<Range>, std::uint8_t,
-                                    std::ranges::range_value_t<Range>> {
-                std::forward<Range>(range)
-            };
+            from_base64_view { std::forward<Range>(range) };
+        }
+        {
+            return from_base64_view { std::forward<Range>(range) };
         }
     };
 
-    inline constexpr __from_base64_view_fn from_base64 {};
+    inline constexpr __from_base64_fn from_base64 {};
 }
 
 }
