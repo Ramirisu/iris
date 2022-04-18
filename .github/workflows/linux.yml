@@ -31,7 +31,9 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_CXX_STANDARD:STRING=${{matrix.std}}
 
     - name: Build
-      run: cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}}
+      run: |
+        num_processors=`nproc`
+        cmake --build ${{github.workspace}}/build --config ${{matrix.build_type}} --parallel $num_processors
 
     - name: Test
       working-directory: ${{github.workspace}}/build
