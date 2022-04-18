@@ -110,8 +110,9 @@ public:
                     __zip_detail::__all_forward_range<IsConst, Views...>,
                     std::forward_iterator_tag,
                     std::input_iterator_tag>>>;
-        using value_type = std::tuple<
-            std::ranges::range_value_t<__maybe_const<IsConst, Views>>...>;
+        using value_type = std::tuple<std::ranges::range_reference_t<
+            __maybe_const<IsConst, Views>>...>; // TODO: paper uses
+                                                // range_value_t
         using difference_type = std::common_type_t<
             std::ranges::range_difference_t<__maybe_const<IsConst, Views>>...>;
 
@@ -235,7 +236,7 @@ public:
             return !(lhs < rhs);
         }
 
-        friend constexpr bool operator<=>(const iterator& lhs,
+        friend constexpr auto operator<=>(const iterator& lhs,
                                           const iterator& rhs) //
             requires
             __zip_detail::__all_random_access_range<IsConst, Views...> &&(

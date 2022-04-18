@@ -18,6 +18,7 @@
   * `ranges::from_utf_view<Range, Unicode, UTF>`
   * `ranges::join_with_view<Range, Pattern>`
   * `ranges::zip_view<Ranges...>`
+  * `ranges::zip_transform_view<Fn, Ranges...>`
   * `ranges::chunk_by_view<Range, Pred>`
   * `ranges::chunk_view<Range, Size>`
   * `ranges::slide_view<Range, Size>`
@@ -34,6 +35,7 @@
   * `views::from_utf`
   * `views::join_with`
   * `views::zip`
+  * `views::zip_transform`
   * `views::chunk_by`
   * `views::chunk`
   * `views::slide`

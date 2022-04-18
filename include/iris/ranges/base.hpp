@@ -2,7 +2,6 @@
 
 #include <iris/config.hpp>
 
-#include <optional>
 #include <ranges>
 
 namespace iris::ranges {
@@ -18,6 +17,15 @@ concept __simple_view = std::ranges::view<Range>
         std::ranges::sentinel_t<Range>, 
         std::ranges::sentinel_t<const Range>>;
 // clang-format on
+
+template <typename T>
+using __with_reference = T&;
+
+template <typename T>
+concept __can_reference = requires
+{
+    typename __with_reference<T>;
+};
 
 template <bool IsConst, typename T>
 using __maybe_const = std::conditional_t<IsConst, const T, T>;
