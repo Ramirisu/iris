@@ -7,7 +7,7 @@
 ## Supported Compilers
 
 * Visual Studio 2022 19.2 (`/std:c++20`)
-* GCC 11.1 (`-std=c++20`)
+* GCC 11.2 (`-std=c++20`)
 
 ## Feature
 
@@ -17,6 +17,7 @@
   * `ranges::to_utf_view<Range, Unicode, UTF>`
   * `ranges::from_utf_view<Range, Unicode, UTF>`
   * `ranges::join_with_view<Range, Pattern>`
+  * `ranges::chunk_by_view<Range, Pred>`
   * `ranges::chunk_view<Range, Size>`
   * `ranges::slide_view<Range, Size>`
 * Range Utilities
@@ -31,6 +32,7 @@
   * `views::to_utf32`
   * `views::from_utf`
   * `views::join_with`
+  * `views::chunk_by`
   * `views::chunk`
   * `views::slide`
 * Coroutine Types
