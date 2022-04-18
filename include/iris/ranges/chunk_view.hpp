@@ -57,8 +57,8 @@ public:
                                             - *parent_->current_);
             }
 
-// disable due to gcc11.1 ice
-#if 0
+// disable due to gcc 11.1 ice
+#if !defined(__GNUC__) || __GNUC__ > 11 || __GNUC__ == 11 && __GNUC_MINOR__ >= 2
             friend constexpr difference_type
             operator-(std::default_sentinel_t, const outer_iterator& rhs)
                 //
@@ -185,8 +185,8 @@ public:
             return lhs.get_remainder() == 0;
         }
 
-// disable due to gcc11.1 ice
-#if 0
+// disable due to gcc 11.1 ice
+#if !defined(__GNUC__) || __GNUC__ > 11 || __GNUC__ == 11 && __GNUC_MINOR__ >= 2
         friend constexpr difference_type operator-(std::default_sentinel_t,
                                                    const inner_iterator& rhs)
             //
