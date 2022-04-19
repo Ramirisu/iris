@@ -3,7 +3,7 @@
 #include <iris/config.hpp>
 
 #include <iris/expected.hpp>
-#include <iris/ranges/base.hpp>
+#include <iris/ranges/range_adaptor_closure.hpp>
 #include <iris/utf.hpp>
 
 namespace iris::ranges {

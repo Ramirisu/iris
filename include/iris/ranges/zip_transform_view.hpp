@@ -2,6 +2,8 @@
 
 #include <iris/config.hpp>
 
+#include <iris/ranges/__detail/copyable_box.hpp>
+#include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/zip_view.hpp>
 
 namespace iris::ranges {
@@ -23,7 +25,7 @@ template <std::copy_constructible Fn, std::ranges::input_range... Views>
         && (sizeof...(Views) > 0)
         && std::is_object_v<Fn> 
         && std::regular_invocable<Fn&, std::ranges::range_reference_t<Views>...> 
-        && __can_reference<
+        && __detail::__can_reference<
             std::invoke_result_t<Fn&, std::ranges::range_reference_t<Views>...>>
 class zip_transform_view
     // clang-format on
@@ -31,10 +33,10 @@ class zip_transform_view
     using InnerView = zip_view<Views...>;
     template <bool IsConst>
     using ZipIterator
-        = std::ranges::iterator_t<__maybe_const<IsConst, InnerView>>;
+        = std::ranges::iterator_t<__detail::__maybe_const<IsConst, InnerView>>;
     template <bool IsConst>
     using ZipSentinel
-        = std::ranges::sentinel_t<__maybe_const<IsConst, InnerView>>;
+        = std::ranges::sentinel_t<__detail::__maybe_const<IsConst, InnerView>>;
 
 public:
     template <bool IsConst, bool BaseIsForwardRange>
@@ -48,46 +50,47 @@ public:
         using iterator_category = std::conditional_t<
             !std::is_lvalue_reference_v<
                 std::invoke_result_t<
-                    __maybe_const<IsConst, Fn>&, 
-                    std::ranges::range_reference_t<__maybe_const<IsConst, Views>>...>>, 
+                    __detail::__maybe_const<IsConst, Fn>&, 
+                    std::ranges::range_reference_t<__detail::__maybe_const<IsConst, Views>>...>>, 
             std::input_iterator_tag,
             std::conditional_t<
             (std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<__maybe_const<IsConst, Views>>
+                    std::ranges::iterator_t<__detail::__maybe_const<IsConst, Views>>
                 >::iterator_category, std::random_access_iterator_tag> && ...), 
             std::random_access_iterator_tag,
             std::conditional_t<
             (std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<__maybe_const<IsConst, Views>>
+                    std::ranges::iterator_t<__detail::__maybe_const<IsConst, Views>>
                 >::iterator_category, std::bidirectional_iterator_tag> && ...), 
             std::bidirectional_iterator_tag, 
             std::conditional_t<
             (std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<__maybe_const<IsConst, Views>>
+                    std::ranges::iterator_t<__detail::__maybe_const<IsConst, Views>>
                 >::iterator_category, std::forward_iterator_tag> && ...), 
             std::forward_iterator_tag, std::input_iterator_tag>>>>;
         // clang-format on
     };
 
     template <bool IsConst>
-    class iterator
-        : public iterator_base<
-              IsConst,
-              std::ranges::forward_range<__maybe_const<IsConst, InnerView>>> {
+    class iterator : public iterator_base<
+                         IsConst,
+                         std::ranges::forward_range<
+                             __detail::__maybe_const<IsConst, InnerView>>> {
         friend class zip_transform_view;
 
-        using Parent = __maybe_const<IsConst, zip_transform_view>;
-        using Base = __maybe_const<IsConst, InnerView>;
+        using Parent = __detail::__maybe_const<IsConst, zip_transform_view>;
+        using Base = __detail::__maybe_const<IsConst, InnerView>;
 
     public:
         using iterator_concept =
             typename ZipIterator<IsConst>::iterator_concept;
         using value_type = std::remove_cvref_t<std::invoke_result_t<
-            __maybe_const<IsConst, Fn>&,
-            std::ranges::range_reference_t<__maybe_const<IsConst, Views>>...>>;
+            __detail::__maybe_const<IsConst, Fn>&,
+            std::ranges::range_reference_t<
+                __detail::__maybe_const<IsConst, Views>>...>>;
         using difference_type = std::ranges::range_difference_t<Base>;
 
         iterator() = default;
@@ -288,7 +291,7 @@ public:
             requires std::sized_sentinel_for<ZipSentinel<IsConst>,
                                              ZipIterator<OtherIsConst>>
         friend constexpr std::ranges::range_difference_t<
-            __maybe_const<OtherIsConst, InnerView>>
+            __detail::__maybe_const<OtherIsConst, InnerView>>
         operator-(const iterator<OtherIsConst>& lhs, const sentinel& rhs)
         {
             return lhs.inner_ - rhs.inner_;
@@ -298,7 +301,7 @@ public:
             requires std::sized_sentinel_for<ZipSentinel<IsConst>,
                                              ZipIterator<OtherIsConst>>
         friend constexpr std::ranges::range_difference_t<
-            __maybe_const<OtherIsConst, InnerView>>
+            __detail::__maybe_const<OtherIsConst, InnerView>>
         operator-(const sentinel& lhs, const iterator<OtherIsConst>& rhs)
         {
             return lhs.inner_ - rhs.inner_;
@@ -372,7 +375,7 @@ public:
 #endif
 
 private:
-    __copyable_box<Fn> fn_;
+    __detail::__copyable_box<Fn> fn_;
     zip_view<Views...> zip_;
 };
 

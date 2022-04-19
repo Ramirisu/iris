@@ -2,7 +2,9 @@
 
 #include <iris/config.hpp>
 
-#include <iris/ranges/base.hpp>
+#include <iris/ranges/__detail/non_propagating_cache.hpp>
+#include <iris/ranges/__detail/utility.hpp>
+#include <iris/ranges/range_adaptor_closure.hpp>
 
 namespace iris::ranges {
 namespace __chunk_view_detail {
@@ -298,7 +300,7 @@ private:
     View base_ {};
     std::ranges::range_difference_t<View> n_ = 0;
     std::ranges::range_difference_t<View> remainder_ = 0;
-    __non_propagating_cache<std::ranges::iterator_t<View>> current_;
+    __detail::__non_propagating_cache<std::ranges::iterator_t<View>> current_;
 };
 
 template <std::ranges::view View>
@@ -309,8 +311,8 @@ public:
     class iterator {
         friend class chunk_view;
 
-        using Parent = __maybe_const<IsConst, chunk_view>;
-        using Base = __maybe_const<IsConst, View>;
+        using Parent = __detail::__maybe_const<IsConst, chunk_view>;
+        using Base = __detail::__maybe_const<IsConst, View>;
 
     public:
         using iterator_category = std::input_iterator_tag;
@@ -559,7 +561,7 @@ public:
         return std::move(base_);
     }
 
-    constexpr auto begin() requires(!__simple_view<View>)
+    constexpr auto begin() requires(!__detail::__simple_view<View>)
     {
         return iterator<false> { *this, std::ranges::begin(base_) };
     }
@@ -569,7 +571,7 @@ public:
         return iterator<true> { *this, std::ranges::begin(base_) };
     }
 
-    constexpr auto end() requires(!__simple_view<View>)
+    constexpr auto end() requires(!__detail::__simple_view<View>)
     {
         if constexpr (std::ranges::common_range<
                           View> && std::ranges::sized_range<View>) {

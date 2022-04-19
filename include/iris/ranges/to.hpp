@@ -2,7 +2,7 @@
 
 #include <iris/config.hpp>
 
-#include <iris/ranges/base.hpp>
+#include <iris/ranges/range_adaptor_closure.hpp>
 #include <iris/type_traits.hpp>
 
 #include <algorithm>

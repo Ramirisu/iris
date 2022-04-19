@@ -2,7 +2,8 @@
 
 #include <iris/config.hpp>
 
-#include <iris/ranges/base.hpp>
+#include <iris/ranges/__detail/utility.hpp>
+#include <iris/ranges/range_adaptor_closure.hpp>
 
 namespace iris::ranges {
 namespace __slide_view_detail {
@@ -44,10 +45,11 @@ public:
     };
 
     template <bool IsConst>
-    class iterator : public iterator_base<__maybe_const<IsConst, View>> {
+    class iterator
+        : public iterator_base<__detail::__maybe_const<IsConst, View>> {
         friend class slide_view;
 
-        using Base = __maybe_const<IsConst, View>;
+        using Base = __detail::__maybe_const<IsConst, View>;
 
         constexpr iterator(std::ranges::iterator_t<Base> current,
                            std::ranges::range_difference_t<Base> n) //
@@ -61,7 +63,8 @@ public:
                            std::ranges::iterator_t<Base> last_element,
                            std::ranges::range_difference_t<Base> n) //
             requires(__slide_view_detail::slide_caches_first<Base>)
-            : iterator_base<__maybe_const<IsConst, View>>(last_element)
+            : iterator_base<__detail::__maybe_const<IsConst, View>>(
+                last_element)
             , current_(current)
             , n_(n)
         {
@@ -309,7 +312,7 @@ public:
 
     constexpr auto begin() //
         requires(
-            !(__simple_view<
+            !(__detail::__simple_view<
                   View> && __slide_view_detail::slide_caches_nothing<View>))
     {
         if constexpr (__slide_view_detail::slide_caches_first<View>) {
@@ -331,7 +334,7 @@ public:
 
     constexpr auto end() //
         requires(
-            !(__simple_view<
+            !(__detail::__simple_view<
                   View> && __slide_view_detail::slide_caches_nothing<View>))
     {
         if constexpr (__slide_view_detail::slide_caches_nothing<View>) {

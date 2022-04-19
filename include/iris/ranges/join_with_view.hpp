@@ -2,7 +2,9 @@
 
 #include <iris/config.hpp>
 
-#include <iris/ranges/base.hpp>
+#include <iris/ranges/__detail/non_propagating_cache.hpp>
+#include <iris/ranges/__detail/utility.hpp>
+#include <iris/ranges/range_adaptor_closure.hpp>
 
 #include <variant>
 
@@ -39,7 +41,7 @@ template <typename View, typename Pattern>
 class join_with_view_base
     : public std::ranges::view_interface<join_with_view<View, Pattern>> {
 public:
-    __non_propagating_cache<
+    __detail::__non_propagating_cache<
         std::remove_cv_t<std::ranges::range_reference_t<View>>>
         inner_;
 };
@@ -116,19 +118,19 @@ public:
             view<Pattern> && __join_with_view_detail::
                 compatible_joinable_ranges<std::ranges::range_reference_t<View>,
                                            Pattern>
-    class iterator
-        : public iterator_base<
-              __maybe_const<IsConst, View>,
-              std::ranges::range_reference_t<__maybe_const<IsConst, View>>,
-              __maybe_const<IsConst, Pattern>,
-              std::is_reference_v<std::ranges::range_reference_t<
-                  __maybe_const<IsConst, View>>>> {
+    class iterator : public iterator_base<
+                         __detail::__maybe_const<IsConst, View>,
+                         std::ranges::range_reference_t<
+                             __detail::__maybe_const<IsConst, View>>,
+                         __detail::__maybe_const<IsConst, Pattern>,
+                         std::is_reference_v<std::ranges::range_reference_t<
+                             __detail::__maybe_const<IsConst, View>>>> {
         friend class join_with_view;
 
-        using Parent = __maybe_const<IsConst, join_with_view>;
-        using Base = __maybe_const<IsConst, View>;
+        using Parent = __detail::__maybe_const<IsConst, join_with_view>;
+        using Base = __detail::__maybe_const<IsConst, View>;
         using InnerBase = std::ranges::range_reference_t<Base>;
-        using PatternBase = __maybe_const<IsConst, Pattern>;
+        using PatternBase = __detail::__maybe_const<IsConst, Pattern>;
 
         using OuterIter = std::ranges::iterator_t<Base>;
         using InnerIter = std::ranges::iterator_t<InnerBase>;
@@ -366,8 +368,8 @@ public:
     class sentinel {
         friend class join_with_view;
 
-        using Parent = __maybe_const<IsConst, join_with_view>;
-        using Base = __maybe_const<IsConst, View>;
+        using Parent = __detail::__maybe_const<IsConst, join_with_view>;
+        using Base = __detail::__maybe_const<IsConst, View>;
 
         constexpr explicit sentinel(Parent& parent)
             : end_(std::ranges::end(parent.base_))
@@ -392,7 +394,7 @@ public:
             // clang-format off
             requires std::sentinel_for<
                 std::ranges::sentinel_t<Base>,
-                std::ranges::iterator_t<__maybe_const<OtherIsConst, View>>>
+                std::ranges::iterator_t<__detail::__maybe_const<OtherIsConst, View>>>
         // clang-format on
         friend constexpr bool operator==(const iterator<OtherIsConst>& lhs,
                                          const sentinel& rhs)
@@ -440,9 +442,9 @@ public:
     constexpr auto begin()
     {
         // clang-format off
-        constexpr bool is_const = __simple_view<View> 
+        constexpr bool is_const = __detail::__simple_view<View> 
             && std::is_reference_v<InnerRange> 
-            && __simple_view<Pattern>;
+            && __detail::__simple_view<Pattern>;
         // clang-format on
         return iterator<is_const> { *this, std::ranges::begin(base_) };
     }
@@ -465,11 +467,11 @@ public:
             && std::ranges::forward_range<InnerRange> 
             && std::ranges::common_range<View> 
             && std::ranges::common_range<InnerRange>) {
-            return iterator<__simple_view<View> 
-                && __simple_view<Pattern>> { *this, std::ranges::end(base_) };
+            return iterator<__detail::__simple_view<View> 
+                && __detail::__simple_view<Pattern>> { *this, std::ranges::end(base_) };
         } else {
-            return sentinel<__simple_view<View> 
-                && __simple_view<Pattern>> { *this };
+            return sentinel<__detail::__simple_view<View> 
+                && __detail::__simple_view<Pattern>> { *this };
         }
         // clang-format on
     }

@@ -2,7 +2,8 @@
 
 #include <iris/config.hpp>
 
-#include <iris/ranges/base.hpp>
+#include <iris/ranges/__detail/copyable_box.hpp>
+#include <iris/ranges/range_adaptor_closure.hpp>
 
 #include <functional>
 
@@ -164,7 +165,7 @@ private:
     }
 
     View base_ {};
-    __copyable_box<Pred> pred_ {};
+    __detail::__copyable_box<Pred> pred_ {};
 };
 
 template <typename Range, typename Pred>

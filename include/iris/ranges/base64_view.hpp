@@ -4,7 +4,7 @@
 
 #include <iris/base64.hpp>
 #include <iris/expected.hpp>
-#include <iris/ranges/base.hpp>
+#include <iris/ranges/range_adaptor_closure.hpp>
 
 namespace iris::ranges {
 
