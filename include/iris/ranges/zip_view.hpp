@@ -80,16 +80,6 @@ namespace __zip_detail {
                              - std::get<Indexes>(std::forward<TupleRHS>(rhs)))),
                            ...) });
     }
-
-    template <bool AllForwardRange>
-    class iterator_base {
-    };
-
-    template <>
-    class iterator_base<true> {
-    public:
-        using iterator_category = std::input_iterator_tag;
-    };
 }
 
 template <std::ranges::input_range... Views>
@@ -97,8 +87,18 @@ template <std::ranges::input_range... Views>
 class zip_view : public std::ranges::view_interface<zip_view<Views...>> {
 public:
     template <bool IsConst>
-    class iterator : public __zip_detail::iterator_base<
-                         __zip_detail::__all_forward_range<IsConst, Views...>> {
+    class iterator_base {
+    };
+
+    template <bool IsConst>
+        requires __zip_detail::__all_forward_range<IsConst, Views...>
+    class iterator_base<IsConst> {
+    public:
+        using iterator_category = std::input_iterator_tag;
+    };
+
+    template <bool IsConst>
+    class iterator : public iterator_base<IsConst> {
         friend class zip_view;
 
     public:
