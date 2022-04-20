@@ -5,9 +5,9 @@
 #include <condition_variable>
 #include <mutex>
 
-namespace iris::detail {
+namespace iris::__detail {
 
-class manual_reset_event {
+class __manual_reset_event {
 public:
     void set()
     {

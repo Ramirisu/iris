@@ -4,15 +4,15 @@
 
 #include <cstddef>
 
-namespace iris::detail {
+namespace iris::__detail {
 
 template <typename T, std::size_t N>
-class static_storage {
+class __static_storage {
 public:
-    static_storage() = default;
+    __static_storage() = default;
 
     template <typename... Ts>
-    constexpr static_storage(Ts&&... ts) requires(sizeof...(Ts) <= N)
+    constexpr __static_storage(Ts&&... ts) requires(sizeof...(Ts) <= N)
         : data_ { static_cast<T>(std::forward<Ts>(ts))... }
         , size_(sizeof...(Ts))
     {

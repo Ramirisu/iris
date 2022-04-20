@@ -2,7 +2,7 @@
 
 #include <iris/config.hpp>
 
-#include <iris/detail/type_traits.hpp>
+#include <iris/__detail/type_traits.hpp>
 
 namespace iris {
 

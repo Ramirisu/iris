@@ -16,14 +16,14 @@ namespace __out_ptr_detail {
     };
 
     template <typename Smart>
-        requires(detail::has_member_pointer_v<Smart>)
+        requires(__detail::__has_member_pointer_v<Smart>)
     struct pointer_of_impl<Smart>
         : std::type_identity<typename Smart::pointer> {
     };
 
     template <typename Smart>
-        requires(!detail::has_member_pointer_v<
-                     Smart> && detail::has_member_element_type_v<Smart>)
+        requires(!__detail::__has_member_pointer_v<
+                     Smart> && __detail::__has_member_element_type_v<Smart>)
     struct pointer_of_impl<Smart>
         : std::type_identity<typename Smart::element_type*> {
     };
@@ -98,7 +98,7 @@ public:
                     },
                     std::move(args_));
             } else {
-                static_assert(detail::always_false_v<Smart>);
+                static_assert(__detail::__always_false_v<Smart>);
             }
         }
     }
@@ -174,7 +174,7 @@ public:
                     },
                     std::move(args_));
             } else {
-                static_assert(detail::always_false_v<Smart>);
+                static_assert(__detail::__always_false_v<Smart>);
             }
         }
     }

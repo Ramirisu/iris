@@ -2,7 +2,7 @@
 
 #include <iris/config.hpp>
 
-#include <iris/detail/static_storage.hpp>
+#include <iris/__detail/static_storage.hpp>
 #include <iris/expected.hpp>
 
 #include <concepts>
@@ -19,13 +19,13 @@ template <typename Unicode, typename UTF, std::size_t = sizeof(UTF)>
 class utf;
 
 template <typename T>
-using utf8_code_units = detail::static_storage<T, 4>;
+using utf8_code_units = __detail::__static_storage<T, 4>;
 
 template <typename T>
-using utf16_code_units = detail::static_storage<T, 2>;
+using utf16_code_units = __detail::__static_storage<T, 2>;
 
 template <typename T>
-using utf32_code_units = detail::static_storage<T, 1>;
+using utf32_code_units = __detail::__static_storage<T, 1>;
 
 template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 1> {

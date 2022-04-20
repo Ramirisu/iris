@@ -62,7 +62,7 @@ namespace __coroutine_detail {
         } else if constexpr (has_adl_co_await<T, void>) {
             return operator co_await(std::forward<T>(t));
         } else {
-            static_assert(detail::always_false_v<T>);
+            static_assert(__detail::__always_false_v<T>);
         }
     }
 }

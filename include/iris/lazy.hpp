@@ -2,7 +2,7 @@
 
 #include <iris/config.hpp>
 
-#include <iris/detail/sync_wait.hpp>
+#include <iris/__detail/sync_wait.hpp>
 
 #include <coroutine>
 #include <type_traits>
@@ -143,7 +143,7 @@ public:
 
     T sync_wait()
     {
-        auto task = detail::sync_wait_impl(*this);
+        auto task = __detail::__sync_wait_impl(*this);
         task.start();
         return task.result();
     }
