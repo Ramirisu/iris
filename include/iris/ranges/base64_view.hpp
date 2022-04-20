@@ -28,7 +28,7 @@ public:
                 std::forward_iterator_tag>,
             std::forward_iterator_tag,
             std::input_iterator_tag>;
-        using value_type = expected<Text, base64_error>;
+        using value_type = Text;
         using difference_type = std::ptrdiff_t;
 
         iterator() requires
@@ -40,7 +40,6 @@ public:
             , curr_(std::move(curr))
         {
             next();
-            setup_result();
         }
 
         iterator(const iterator&) = default;
@@ -63,7 +62,8 @@ public:
 
         constexpr const value_type& operator*() const noexcept
         {
-            return value_;
+            IRIS_ASSERT(result_);
+            return result_.value()[offset_];
         }
 
         constexpr iterator& operator++()
@@ -77,7 +77,6 @@ public:
                 next();
             }
 
-            setup_result();
             return *this;
         }
 
@@ -90,7 +89,7 @@ public:
 
         constexpr bool operator==(std::default_sentinel_t) const
         {
-            return !value_ && value_.error() == base64_error::eof;
+            return !result_ && result_.error() == base64_error::eof;
         }
 
         friend constexpr bool operator==(const iterator& lhs,
@@ -106,20 +105,10 @@ public:
             offset_ = 0;
         }
 
-        void setup_result()
-        {
-            if (result_) {
-                value_ = result_.value()[offset_];
-            } else {
-                value_ = unexpected(result_.error());
-            }
-        }
-
         View* base_ {};
         std::ranges::iterator_t<View> curr_ {};
         encoder::text_result_type result_ {};
         std::size_t offset_ {};
-        value_type value_;
     };
 
     // clang-format off
