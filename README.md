@@ -20,8 +20,9 @@
   * `ranges::zip_view<Ranges...>`
   * `ranges::zip_transform_view<Fn, Ranges...>`
   * `ranges::chunk_by_view<Range, Pred>`
-  * `ranges::chunk_view<Range, Size>`
-  * `ranges::slide_view<Range, Size>`
+  * `ranges::chunk_view<Range>`
+  * `ranges::slide_view<Range>`
+  * `ranges::adjacent_view<Range, N>`
 * Range Utilities
   * `ranges::to`
   * `ranges::elements_of`
@@ -36,6 +37,8 @@
   * `views::chunk_by`
   * `views::chunk`
   * `views::slide`
+  * `views::adjacent<N>`
+  * `views::pairwise`
 * Coroutine Types
   * `lazy<T>`
   * `generator<R, V, Allocator>`

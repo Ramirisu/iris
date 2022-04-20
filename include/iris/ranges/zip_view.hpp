@@ -15,17 +15,6 @@ namespace __zip_view_detail {
         || ((std::ranges::random_access_range<Ranges> && ...)
             && (std::ranges::sized_range<Ranges> && ...));
 
-    template <typename... Ts>
-    struct __tuple_or_pair : std::type_identity<std::tuple<Ts...>> {
-    };
-
-    template <typename T, typename U>
-    struct __tuple_or_pair<T, U> : std::type_identity<std::pair<T, U>> {
-    };
-
-    template <typename... Ts>
-    using __tuple_or_pair_t = typename __tuple_or_pair<Ts...>::type;
-
     template <bool IsConst, typename... Ranges>
     concept __all_random_access_range
         = (std::ranges::random_access_range<
@@ -40,17 +29,6 @@ namespace __zip_view_detail {
     concept __all_forward_range
         = (std::ranges::forward_range<
                __detail::__maybe_const<IsConst, Ranges>> && ...);
-
-    template <typename F, typename Tuple>
-    constexpr auto __tuple_transform(F&& f, Tuple&& tuple)
-    {
-        return std::apply(
-            [&]<class... Ts>(Ts && ... elements) {
-                return __tuple_or_pair_t<std::invoke_result_t<F&, Ts>...>(
-                    std::invoke(f, std::forward<Ts>(elements))...);
-            },
-            std::forward<Tuple>(tuple));
-    }
 
     template <typename F, typename Tuple>
     constexpr void __tuple_for_each(F&& f, Tuple&& tuple)
@@ -123,8 +101,8 @@ public:
                     __zip_view_detail::__all_forward_range<IsConst, Views...>,
                     std::forward_iterator_tag,
                     std::input_iterator_tag>>>;
-        using value_type = __zip_view_detail::__tuple_or_pair_t<
-            std::ranges::range_reference_t<
+        using value_type
+            = __detail::__tuple_or_pair_t<std::ranges::range_reference_t<
                 __detail::__maybe_const<IsConst, Views>>...>; // TODO: paper
                                                               // uses
                                                               // range_value_t
@@ -145,7 +123,7 @@ public:
 
         constexpr auto operator*() const
         {
-            return __zip_view_detail::__tuple_transform(
+            return __detail::__tuple_transform(
                 [](auto& i) -> decltype(auto) { return *i; }, current_);
         }
 
@@ -208,7 +186,7 @@ public:
             requires
             __zip_view_detail::__all_random_access_range<IsConst, Views...>
         {
-            return __zip_view_detail::__tuple_transform(
+            return __detail::__tuple_transform(
                 [&]<class I>(I& i) -> decltype(auto) {
                     return i[std::iter_difference_t<I>(offset)];
                 },
@@ -325,8 +303,8 @@ public:
                         std::ranges::range_rvalue_reference_t<
                             __detail::__maybe_const<IsConst, Views>>> && ...))
         {
-            return __zip_view_detail::__tuple_transform(std::ranges::iter_move,
-                                                        i.current_);
+            return __detail::__tuple_transform(std::ranges::iter_move,
+                                               i.current_);
         }
 
         friend constexpr void iter_swap(const iterator& lhs,
@@ -354,13 +332,13 @@ public:
 
     private:
         constexpr explicit iterator(
-            __zip_view_detail::__tuple_or_pair_t<std::ranges::iterator_t<
+            __detail::__tuple_or_pair_t<std::ranges::iterator_t<
                 __detail::__maybe_const<IsConst, Views>>...> current)
             : current_(std::move(current))
         {
         }
 
-        __zip_view_detail::__tuple_or_pair_t<
+        __detail::__tuple_or_pair_t<
             std::ranges::iterator_t<__detail::__maybe_const<IsConst, Views>>...>
             current_;
     };
@@ -426,13 +404,13 @@ public:
 
     private:
         constexpr explicit sentinel(
-            __zip_view_detail::__tuple_or_pair_t<std::ranges::sentinel_t<
+            __detail::__tuple_or_pair_t<std::ranges::sentinel_t<
                 __detail::__maybe_const<IsConst, Views>>...> end)
             : end_(end)
         {
         }
 
-        __zip_view_detail::__tuple_or_pair_t<
+        __detail::__tuple_or_pair_t<
             std::ranges::sentinel_t<__detail::__maybe_const<IsConst, Views>>...>
             end_;
     };
@@ -447,24 +425,24 @@ public:
     constexpr auto begin() requires(!(__detail::__simple_view<Views> && ...))
     {
         return iterator<false>(
-            __zip_view_detail::__tuple_transform(std::ranges::begin, bases_));
+            __detail::__tuple_transform(std::ranges::begin, bases_));
     }
     constexpr auto begin() const requires(std::ranges::range<const Views>&&...)
     {
         return iterator<true>(
-            __zip_view_detail::__tuple_transform(std::ranges::begin, bases_));
+            __detail::__tuple_transform(std::ranges::begin, bases_));
     }
 
     constexpr auto end() requires(!(__detail::__simple_view<Views> && ...))
     {
         if constexpr (!__zip_view_detail::__zip_is_common<Views...>) {
             return sentinel<false>(
-                __zip_view_detail::__tuple_transform(std::ranges::end, bases_));
+                __detail::__tuple_transform(std::ranges::end, bases_));
         } else if constexpr ((std::ranges::random_access_range<Views> && ...)) {
             return begin() + iter_difference_t<iterator<false>>(size());
         } else {
             return iterator<false>(
-                __zip_view_detail::__tuple_transform(std::ranges::end, bases_));
+                __detail::__tuple_transform(std::ranges::end, bases_));
         }
     }
 
@@ -472,13 +450,13 @@ public:
     {
         if constexpr (!__zip_view_detail::__zip_is_common<const Views...>) {
             return sentinel<true>(
-                __zip_view_detail::__tuple_transform(std::ranges::end, bases_));
+                __detail::__tuple_transform(std::ranges::end, bases_));
         } else if constexpr ((std::ranges::random_access_range<
                                   const Views> && ...)) {
             return begin() + std::iter_difference_t<iterator<true>>(size());
         } else {
             return iterator<true>(
-                __zip_view_detail::__tuple_transform(std::ranges::end, bases_));
+                __detail::__tuple_transform(std::ranges::end, bases_));
         }
     }
 
@@ -491,7 +469,7 @@ public:
                     std::common_type_t<decltype(sizes)...>>;
                 return std::ranges::min({ CT(sizes)... });
             },
-            __zip_view_detail::__tuple_transform(std::ranges::size, bases_));
+            __detail::__tuple_transform(std::ranges::size, bases_));
     }
 
     constexpr auto size() const //
@@ -503,7 +481,7 @@ public:
                     std::common_type_t<decltype(sizes)...>>;
                 return std::ranges::min({ CT(sizes)... });
             },
-            __zip_view_detail::__tuple_transform(std::ranges::size, bases_));
+            __detail::__tuple_transform(std::ranges::size, bases_));
     }
 
 #if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
