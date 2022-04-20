@@ -14,7 +14,7 @@ class lazy;
 
 namespace __lazy_detail {
     template <typename T>
-    class lazy_promise_type_base {
+    class __lazy_promise_type_base {
     public:
         void return_value(T value)
         {
@@ -31,7 +31,7 @@ namespace __lazy_detail {
     };
 
     template <>
-    class lazy_promise_type_base<void> {
+    class __lazy_promise_type_base<void> {
     public:
         void return_void() noexcept { }
 
@@ -39,7 +39,7 @@ namespace __lazy_detail {
     };
 
     template <typename T>
-    class lazy_promise_type : public lazy_promise_type_base<T> {
+    class __lazy_promise_type : public __lazy_promise_type_base<T> {
     public:
         lazy<T> get_return_object();
 
@@ -92,10 +92,10 @@ namespace __lazy_detail {
 
 template <typename T>
 class [[nodiscard]] lazy {
-    friend class __lazy_detail::lazy_promise_type<T>;
+    friend class __lazy_detail::__lazy_promise_type<T>;
 
 public:
-    using promise_type = __lazy_detail::lazy_promise_type<T>;
+    using promise_type = __lazy_detail::__lazy_promise_type<T>;
     using value_type = T;
 
     lazy(lazy&& other) noexcept
@@ -159,9 +159,10 @@ private:
 
 namespace __lazy_detail {
     template <typename T>
-    lazy<T> lazy_promise_type<T>::get_return_object()
+    lazy<T> __lazy_promise_type<T>::get_return_object()
     {
-        return std::coroutine_handle<lazy_promise_type<T>>::from_promise(*this);
+        return std::coroutine_handle<__lazy_promise_type<T>>::from_promise(
+            *this);
     }
 }
 }

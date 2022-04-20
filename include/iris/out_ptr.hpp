@@ -11,45 +11,45 @@ namespace iris {
 namespace __out_ptr_detail {
 
     template <typename Smart>
-    struct pointer_of_impl {
+    struct __pointer_of_impl {
         using type = typename std::pointer_traits<Smart>::element_type*;
     };
 
     template <typename Smart>
         requires(__detail::__has_member_pointer_v<Smart>)
-    struct pointer_of_impl<Smart>
+    struct __pointer_of_impl<Smart>
         : std::type_identity<typename Smart::pointer> {
     };
 
     template <typename Smart>
         requires(!__detail::__has_member_pointer_v<
                      Smart> && __detail::__has_member_element_type_v<Smart>)
-    struct pointer_of_impl<Smart>
+    struct __pointer_of_impl<Smart>
         : std::type_identity<typename Smart::element_type*> {
     };
 
     template <typename Smart>
-    using pointer_of = typename pointer_of_impl<Smart>::type;
+    using __pointer_of = typename __pointer_of_impl<Smart>::type;
 
     template <typename T, typename U>
-    struct pointer_of_or_impl {
+    struct __pointer_of_or_impl {
         using type = U;
     };
 
     template <typename T, typename U>
         requires requires
         {
-            typename pointer_of<T>;
+            typename __pointer_of<T>;
         }
-    struct pointer_of_or_impl<T, U> {
-        using type = pointer_of<T>;
+    struct __pointer_of_or_impl<T, U> {
+        using type = __pointer_of<T>;
     };
 
     template <typename T, typename U>
-    using pointer_of_or = typename pointer_of_or_impl<T, U>::type;
+    using __pointer_of_or = typename __pointer_of_or_impl<T, U>::type;
 
     template <typename Smart, typename SP, typename Pointer, typename... Args>
-    concept resettable_with
+    concept __resettable_with
         = requires(Smart& smart, Pointer pointer, Args&&... args)
     {
         smart.reset(static_cast<SP>(pointer), std::forward<Args>(args)...);
@@ -81,9 +81,9 @@ public:
     ~out_ptr_t()
     {
         if (pointer_) {
-            using SP = __out_ptr_detail::pointer_of_or<Smart, Pointer>;
-            if constexpr (__out_ptr_detail::resettable_with<Smart, SP, Pointer,
-                                                            Args...>) {
+            using SP = __out_ptr_detail::__pointer_of_or<Smart, Pointer>;
+            if constexpr (__out_ptr_detail::__resettable_with<
+                              Smart, SP, Pointer, Args...>) {
                 std::apply(
                     [&](auto&&... args) {
                         smart_.reset(static_cast<SP>(pointer_),
@@ -123,7 +123,7 @@ template <typename Pointer = void, typename Smart, typename... Args>
 auto out_ptr(Smart& smart, Args&&... args)
 {
     if constexpr (std::is_same_v<Pointer, void>) {
-        return out_ptr_t<Smart, __out_ptr_detail::pointer_of<Smart>, Args...>(
+        return out_ptr_t<Smart, __out_ptr_detail::__pointer_of<Smart>, Args...>(
             smart, std::forward<Args>(args)...);
     } else {
         return out_ptr_t<Smart, Pointer, Args...>(smart,
@@ -148,7 +148,7 @@ public:
     ~inout_ptr_t()
     {
         if (pointer_) {
-            using SP = __out_ptr_detail::pointer_of_or<Smart, Pointer>;
+            using SP = __out_ptr_detail::__pointer_of_or<Smart, Pointer>;
             if constexpr (std::is_pointer_v<Smart>) {
                 std::apply(
                     [&](auto&&... args) {
@@ -156,7 +156,7 @@ public:
                                        std::forward<Args>(args)...);
                     },
                     std::move(args_));
-            } else if constexpr (__out_ptr_detail::resettable_with<
+            } else if constexpr (__out_ptr_detail::__resettable_with<
                                      Smart, SP, Pointer, Args...>) {
                 std::apply(
                     [&](auto&&... args) {
@@ -199,8 +199,8 @@ template <typename Pointer = void, typename Smart, typename... Args>
 auto inout_ptr(Smart& smart, Args&&... args)
 {
     if constexpr (std::is_same_v<Pointer, void>) {
-        return inout_ptr_t<Smart, __out_ptr_detail::pointer_of<Smart>, Args...>(
-            smart, std::forward<Args>(args)...);
+        return inout_ptr_t<Smart, __out_ptr_detail::__pointer_of<Smart>,
+                           Args...>(smart, std::forward<Args>(args)...);
     } else {
         return inout_ptr_t<Smart, Pointer, Args...>(
             smart, std::forward<Args>(args)...);

@@ -9,7 +9,7 @@
 namespace iris {
 namespace __expected_detail {
     template <typename New, typename Old, typename... Args>
-    constexpr void reinit(New& newval, Old& oldval, Args&&... args)
+    constexpr void __reinit(New& newval, Old& oldval, Args&&... args)
     {
         if constexpr (std::is_nothrow_constructible_v<New, Args...>) {
             std::destroy_at(&oldval);
@@ -279,11 +279,11 @@ public:
                 if (other.has_value()) {
                     value_ = other.value();
                 } else {
-                    __expected_detail::reinit(error_, value_, other.error());
+                    __expected_detail::__reinit(error_, value_, other.error());
                 }
             } else {
                 if (other.has_value()) {
-                    __expected_detail::reinit(value_, error_, other.value());
+                    __expected_detail::__reinit(value_, error_, other.value());
                 } else {
                     error_ = other.error();
                 }
@@ -313,13 +313,13 @@ public:
                 if (other.has_value()) {
                     value_ = std::move(other.value());
                 } else {
-                    __expected_detail::reinit(error_, value_,
-                                              std::move(other.error()));
+                    __expected_detail::__reinit(error_, value_,
+                                                std::move(other.error()));
                 }
             } else {
                 if (other.has_value()) {
-                    __expected_detail::reinit(value_, error_,
-                                              std::move(other.value()));
+                    __expected_detail::__reinit(value_, error_,
+                                                std::move(other.value()));
                 } else {
                     error_ = std::move(other.error());
                 }

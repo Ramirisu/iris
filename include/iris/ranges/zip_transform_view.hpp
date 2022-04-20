@@ -10,7 +10,7 @@ namespace iris::ranges {
 namespace __zip_transform_view_detail {
     template <typename Fn, typename Tuple, std::size_t... Is>
     constexpr auto
-    tuple_invoke(Fn&& fn, Tuple&& t, std::index_sequence<Is...>) //
+    __tuple_invoke(Fn&& fn, Tuple&& t, std::index_sequence<Is...>) //
         noexcept(noexcept(std::invoke(
             std::forward<Fn>(fn), *std::get<Is>(std::forward<Tuple>(t))...)))
     {
@@ -104,7 +104,7 @@ public:
         }
 
         constexpr decltype(auto) operator*() const
-            noexcept(noexcept(__zip_transform_view_detail::tuple_invoke(
+            noexcept(noexcept(__zip_transform_view_detail::__tuple_invoke(
                 *parent_->fn_,
                 inner_.__current(),
                 std::index_sequence_for<Views...> {})))

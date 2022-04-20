@@ -11,7 +11,7 @@ namespace iris::ranges {
 namespace __to_detail {
 
     template <typename C>
-    concept container_reservable = std::ranges::sized_range<C> && requires(
+    concept __container_reservable = std::ranges::sized_range<C> && requires(
         C& c, std::ranges::range_size_t<C> n)
     {
         c.reserve(n);
@@ -22,14 +22,14 @@ namespace __to_detail {
     };
 
     template <typename C, typename Ref>
-    concept container_insertable = requires(C& c, Ref&& ref)
+    concept __container_insertable = requires(C& c, Ref&& ref)
     {
         c.push_back(std::forward<Ref>(ref));
         c.insert(std::ranges::end(c), std::forward<Ref>(ref));
     };
 
     template <typename Ref, typename C>
-    auto container_inserter(C& c)
+    auto __container_inserter(C& c)
     {
         if constexpr (requires { c.push_back(std::declval<Ref>()); }) {
             return std::back_inserter(c);
@@ -58,18 +58,18 @@ constexpr auto to(Range&& range, Args&&... args)
             // clang-format on
             return Container(std::ranges::begin(range), std::ranges::end(range),
                              std::forward<Args>(args)...);
-        } else if constexpr (__to_detail::container_insertable<
+        } else if constexpr (__to_detail::__container_insertable<
                                  Container,
                                  std::ranges::range_reference_t<Range>>) {
             Container container(std::forward<Args>(args)...);
             if constexpr (
                 std::ranges::sized_range<
-                    Range> && __to_detail::container_reservable<Container>) {
+                    Range> && __to_detail::__container_reservable<Container>) {
                 container.reserve(std::ranges::size(range));
             }
             std::ranges::copy(
                 range,
-                __to_detail::container_inserter<
+                __to_detail::__container_inserter<
                     std::ranges::range_reference_t<Range>>(container));
             return container;
         } else {

@@ -12,7 +12,7 @@ namespace iris::ranges {
 namespace __join_with_view_detail {
     // clang-format off
     template <typename Range, typename Pattern>
-    concept compatible_joinable_ranges = 
+    concept __compatible_joinable_ranges = 
         std::common_with<
             std::ranges::range_value_t<Range>, 
             std::ranges::range_value_t<Pattern>> 
@@ -25,14 +25,14 @@ namespace __join_with_view_detail {
     // clang-format on
 
     template <typename Range>
-    concept bidirectional_common = std::ranges::bidirectional_range<
+    concept __bidirectional_common = std::ranges::bidirectional_range<
         Range> && std::ranges::common_range<Range>;
 }
 
 template <std::ranges::input_range View, std::ranges::forward_range Pattern>
     requires std::ranges::view<View> && std::ranges::input_range<
         std::ranges::range_reference_t<View>> && std::ranges::
-        view<Pattern> && __join_with_view_detail::compatible_joinable_ranges<
+        view<Pattern> && __join_with_view_detail::__compatible_joinable_ranges<
             std::ranges::range_reference_t<View>,
             Pattern>
 class join_with_view;
@@ -55,7 +55,7 @@ class join_with_view_base<View, Pattern>
 template <std::ranges::input_range View, std::ranges::forward_range Pattern>
     requires std::ranges::view<View> && std::ranges::input_range<
         std::ranges::range_reference_t<View>> && std::ranges::
-        view<Pattern> && __join_with_view_detail::compatible_joinable_ranges<
+        view<Pattern> && __join_with_view_detail::__compatible_joinable_ranges<
             std::ranges::range_reference_t<View>,
             Pattern>
 class join_with_view : public join_with_view_base<View, Pattern> {
@@ -116,8 +116,9 @@ public:
         requires std::ranges::view<View> && std::ranges::input_range<
             std::ranges::range_reference_t<View>> && std::ranges::
             view<Pattern> && __join_with_view_detail::
-                compatible_joinable_ranges<std::ranges::range_reference_t<View>,
-                                           Pattern>
+                __compatible_joinable_ranges<
+                    std::ranges::range_reference_t<View>,
+                    Pattern>
     class iterator : public iterator_base<
                          __detail::__maybe_const<IsConst, View>,
                          std::ranges::range_reference_t<
@@ -203,8 +204,8 @@ public:
         using iterator_concept = std::conditional_t<
             ref_is_glvalue
                 && std::ranges::bidirectional_range<Base> 
-                && __join_with_view_detail::bidirectional_common<InnerBase> 
-                && __join_with_view_detail::bidirectional_common<PatternBase>,
+                && __join_with_view_detail::__bidirectional_common<InnerBase> 
+                && __join_with_view_detail::__bidirectional_common<PatternBase>,
             std::bidirectional_iterator_tag,
             std::conditional_t<
                 ref_is_glvalue
@@ -276,8 +277,8 @@ public:
             // clang-format off
             requires ref_is_glvalue
                 && std::ranges::bidirectional_range<Base> 
-                && __join_with_view_detail::bidirectional_common<InnerBase> 
-                && __join_with_view_detail::bidirectional_common<PatternBase>
+                && __join_with_view_detail::__bidirectional_common<InnerBase> 
+                && __join_with_view_detail::__bidirectional_common<PatternBase>
         // clang-format on
         {
             if (outer_it_ == std::ranges::end(parent_->base_)) {
@@ -314,8 +315,8 @@ public:
             // clang-format off
             requires ref_is_glvalue
                 && std::ranges::bidirectional_range<Base> 
-                && __join_with_view_detail::bidirectional_common<InnerBase> 
-                && __join_with_view_detail::bidirectional_common<PatternBase>
+                && __join_with_view_detail::__bidirectional_common<InnerBase> 
+                && __join_with_view_detail::__bidirectional_common<PatternBase>
         // clang-format on
         {
             iterator tmp = *this;

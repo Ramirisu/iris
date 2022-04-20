@@ -8,17 +8,17 @@
 namespace iris::ranges {
 namespace __slide_view_detail {
     template <typename View>
-    concept slide_caches_nothing = std::ranges::random_access_range<
+    concept __slide_caches_nothing = std::ranges::random_access_range<
         View> && std::ranges::sized_range<View>;
 
     template <class View>
-    concept slide_caches_last
-        = !slide_caches_nothing<
+    concept __slide_caches_last
+        = !__slide_caches_nothing<
               View> && std::ranges::bidirectional_range<View> && std::ranges::common_range<View>;
 
     template <class View>
-    concept slide_caches_first
-        = !slide_caches_nothing<View> && !slide_caches_last<View>;
+    concept __slide_caches_first
+        = !__slide_caches_nothing<View> && !__slide_caches_last<View>;
 }
 
 template <std::ranges::forward_range View>
@@ -30,7 +30,7 @@ public:
     };
 
     template <typename Base>
-        requires __slide_view_detail::slide_caches_first<Base>
+        requires __slide_view_detail::__slide_caches_first<Base>
     class iterator_base<Base> {
     public:
         iterator_base() = default;
@@ -53,7 +53,7 @@ public:
 
         constexpr iterator(std::ranges::iterator_t<Base> current,
                            std::ranges::range_difference_t<Base> n) //
-            requires(!__slide_view_detail::slide_caches_first<Base>)
+            requires(!__slide_view_detail::__slide_caches_first<Base>)
             : current_(current)
             , n_(n)
         {
@@ -62,7 +62,7 @@ public:
         constexpr iterator(std::ranges::iterator_t<Base> current,
                            std::ranges::iterator_t<Base> last_element,
                            std::ranges::range_difference_t<Base> n) //
-            requires(__slide_view_detail::slide_caches_first<Base>)
+            requires(__slide_view_detail::__slide_caches_first<Base>)
             : iterator_base<__detail::__maybe_const<IsConst, View>>(
                 last_element)
             , current_(current)
@@ -102,7 +102,7 @@ public:
         constexpr iterator& operator++()
         {
             current_ = std::ranges::next(current_);
-            if constexpr (__slide_view_detail::slide_caches_first<Base>) {
+            if constexpr (__slide_view_detail::__slide_caches_first<Base>) {
                 this->last_element_ = std::ranges::next(this->last_element_);
             }
 
@@ -120,7 +120,7 @@ public:
             requires std::ranges::bidirectional_range<Base>
         {
             current_ = std::ranges::prev(current_);
-            if constexpr (__slide_view_detail::slide_caches_first<Base>) {
+            if constexpr (__slide_view_detail::__slide_caches_first<Base>) {
                 this->last_element_ = std::ranges::prev(this->last_element_);
             }
 
@@ -139,7 +139,7 @@ public:
             requires std::ranges::random_access_range<Base>
         {
             current_ = std::ranges::next(current_, offset);
-            if constexpr (__slide_view_detail::slide_caches_first<Base>) {
+            if constexpr (__slide_view_detail::__slide_caches_first<Base>) {
                 this->last_element_
                     = std::ranges::next(this->last_element_, offset);
             }
@@ -151,7 +151,7 @@ public:
             requires std::ranges::random_access_range<Base>
         {
             current_ = std::ranges::prev(current_, offset);
-            if constexpr (__slide_view_detail::slide_caches_first<Base>) {
+            if constexpr (__slide_view_detail::__slide_caches_first<Base>) {
                 this->last_element_
                     = std::ranges::prev(this->last_element_, offset);
             }
@@ -168,7 +168,7 @@ public:
         friend constexpr bool operator==(const iterator& lhs,
                                          const iterator& rhs)
         {
-            if constexpr (__slide_view_detail::slide_caches_first<Base>) {
+            if constexpr (__slide_view_detail::__slide_caches_first<Base>) {
                 return lhs.last_element_ == rhs.last_element_;
             } else {
                 return lhs.current_ == rhs.current_;
@@ -243,7 +243,7 @@ public:
             requires std::sized_sentinel_for<std::ranges::iterator_t<Base>,
                                              std::ranges::iterator_t<Base>>
         {
-            if constexpr (__slide_view_detail::slide_caches_first<Base>) {
+            if constexpr (__slide_view_detail::__slide_caches_first<Base>) {
                 return lhs.last_element_ - rhs.last_element_;
             } else {
                 return lhs.current_ - rhs.current_;
@@ -313,9 +313,9 @@ public:
     constexpr auto begin() //
         requires(
             !(__detail::__simple_view<
-                  View> && __slide_view_detail::slide_caches_nothing<View>))
+                  View> && __slide_view_detail::__slide_caches_nothing<View>))
     {
-        if constexpr (__slide_view_detail::slide_caches_first<View>) {
+        if constexpr (__slide_view_detail::__slide_caches_first<View>) {
             return iterator<false>(std::ranges::begin(base_),
                                    std::ranges::next(std::ranges::begin(base_),
                                                      n_ - 1,
@@ -327,7 +327,7 @@ public:
     }
 
     constexpr auto begin() const //
-        requires __slide_view_detail::slide_caches_nothing<const View>
+        requires __slide_view_detail::__slide_caches_nothing<const View>
     {
         return iterator<true>(std::ranges::begin(base_), n_);
     }
@@ -335,14 +335,14 @@ public:
     constexpr auto end() //
         requires(
             !(__detail::__simple_view<
-                  View> && __slide_view_detail::slide_caches_nothing<View>))
+                  View> && __slide_view_detail::__slide_caches_nothing<View>))
     {
-        if constexpr (__slide_view_detail::slide_caches_nothing<View>) {
+        if constexpr (__slide_view_detail::__slide_caches_nothing<View>) {
             return iterator<false>(
                 std::ranges::begin(base_)
                     + std::ranges::range_difference_t<View>(size()),
                 n_);
-        } else if constexpr (__slide_view_detail::slide_caches_last<View>) {
+        } else if constexpr (__slide_view_detail::__slide_caches_last<View>) {
             return iterator<false>(std::ranges::prev(std ::ranges::end(base_),
                                                      n_ - 1,
                                                      std::ranges::begin(base_)),
@@ -356,7 +356,7 @@ public:
     }
 
     constexpr auto end() const //
-        requires __slide_view_detail::slide_caches_nothing<const View>
+        requires __slide_view_detail::__slide_caches_nothing<const View>
     {
         return begin() + std::ranges::range_difference_t<const View>(size());
     }

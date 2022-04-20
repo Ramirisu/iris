@@ -10,7 +10,7 @@ namespace iris::ranges {
 namespace __chunk_view_detail {
 
     template <typename T>
-    constexpr T div_ceil(T num, T denom)
+    constexpr T __div_ceil(T num, T denom)
     {
         IRIS_ASSERT(denom > 0);
         return (num + denom - 1) / denom;
@@ -74,7 +74,7 @@ public:
                     return dist == 0 ? 0 : 1;
                 }
 
-                return __chunk_view_detail::div_ceil(
+                return __chunk_view_detail::__div_ceil(
                            dist - rhs.parent_->__remainder(),
                            rhs.parent_->__n())
                     + 1;
@@ -263,14 +263,14 @@ public:
     constexpr auto size() requires std::ranges::sized_range<View>
     {
         auto value
-            = __chunk_view_detail::div_ceil(std::ranges::distance(base_), n_);
+            = __chunk_view_detail::__div_ceil(std::ranges::distance(base_), n_);
         return static_cast<std::make_unsigned_t<decltype(value)>>(value);
     }
 
     constexpr auto size() const requires std::ranges::sized_range<const View>
     {
         auto value
-            = __chunk_view_detail::div_ceil(std::ranges::distance(base_), n_);
+            = __chunk_view_detail::__div_ceil(std::ranges::distance(base_), n_);
         return static_cast<std::make_unsigned_t<decltype(value)>>(value);
     }
 
@@ -507,8 +507,8 @@ public:
             requires std::sized_sentinel_for<std::ranges::sentinel_t<Base>,
                                              std::ranges::iterator_t<Base>>
         {
-            return __chunk_view_detail::div_ceil(rhs.end_, rhs.current_,
-                                                 rhs.n_);
+            return __chunk_view_detail::__div_ceil(rhs.end_, rhs.current_,
+                                                   rhs.n_);
         }
 
         friend constexpr difference_type
@@ -604,14 +604,14 @@ public:
     constexpr auto size() requires std::ranges::sized_range<View>
     {
         auto value
-            = __chunk_view_detail::div_ceil(std::ranges::distance(base_), n_);
+            = __chunk_view_detail::__div_ceil(std::ranges::distance(base_), n_);
         return static_cast<std::make_unsigned_t<decltype(value)>>(value);
     }
 
     constexpr auto size() const requires std::ranges::sized_range<const View>
     {
         auto value
-            = __chunk_view_detail::div_ceil(std::ranges::distance(base_), n_);
+            = __chunk_view_detail::__div_ceil(std::ranges::distance(base_), n_);
         return static_cast<std::make_unsigned_t<decltype(value)>>(value);
     }
 
