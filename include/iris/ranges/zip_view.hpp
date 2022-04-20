@@ -7,13 +7,24 @@
 
 namespace iris::ranges {
 namespace __zip_detail {
-    template <class... Ranges>
+    template <typename... Ranges>
     concept zip_is_common
         = (sizeof...(Ranges) == 1 && (std::ranges::common_range<Ranges> && ...))
         || (!(std::ranges::bidirectional_range<Ranges> && ...)
             && (std::ranges::common_range<Ranges> && ...))
         || ((std::ranges::random_access_range<Ranges> && ...)
             && (std::ranges::sized_range<Ranges> && ...));
+
+    template <typename... Ts>
+    struct __tuple_or_pair : std::type_identity<std::tuple<Ts...>> {
+    };
+
+    template <typename T, typename U>
+    struct __tuple_or_pair<T, U> : std::type_identity<std::pair<T, U>> {
+    };
+
+    template <typename... Ts>
+    using __tuple_or_pair_t = typename __tuple_or_pair<Ts...>::type;
 
     template <bool IsConst, typename... Ranges>
     concept __all_random_access_range
@@ -35,7 +46,7 @@ namespace __zip_detail {
     {
         return std::apply(
             [&]<class... Ts>(Ts && ... elements) {
-                return std::tuple<std::invoke_result_t<F&, Ts>...>(
+                return __tuple_or_pair_t<std::invoke_result_t<F&, Ts>...>(
                     std::invoke(f, std::forward<Ts>(elements))...);
             },
             std::forward<Tuple>(tuple));
@@ -112,9 +123,11 @@ public:
                     __zip_detail::__all_forward_range<IsConst, Views...>,
                     std::forward_iterator_tag,
                     std::input_iterator_tag>>>;
-        using value_type = std::tuple<std::ranges::range_reference_t<
-            __detail::__maybe_const<IsConst, Views>>...>; // TODO: paper uses
-                                                          // range_value_t
+        using value_type
+            = __zip_detail::__tuple_or_pair_t<std::ranges::range_reference_t<
+                __detail::__maybe_const<IsConst, Views>>...>; // TODO: paper
+                                                              // uses
+                                                              // range_value_t
         using difference_type
             = std::common_type_t<std::ranges::range_difference_t<
                 __detail::__maybe_const<IsConst, Views>>...>;
@@ -328,13 +341,13 @@ public:
 
     private:
         constexpr explicit iterator(
-            std::tuple<std::ranges::iterator_t<
+            __zip_detail::__tuple_or_pair_t<std::ranges::iterator_t<
                 __detail::__maybe_const<IsConst, Views>>...> current)
             : current_(std::move(current))
         {
         }
 
-        std::tuple<
+        __zip_detail::__tuple_or_pair_t<
             std::ranges::iterator_t<__detail::__maybe_const<IsConst, Views>>...>
             current_;
     };
@@ -400,13 +413,13 @@ public:
 
     private:
         constexpr explicit sentinel(
-            std::tuple<std::ranges::sentinel_t<
+            __zip_detail::__tuple_or_pair_t<std::ranges::sentinel_t<
                 __detail::__maybe_const<IsConst, Views>>...> end)
             : end_(end)
         {
         }
 
-        std::tuple<
+        __zip_detail::__tuple_or_pair_t<
             std::ranges::sentinel_t<__detail::__maybe_const<IsConst, Views>>...>
             end_;
     };
