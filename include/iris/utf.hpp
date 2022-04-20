@@ -30,8 +30,39 @@ using utf32_code_units = detail::static_storage<T, 1>;
 template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 1> {
 public:
-    using unicode_result_type = expected<Unicode, utf_error>;
     using utf_result_type = expected<utf8_code_units<UTF>, utf_error>;
+    using unicode_result_type = expected<Unicode, utf_error>;
+
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr utf_result_type encode(I& first, const S& last) noexcept
+    {
+        if (first == last) {
+            return unexpected(utf_error::eof);
+        }
+
+        if (*first <= 0x7f) {
+            auto b0 = *first++;
+            return utf8_code_units<UTF> { b0 };
+        } else if (*first <= 0x07ff) {
+            auto b0 = ((*first >> 6) & 0x1f) | 0xc0;
+            auto b1 = (*first++ & 0x3f) | 0x80;
+            return utf8_code_units<UTF> { b0, b1 };
+        } else if (*first <= 0xffff) {
+            auto b0 = ((*first >> 12) & 0xff) | 0xe0;
+            auto b1 = ((*first >> 6) & 0x3f) | 0x80;
+            auto b2 = (*first++ & 0x3f) | 0x80;
+            return utf8_code_units<UTF> { b0, b1, b2 };
+        } else if (*first <= 0x1fffff) {
+            auto b0 = ((*first >> 18) & 0x7) | 0xf0;
+            auto b1 = ((*first >> 12) & 0x3f) | 0x80;
+            auto b2 = ((*first >> 6) & 0x3f) | 0x80;
+            auto b3 = (*first++ & 0x3f) | 0x80;
+            return utf8_code_units<UTF> { b0, b1, b2, b3 };
+        }
+
+        ++first;
+        return unexpected(utf_error::illegal_character);
+    }
 
     template <std::input_or_output_iterator I, std::sentinel_for<I> S>
     static constexpr unicode_result_type decode(I& first,
@@ -90,37 +121,6 @@ public:
         return codepoint;
     }
 
-    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
-    static constexpr utf_result_type encode(I& first, const S& last) noexcept
-    {
-        if (first == last) {
-            return unexpected(utf_error::eof);
-        }
-
-        if (*first <= 0x7f) {
-            auto b0 = *first++;
-            return utf8_code_units<UTF> { b0 };
-        } else if (*first <= 0x07ff) {
-            auto b0 = ((*first >> 6) & 0x1f) | 0xc0;
-            auto b1 = (*first++ & 0x3f) | 0x80;
-            return utf8_code_units<UTF> { b0, b1 };
-        } else if (*first <= 0xffff) {
-            auto b0 = ((*first >> 12) & 0xff) | 0xe0;
-            auto b1 = ((*first >> 6) & 0x3f) | 0x80;
-            auto b2 = (*first++ & 0x3f) | 0x80;
-            return utf8_code_units<UTF> { b0, b1, b2 };
-        } else if (*first <= 0x1fffff) {
-            auto b0 = ((*first >> 18) & 0x7) | 0xf0;
-            auto b1 = ((*first >> 12) & 0x3f) | 0x80;
-            auto b2 = ((*first >> 6) & 0x3f) | 0x80;
-            auto b3 = (*first++ & 0x3f) | 0x80;
-            return utf8_code_units<UTF> { b0, b1, b2, b3 };
-        }
-
-        ++first;
-        return unexpected(utf_error::illegal_character);
-    }
-
 private:
     static constexpr std::size_t utf8_size(std::uint8_t value) noexcept
     {
@@ -149,8 +149,27 @@ private:
 template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 2> {
 public:
-    using unicode_result_type = expected<Unicode, utf_error>;
     using utf_result_type = expected<utf16_code_units<UTF>, utf_error>;
+    using unicode_result_type = expected<Unicode, utf_error>;
+
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr utf_result_type encode(I& first, const S& last) noexcept
+    {
+        if (first == last) {
+            return unexpected(utf_error::eof);
+        }
+
+        std::uint32_t codepoint = *first++;
+        if (codepoint <= 0xd7ff || codepoint >= 0xe000 && codepoint <= 0xffff) {
+            return utf16_code_units<UTF> { codepoint };
+        } else if (codepoint >= 0x10000 && codepoint <= 0x10ffff) {
+            codepoint -= 0x10000;
+            return utf16_code_units<UTF> { (codepoint >> 10) | 0xd800,
+                                           (codepoint & 0x3ff) | 0xdc00 };
+        }
+
+        return unexpected(utf_error::illegal_character);
+    }
 
     template <std::input_or_output_iterator I, std::sentinel_for<I> S>
     static constexpr unicode_result_type decode(I& first,
@@ -176,25 +195,6 @@ public:
         return unexpected(utf_error::illegal_character);
     }
 
-    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
-    static constexpr utf_result_type encode(I& first, const S& last) noexcept
-    {
-        if (first == last) {
-            return unexpected(utf_error::eof);
-        }
-
-        std::uint32_t codepoint = *first++;
-        if (codepoint <= 0xd7ff || codepoint >= 0xe000 && codepoint <= 0xffff) {
-            return utf16_code_units<UTF> { codepoint };
-        } else if (codepoint >= 0x10000 && codepoint <= 0x10ffff) {
-            codepoint -= 0x10000;
-            return utf16_code_units<UTF> { (codepoint >> 10) | 0xd800,
-                                           (codepoint & 0x3ff) | 0xdc00 };
-        }
-
-        return unexpected(utf_error::illegal_character);
-    }
-
 private:
     static constexpr bool is_lead_surrogates(std::uint16_t value) noexcept
     {
@@ -210,8 +210,23 @@ private:
 template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 4> {
 public:
-    using unicode_result_type = expected<Unicode, utf_error>;
     using utf_result_type = expected<utf32_code_units<UTF>, utf_error>;
+    using unicode_result_type = expected<Unicode, utf_error>;
+
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr utf_result_type encode(I& first, const S& last) noexcept
+    {
+        if (first == last) {
+            return unexpected(utf_error::eof);
+        }
+
+        std::uint32_t lead = *first++;
+        if (is_valid_codepoint(lead)) {
+            return utf32_code_units<UTF> { lead };
+        }
+
+        return unexpected(utf_error::illegal_character);
+    }
 
     template <std::input_or_output_iterator I, std::sentinel_for<I> S>
     static constexpr unicode_result_type decode(I& first,
@@ -224,21 +239,6 @@ public:
         std::uint32_t lead = *first++;
         if (is_valid_codepoint(lead)) {
             return lead;
-        }
-
-        return unexpected(utf_error::illegal_character);
-    }
-
-    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
-    static constexpr utf_result_type encode(I& first, const S& last) noexcept
-    {
-        if (first == last) {
-            return unexpected(utf_error::eof);
-        }
-
-        std::uint32_t lead = *first++;
-        if (is_valid_codepoint(lead)) {
-            return utf32_code_units<UTF> { lead };
         }
 
         return unexpected(utf_error::illegal_character);

@@ -19,8 +19,44 @@ using base64_result = detail::static_storage<T, N>;
 template <typename Binary, typename Text>
 class base64 {
 public:
-    using binary_result_type = expected<base64_result<Binary, 3>, base64_error>;
     using text_result_type = expected<base64_result<Text, 4>, base64_error>;
+    using binary_result_type = expected<base64_result<Binary, 3>, base64_error>;
+
+    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    static constexpr expected<base64_result<Text, 4>, base64_error>
+    encode(I& first, const S& last) noexcept
+    {
+        if (first == last) {
+            return unexpected(base64_error::eof);
+        }
+
+        std::size_t padding = 0;
+        std::uint32_t b = *first++ << 16;
+        if (first == last) {
+            return base64_result<Text, 4> {
+                encode_table_[(b >> 18)],
+                encode_table_[(b >> 12) & 0x3f],
+                61,
+                61,
+            };
+        }
+        b |= *first++ << 8;
+        if (first == last) {
+            return base64_result<Text, 4> {
+                encode_table_[(b >> 18)],
+                encode_table_[(b >> 12) & 0x3f],
+                encode_table_[(b >> 6) & 0x3f],
+                61,
+            };
+        }
+        b |= *first++;
+        return base64_result<Text, 4> {
+            encode_table_[(b >> 18)],
+            encode_table_[(b >> 12) & 0x3f],
+            encode_table_[(b >> 6) & 0x3f],
+            encode_table_[(b >> 0) & 0x3f],
+        };
+    }
 
     template <std::input_or_output_iterator I, std::sentinel_for<I> S>
     static constexpr expected<base64_result<Binary, 3>, base64_error>
@@ -69,43 +105,14 @@ public:
         return unexpected(base64_error::illegal_character);
     }
 
-    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
-    static constexpr expected<base64_result<Text, 4>, base64_error>
-    encode(I& first, const S& last) noexcept
-    {
-        if (first == last) {
-            return unexpected(base64_error::eof);
-        }
-
-        std::size_t padding = 0;
-        std::uint32_t b = *first++ << 16;
-        if (first == last) {
-            return base64_result<Text, 4> {
-                encode_table_[(b >> 18)],
-                encode_table_[(b >> 12) & 0x3f],
-                61,
-                61,
-            };
-        }
-        b |= *first++ << 8;
-        if (first == last) {
-            return base64_result<Text, 4> {
-                encode_table_[(b >> 18)],
-                encode_table_[(b >> 12) & 0x3f],
-                encode_table_[(b >> 6) & 0x3f],
-                61,
-            };
-        }
-        b |= *first++;
-        return base64_result<Text, 4> {
-            encode_table_[(b >> 18)],
-            encode_table_[(b >> 12) & 0x3f],
-            encode_table_[(b >> 6) & 0x3f],
-            encode_table_[(b >> 0) & 0x3f],
-        };
-    }
-
 private:
+    static inline constexpr std::uint8_t encode_table_[64]
+        = { 65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,
+            78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,
+            97,  98,  99,  100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
+            110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122,
+            48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  43,  47 };
+
     static inline constexpr std::uint8_t err = 255;
     static inline constexpr std::uint8_t eq = 254;
     static inline constexpr std::uint8_t decode_table_[256]
@@ -135,12 +142,6 @@ private:
             err, err, err, err, err, err, err, err, err, err, // [230-239]
             err, err, err, err, err, err, err, err, err, err, // [240-249]
             err, err, err, err, err, err }; // [250-255]
-    static inline constexpr std::uint8_t encode_table_[64]
-        = { 65,  66,  67,  68,  69,  70,  71,  72,  73,  74,  75,  76,  77,
-            78,  79,  80,  81,  82,  83,  84,  85,  86,  87,  88,  89,  90,
-            97,  98,  99,  100, 101, 102, 103, 104, 105, 106, 107, 108, 109,
-            110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122,
-            48,  49,  50,  51,  52,  53,  54,  55,  56,  57,  43,  47 };
 };
 
 }
