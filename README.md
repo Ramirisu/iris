@@ -28,10 +28,7 @@
 * Range Adaptor Objects
   * `views::to_base64`
   * `views::from_base64`
-  * `views::to_utf8_char`
-  * `views::to_utf8`
-  * `views::to_utf16`
-  * `views::to_utf32`
+  * `views::to_utf<UTF>`
   * `views::from_utf`
   * `views::join_with`
   * `views::zip`

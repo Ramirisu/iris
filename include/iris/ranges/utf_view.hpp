@@ -171,90 +171,33 @@ private:
 
 namespace views {
 
-    class __to_utf8_char_fn : public range_adaptor_closure<__to_utf8_char_fn> {
+    template <typename UTF>
+    class __to_utf_fn : public range_adaptor_closure<__to_utf_fn<UTF>> {
     public:
-        constexpr __to_utf8_char_fn() noexcept = default;
+        constexpr __to_utf_fn() noexcept = default;
 
         template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const noexcept(noexcept(
-            to_utf_view<std::views::all_t<Range>, std::uint32_t, char> {
+        constexpr auto operator()(Range&& range) const
+            noexcept(noexcept(to_utf_view<std::ranges::views::all_t<Range>,
+                                          std::ranges::range_reference_t<Range>,
+                                          UTF> {
                 std::forward<Range>(range) })) requires requires
         {
-            to_utf_view<std::views::all_t<Range>, std::uint32_t, char> {
+            to_utf_view<std::ranges::views::all_t<Range>,
+                        std::ranges::range_reference_t<Range>, UTF> {
                 std::forward<Range>(range)
             };
         }
         {
-            return to_utf_view<std::views::all_t<Range>, std::uint32_t, char> {
+            return to_utf_view<std::ranges::views::all_t<Range>,
+                               std::ranges::range_reference_t<Range>, UTF> {
                 std::forward<Range>(range)
             };
         }
     };
 
-    inline constexpr __to_utf8_char_fn to_utf8_char {};
-
-    class __to_utf8_fn : public range_adaptor_closure<__to_utf8_fn> {
-    public:
-        constexpr __to_utf8_fn() noexcept = default;
-
-        template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const noexcept(noexcept(
-            to_utf_view<std::views::all_t<Range>, std::uint32_t, char8_t> {
-                std::forward<Range>(range) })) requires requires
-        {
-            to_utf_view<std::views::all_t<Range>, std::uint32_t, char8_t> {
-                std::forward<Range>(range)
-            };
-        }
-        {
-            return to_utf_view<std::views::all_t<Range>, std::uint32_t,
-                               char8_t> { std::forward<Range>(range) };
-        }
-    };
-
-    inline constexpr __to_utf8_fn to_utf8 {};
-
-    class __to_utf16_fn : public range_adaptor_closure<__to_utf16_fn> {
-    public:
-        constexpr __to_utf16_fn() noexcept = default;
-
-        template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const noexcept(noexcept(
-            to_utf_view<std::views::all_t<Range>, std::uint32_t, char16_t> {
-                std::forward<Range>(range) })) requires requires
-        {
-            to_utf_view<std::views::all_t<Range>, std::uint32_t, char16_t> {
-                std::forward<Range>(range)
-            };
-        }
-        {
-            return to_utf_view<std::views::all_t<Range>, std::uint32_t,
-                               char16_t> { std::forward<Range>(range) };
-        }
-    };
-
-    inline constexpr __to_utf16_fn to_utf16 {};
-
-    class __to_utf32_fn : public range_adaptor_closure<__to_utf32_fn> {
-    public:
-        constexpr __to_utf32_fn() noexcept = default;
-
-        template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const noexcept(noexcept(
-            to_utf_view<std::views::all_t<Range>, std::uint32_t, char32_t> {
-                std::forward<Range>(range) })) requires requires
-        {
-            to_utf_view<std::views::all_t<Range>, std::uint32_t, char32_t> {
-                std::forward<Range>(range)
-            };
-        }
-        {
-            return to_utf_view<std::views::all_t<Range>, std::uint32_t,
-                               char32_t> { std::forward<Range>(range) };
-        }
-    };
-
-    inline constexpr __to_utf32_fn to_utf32 {};
+    template <typename UTF>
+    inline constexpr __to_utf_fn<UTF> to_utf {};
 }
 
 template <std::ranges::input_range View, typename Unicode, typename UTF>
