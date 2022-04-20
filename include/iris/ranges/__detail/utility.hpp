@@ -52,32 +52,24 @@ constexpr auto __tuple_transform(F&& f, Tuple&& tuple)
         std::forward<Tuple>(tuple));
 }
 
-template <template <typename...> class Template, typename T, std::size_t N>
-struct __repeat_n_impl;
-
-template <template <typename...> class Template,
-          template <typename...>
-          class Outer,
-          std::size_t N,
-          typename FirstInner,
-          typename... RestInner>
-    requires(N > 0)
-struct __repeat_n_impl<Template, Outer<FirstInner, RestInner...>, N> {
-    using type =
-        typename __repeat_n_impl<Template,
-                                 Template<FirstInner, RestInner..., FirstInner>,
-                                 N - 1>::type;
-};
-
-template <template <typename...> class Template, typename T>
-struct __repeat_n_impl<Template, T, std::size_t(0)> {
+template <typename T, std::size_t N>
+struct __repeat_n_helper {
     using type = T;
 };
 
-template <template <typename...> class Template, typename T, std::size_t N>
+template <template <typename...> class Template,
+          typename T,
+          std::size_t N,
+          typename = std::make_index_sequence<N>>
     requires(N > 0)
-struct __repeat_n {
-    using type = typename __repeat_n_impl<Template, Template<T>, N - 1>::type;
+struct __repeat_n;
+
+template <template <typename...> class Template,
+          typename T,
+          std::size_t N,
+          std::size_t... Is>
+struct __repeat_n<Template, T, N, std::index_sequence<Is...>> {
+    using type = Template<typename __repeat_n_helper<T, Is>::type...>;
 };
 
 template <template <typename...> class Template, typename T, std::size_t N>
