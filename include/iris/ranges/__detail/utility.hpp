@@ -76,4 +76,38 @@ template <template <typename...> class Template, typename T, std::size_t N>
     requires(N > 0)
 using __repeat_n_t = typename __repeat_n<Template, T, N>::type;
 
+template <typename Fn,
+          typename T,
+          std::size_t N,
+          typename = std::make_index_sequence<N>>
+struct __regular_invocable_repeat_n_impl : std::false_type {
+};
+
+template <typename Fn, typename T, std::size_t N, std::size_t... Is>
+struct __regular_invocable_repeat_n_impl<Fn, T, N, std::index_sequence<Is...>>
+    : std::bool_constant<
+          std::regular_invocable<Fn,
+                                 typename __repeat_n_helper<T, Is>::type...>> {
+};
+
+template <typename Fn, typename T, std::size_t N>
+inline constexpr bool __regular_invocable_repeat_n
+    = __regular_invocable_repeat_n_impl<Fn, T, N>::value;
+
+template <typename Fn,
+          typename T,
+          std::size_t N,
+          typename = std::make_index_sequence<N>>
+struct __invoke_result_repeat_n;
+
+template <typename Fn, typename T, std::size_t N, std::size_t... Is>
+struct __invoke_result_repeat_n<Fn, T, N, std::index_sequence<Is...>> {
+    using type
+        = std::invoke_result_t<Fn, typename __repeat_n_helper<T, Is>::type...>;
+};
+
+template <typename Fn, typename T, std::size_t N>
+using __invoke_result_repeat_n_t =
+    typename __invoke_result_repeat_n<Fn, T, N>::type;
+
 }

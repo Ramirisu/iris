@@ -210,6 +210,11 @@ public:
             }
         }
 
+        constexpr auto& __current() const
+        {
+            return current_;
+        }
+
 #if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
         void __placeholder();
 #endif

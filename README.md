@@ -19,10 +19,11 @@
   * `ranges::join_with_view<Range, Pattern>`
   * `ranges::zip_view<Ranges...>`
   * `ranges::zip_transform_view<Fn, Ranges...>`
+  * `ranges::adjacent_view<Range, N>`
+  * `ranges::adjacent_transform_view<Range, Fn, N>`
   * `ranges::chunk_by_view<Range, Pred>`
   * `ranges::chunk_view<Range>`
   * `ranges::slide_view<Range>`
-  * `ranges::adjacent_view<Range, N>`
 * Range Utilities
   * `ranges::to`
   * `ranges::elements_of`
@@ -34,11 +35,13 @@
   * `views::join_with`
   * `views::zip`
   * `views::zip_transform`
+  * `views::adjacent<N>`
+  * `views::pairwise`
+  * `views::adjacent_transform<N>`
+  * `views::pairwise_transform`
   * `views::chunk_by`
   * `views::chunk`
   * `views::slide`
-  * `views::adjacent<N>`
-  * `views::pairwise`
 * Coroutine Types
   * `lazy<T>`
   * `generator<R, V, Allocator>`
@@ -54,6 +57,7 @@
 * Type Traits
   * `is_specialization_of`
   * `is_scoped_enum`
+  * `front_of`
 * Utilities
   * `expected<T, E>`
   * `semver`

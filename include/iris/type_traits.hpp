@@ -30,4 +30,20 @@ struct is_scoped_enum<E, true>
 template <typename E>
 inline constexpr bool is_scoped_enum_v = is_scoped_enum<E>::value;
 
+template <typename Default, typename... Ts>
+struct front_of;
+
+template <typename Default, typename First, typename... Ts>
+struct front_of<Default, First, Ts...> {
+    using type = First;
+};
+
+template <typename Default>
+struct front_of<Default> {
+    using type = Default;
+};
+
+template <typename Default, typename... Ts>
+using front_of_t = typename front_of<Default, Ts...>::type;
+
 }
