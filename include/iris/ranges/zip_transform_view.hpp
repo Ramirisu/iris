@@ -32,10 +32,10 @@ class zip_transform_view
     : public std::ranges::view_interface<zip_transform_view<Fn, Views...>> {
     using InnerView = zip_view<Views...>;
     template <bool IsConst>
-    using ZipIterator
+    using InnerIterator
         = std::ranges::iterator_t<__detail::__maybe_const<IsConst, InnerView>>;
     template <bool IsConst>
-    using ZipSentinel
+    using InnerSentinel
         = std::ranges::sentinel_t<__detail::__maybe_const<IsConst, InnerView>>;
 
 public:
@@ -86,7 +86,7 @@ public:
 
     public:
         using iterator_concept =
-            typename ZipIterator<IsConst>::iterator_concept;
+            typename InnerIterator<IsConst>::iterator_concept;
         using value_type = std::remove_cvref_t<std::invoke_result_t<
             __detail::__maybe_const<IsConst, Fn>&,
             std::ranges::range_reference_t<
@@ -96,29 +96,29 @@ public:
         iterator() = default;
 
         constexpr iterator(iterator<!IsConst> other) requires(
-            IsConst&&
-                std::convertible_to<ZipIterator<false>, ZipIterator<IsConst>>)
+            IsConst&& std::convertible_to<InnerIterator<false>,
+                                          InnerIterator<IsConst>>)
             : parent_(other.parent_)
-            , inner_(std::move(other.inner_))
+            , inner_iter_(std::move(other.inner_iter_))
         {
         }
 
         constexpr decltype(auto) operator*() const
             noexcept(noexcept(__zip_transform_view_detail::__tuple_invoke(
                 *parent_->fn_,
-                inner_.__current(),
+                inner_iter_.__current(),
                 std::index_sequence_for<Views...> {})))
         {
             return std::apply(
                 [&](const auto&... iters) -> decltype(auto) {
                     return std::invoke(*parent_->fn_, *iters...);
                 },
-                inner_.__current());
+                inner_iter_.__current());
         }
 
         constexpr iterator& operator++()
         {
-            ++inner_;
+            ++inner_iter_;
             return *this;
         }
 
@@ -136,7 +136,7 @@ public:
         constexpr iterator& operator--() //
             requires std::ranges::bidirectional_range<Base>
         {
-            --inner_;
+            --inner_iter_;
             return *this;
         }
 
@@ -151,14 +151,14 @@ public:
         constexpr iterator& operator+=(difference_type offset) //
             requires std::ranges::random_access_range<Base>
         {
-            inner_ += offset;
+            inner_iter_ += offset;
             return *this;
         }
 
         constexpr iterator& operator-=(difference_type offset) //
             requires std::ranges::random_access_range<Base>
         {
-            inner_ -= offset;
+            inner_iter_ -= offset;
             return *this;
         }
 
@@ -171,83 +171,83 @@ public:
                         *parent_->fn_,
                         iters[std::iter_difference_t<Is>(offset)]...);
                 },
-                inner_.current_);
+                inner_iter_.current_);
         }
 
         friend constexpr bool operator==(const iterator& lhs,
                                          const iterator& rhs) //
-            requires std::equality_comparable<ZipIterator<IsConst>>
+            requires std::equality_comparable<InnerIterator<IsConst>>
         {
-            return lhs.inner_ == rhs.inner_;
+            return lhs.inner_iter_ == rhs.inner_iter_;
         }
 
         friend constexpr bool operator<(const iterator& lhs,
                                         const iterator& rhs) //
             requires std::ranges::random_access_range<Base>
         {
-            return lhs.inner_ < rhs.inner_;
+            return lhs.inner_iter_ < rhs.inner_iter_;
         }
 
         friend constexpr bool operator>(const iterator& lhs,
                                         const iterator& rhs) //
             requires std::ranges::random_access_range<Base>
         {
-            return lhs.inner_ > rhs.inner_;
+            return lhs.inner_iter_ > rhs.inner_iter_;
         }
 
         friend constexpr bool operator<=(const iterator& lhs,
                                          const iterator& rhs) //
             requires std::ranges::random_access_range<Base>
         {
-            return lhs.inner_ <= rhs.inner_;
+            return lhs.inner_iter_ <= rhs.inner_iter_;
         }
 
         friend constexpr bool operator>=(const iterator& lhs,
                                          const iterator& rhs) //
             requires std::ranges::random_access_range<Base>
         {
-            return lhs.inner_ >= rhs.inner_;
+            return lhs.inner_iter_ >= rhs.inner_iter_;
         }
 
         friend constexpr auto operator<=>(const iterator& lhs,
                                           const iterator& rhs) //
             requires std::ranges::random_access_range<
-                Base> && std::three_way_comparable<ZipIterator<IsConst>>
+                Base> && std::three_way_comparable<InnerIterator<IsConst>>
         {
-            return lhs.inner_ <=> rhs.inner_;
+            return lhs.inner_iter_ <=> rhs.inner_iter_;
         }
         friend constexpr iterator operator+(const iterator& i,
                                             difference_type offset) //
             requires std::ranges::random_access_range<Base>
         {
-            return iterator(*i.parent_, i.inner_ + offset);
+            return iterator(*i.parent_, i.inner_iter_ + offset);
         }
 
         friend constexpr iterator operator+(difference_type offset,
                                             const iterator& i) //
             requires std::ranges::random_access_range<Base>
         {
-            return iterator(*i.parent_, i.inner_ + offset);
+            return iterator(*i.parent_, i.inner_iter_ + offset);
         }
 
         friend constexpr iterator operator-(const iterator& i,
                                             difference_type offset) //
             requires std::ranges::random_access_range<Base>
         {
-            return iterator(*i.parent_, i.inner_ - offset);
+            return iterator(*i.parent_, i.inner_iter_ - offset);
         }
 
         friend constexpr difference_type operator-(const iterator& lhs,
                                                    const iterator& rhs) //
-            requires
-            std::sized_sentinel_for<ZipIterator<IsConst>, ZipIterator<IsConst>>
+            requires std::sized_sentinel_for<InnerIterator<IsConst>,
+                                             InnerIterator<IsConst>>
         {
-            return lhs.inner_ - rhs.inner_;
+            return lhs.inner_iter_ - rhs.inner_iter_;
         }
 
         constexpr const auto& __inner() const
         {
-            return inner_;
+            return inner_iter_;
         }
 
 #if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
@@ -255,14 +255,14 @@ public:
 #endif
 
     private:
-        constexpr iterator(Parent& parent, ZipIterator<IsConst> inner)
+        constexpr iterator(Parent& parent, InnerIterator<IsConst> inner_iter)
             : parent_(std::addressof(parent))
-            , inner_(std::move(inner))
+            , inner_iter_(std::move(inner_iter))
         {
         }
 
         Parent* parent_ {};
-        ZipIterator<IsConst> inner_;
+        InnerIterator<IsConst> inner_iter_;
     };
 
     template <bool IsConst>
@@ -273,60 +273,60 @@ public:
         sentinel() = default;
 
         constexpr sentinel(sentinel<!IsConst> other) requires IsConst
-            && std::convertible_to<ZipSentinel<false>, ZipSentinel<IsConst>>
-            : inner_(std::move(other.inner_))
+            && std::convertible_to<InnerSentinel<false>, InnerSentinel<IsConst>>
+            : inner_iter_(std::move(other.inner_iter_))
         {
         }
 
         template <bool OtherIsConst>
-            requires std::sentinel_for<ZipSentinel<IsConst>,
-                                       ZipIterator<OtherIsConst>>
+            requires std::sentinel_for<InnerSentinel<IsConst>,
+                                       InnerIterator<OtherIsConst>>
         friend constexpr bool operator==(const iterator<OtherIsConst>& lhs,
                                          const sentinel& rhs)
         {
-            return lhs.__inner() == rhs.inner_;
+            return lhs.__inner() == rhs.inner_iter_;
         }
 
         template <bool OtherIsConst>
-            requires std::sized_sentinel_for<ZipSentinel<IsConst>,
-                                             ZipIterator<OtherIsConst>>
+            requires std::sized_sentinel_for<InnerSentinel<IsConst>,
+                                             InnerIterator<OtherIsConst>>
         friend constexpr std::ranges::range_difference_t<
             __detail::__maybe_const<OtherIsConst, InnerView>>
         operator-(const iterator<OtherIsConst>& lhs, const sentinel& rhs)
         {
-            return lhs.inner_ - rhs.inner_;
+            return lhs.inner_iter_ - rhs.inner_iter_;
         }
 
         template <bool OtherIsConst>
-            requires std::sized_sentinel_for<ZipSentinel<IsConst>,
-                                             ZipIterator<OtherIsConst>>
+            requires std::sized_sentinel_for<InnerSentinel<IsConst>,
+                                             InnerIterator<OtherIsConst>>
         friend constexpr std::ranges::range_difference_t<
             __detail::__maybe_const<OtherIsConst, InnerView>>
         operator-(const sentinel& lhs, const iterator<OtherIsConst>& rhs)
         {
-            return lhs.inner_ - rhs.inner_;
+            return lhs.inner_iter_ - rhs.inner_iter_;
         }
 
     private:
-        constexpr explicit sentinel(ZipSentinel<IsConst> inner)
-            : inner_(inner)
+        constexpr explicit sentinel(InnerSentinel<IsConst> inner_iter)
+            : inner_iter_(inner_iter)
         {
         }
 
-        ZipSentinel<IsConst> inner_;
+        InnerSentinel<IsConst> inner_iter_;
     };
 
     zip_transform_view() = default;
 
     constexpr explicit zip_transform_view(Fn fn, Views... bases)
         : fn_(std::in_place, std::move(fn))
-        , zip_(std::move(bases)...)
+        , inner_(std::move(bases)...)
     {
     }
 
     constexpr auto begin()
     {
-        return iterator<false>(*this, zip_.begin());
+        return iterator<false>(*this, inner_.begin());
     }
 
     constexpr auto begin() const //
@@ -334,15 +334,15 @@ public:
             const Fn&,
             std::ranges::range_reference_t<const Views>...>
     {
-        return iterator<true>(*this, zip_.begin());
+        return iterator<true>(*this, inner_.begin());
     }
 
     constexpr auto end()
     {
         if constexpr (std::ranges::common_range<InnerView>) {
-            return iterator<false>(*this, zip_.end());
+            return iterator<false>(*this, inner_.end());
         } else {
-            return sentinel<false>(zip_.end());
+            return sentinel<false>(inner_.end());
         }
     }
 
@@ -352,22 +352,22 @@ public:
             std::ranges::range_reference_t<const Views>...>
     {
         if constexpr (std::ranges::common_range<const InnerView>) {
-            return iterator<true>(*this, zip_.end());
+            return iterator<true>(*this, inner_.end());
         } else {
-            return sentinel<true>(zip_.end());
+            return sentinel<true>(inner_.end());
         }
     }
 
     constexpr auto size() //
         requires std::ranges::sized_range<InnerView>
     {
-        return zip_.size();
+        return inner_.size();
     }
 
     constexpr auto size() const //
         requires std::ranges::sized_range<const InnerView>
     {
-        return zip_.size();
+        return inner_.size();
     }
 
 #if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
@@ -376,7 +376,7 @@ public:
 
 private:
     __detail::__copyable_box<Fn> fn_;
-    zip_view<Views...> zip_;
+    zip_view<Views...> inner_;
 };
 
 template <typename Fn, typename... Ranges>

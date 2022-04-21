@@ -255,7 +255,7 @@ public:
         constexpr sentinel(sentinel<!IsConst> other) //
             requires(IsConst&& std::convertible_to<InnerSentinel<false>,
                                                    InnerSentinel<IsConst>>)
-            : inner_end_(std::move(other.inner_end_))
+            : inner_iter_(std::move(other.inner_iter_))
         {
         }
 
@@ -265,7 +265,7 @@ public:
         friend constexpr bool operator==(const iterator<OtherIsConst>& lhs,
                                          const sentinel& rhs)
         {
-            return lhs.inner_iter_ = rhs.inner_end_;
+            return lhs.inner_iter_ = rhs.inner_iter_;
         }
 
         template <bool OtherIsConst>
@@ -275,7 +275,7 @@ public:
             __detail::__maybe_const<OtherIsConst, InnerView>>
         operator-(const iterator<OtherIsConst>& lhs, const sentinel& rhs)
         {
-            return lhs.inner_iter_ - rhs.inner_end_;
+            return lhs.inner_iter_ - rhs.inner_iter_;
         }
 
         template <bool OtherIsConst>
@@ -285,7 +285,7 @@ public:
             __detail::__maybe_const<OtherIsConst, InnerView>>
         operator-(const sentinel& lhs, const iterator<OtherIsConst>& rhs)
         {
-            return lhs.inner_end_ - rhs.inner_iter_;
+            return lhs.inner_iter_ - rhs.inner_iter_;
         }
 
 #if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
@@ -293,12 +293,12 @@ public:
 #endif
 
     private:
-        constexpr explicit sentinel(InnerSentinel<IsConst> inner_end)
-            : inner_end_(inner_end)
+        constexpr explicit sentinel(InnerSentinel<IsConst> inner_iter)
+            : inner_iter_(inner_iter)
         {
         }
 
-        InnerSentinel<IsConst> inner_end_;
+        InnerSentinel<IsConst> inner_iter_;
     };
 
     adjacent_transform_view() = default;
