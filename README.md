@@ -42,6 +42,7 @@
   * `views::chunk_by`
   * `views::chunk`
   * `views::slide`
+  * `views::enumerate`
 * Coroutine Types
   * `lazy<T>`
   * `generator<R, V, Allocator>`
