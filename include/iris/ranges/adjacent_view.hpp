@@ -413,3 +413,9 @@ namespace views {
 namespace iris {
 namespace views = ranges::views;
 }
+
+namespace std::ranges {
+template <class View, size_t N>
+inline constexpr bool enable_borrowed_range<
+    iris::ranges::adjacent_view<View, N>> = enable_borrowed_range<View>;
+}
