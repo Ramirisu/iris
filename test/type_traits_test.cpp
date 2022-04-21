@@ -31,4 +31,11 @@ TEST_CASE("front_of")
     static_assert(std::same_as<front_of_t<int, char, bool>, char>);
 }
 
+TEST_CASE("back_of")
+{
+    static_assert(std::same_as<back_of_t<int>, int>);
+    static_assert(std::same_as<back_of_t<int, char>, char>);
+    static_assert(std::same_as<back_of_t<int, char, bool>, bool>);
+}
+
 TEST_SUITE_END();

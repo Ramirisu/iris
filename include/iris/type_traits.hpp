@@ -46,4 +46,24 @@ struct front_of<Default> {
 template <typename Default, typename... Ts>
 using front_of_t = typename front_of<Default, Ts...>::type;
 
+template <typename Default, typename... Ts>
+struct back_of;
+
+template <typename Default, typename Last>
+struct back_of<Default, Last> {
+    using type = Last;
+};
+
+template <typename Default, typename First, typename... Ts>
+struct back_of<Default, First, Ts...> : back_of<Ts...> {
+};
+
+template <typename Default>
+struct back_of<Default> {
+    using type = Default;
+};
+
+template <typename Default, typename... Ts>
+using back_of_t = typename back_of<Default, Ts...>::type;
+
 }

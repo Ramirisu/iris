@@ -58,6 +58,7 @@
   * `is_specialization_of`
   * `is_scoped_enum`
   * `front_of`
+  * `back_of`
 * Utilities
   * `expected<T, E>`
   * `semver`
