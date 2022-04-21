@@ -43,6 +43,11 @@
   * `views::chunk`
   * `views::slide`
   * `views::enumerate`
+* Range Algorithms
+  * `ranges::fold_left`
+  * `ranges::fold_left_first`
+  * `ranges::fold_right`
+  * `ranges::fold_right_last`
 * Coroutine Types
   * `lazy<T>`
   * `generator<R, V, Allocator>`
