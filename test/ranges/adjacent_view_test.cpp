@@ -59,8 +59,8 @@ TEST_CASE("bidirectional_range")
 
 TEST_CASE("random_access_range")
 {
-    static const int input0[] = { 0, 1, 2, 3, 4 };
-    auto view = views::adjacent<3>(input0);
+    static const int input[] = { 0, 1, 2, 3, 4 };
+    auto view = views::adjacent<3>(input);
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr, std::tuple { 0, 1, 2 });
     curr += 1;
