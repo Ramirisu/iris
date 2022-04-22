@@ -49,6 +49,8 @@
   * `ranges::shift_right`
   * `ranges::starts_with`
   * `ranges::ends_with`
+  * `ranges::contains`
+  * `ranges::contains_subrange`
   * `ranges::fold_left`
   * `ranges::fold_left_first`
   * `ranges::fold_right`

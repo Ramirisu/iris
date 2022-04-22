@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <iris/algorithm/contains.hpp>
 #include <iris/algorithm/ends_with.hpp>
 #include <iris/algorithm/fold.hpp>
 #include <iris/algorithm/iota.hpp>
