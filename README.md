@@ -45,6 +45,8 @@
   * `views::enumerate`
 * Range Algorithms
   * `ranges::iota`
+  * `ranges::shift_left`
+  * `ranges::shift_right`
   * `ranges::starts_with`
   * `ranges::ends_with`
   * `ranges::fold_left`
