@@ -44,6 +44,7 @@
   * `views::slide`
   * `views::enumerate`
 * Range Algorithms
+  * `ranges::iota`
   * `ranges::fold_left`
   * `ranges::fold_left_first`
   * `ranges::fold_right`

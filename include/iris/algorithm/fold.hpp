@@ -2,6 +2,8 @@
 
 #include <iris/config.hpp>
 
+#include <iris/algorithm/base.hpp>
+
 #include <ranges>
 
 namespace iris::ranges {
@@ -49,25 +51,6 @@ namespace __fold_detail {
     concept __indirectly_binary_right_foldable
         = __indirectly_binary_left_foldable<__flipped<F>, T, I>;
 }
-
-template <class I, class T>
-struct in_value_result {
-    [[no_unique_address]] I in;
-    [[no_unique_address]] T value;
-    template <class I2, class T2>
-        requires std::convertible_to<const I&,
-                                     I2> && std::convertible_to<const T&, T2>
-    constexpr operator in_value_result<I2, T2>() const&
-    {
-        return { in, value };
-    }
-    template <class I2, class T2>
-        requires std::convertible_to<I, I2> && std::convertible_to<T, T2>
-    constexpr operator in_value_result<I2, T2>() &&
-    {
-        return { std::move(in), std::move(value) };
-    }
-};
 
 template <class I, class T>
 using fold_left_with_iter_result = in_value_result<I, T>;
