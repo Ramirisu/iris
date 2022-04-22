@@ -13,6 +13,7 @@
 #include <iris/ranges/enumerate_view.hpp>
 #include <iris/ranges/join_with_view.hpp>
 #include <iris/ranges/slide_view.hpp>
+#include <iris/ranges/stride_view.hpp>
 #include <iris/ranges/to.hpp>
 #include <iris/ranges/utf_view.hpp>
 #include <iris/ranges/zip_transform_view.hpp>

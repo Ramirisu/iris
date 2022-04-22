@@ -25,6 +25,7 @@
   * `ranges::chunk_view<Range>`
   * `ranges::slide_view<Range>`
   * `ranges::repeat_view<Value, Bound>`
+  * `ranges::stride_view<Range>`
 * Range Utilities
   * `ranges::to`
   * `ranges::elements_of`
@@ -45,6 +46,7 @@
   * `views::slide`
   * `views::enumerate`
   * `views::repeat`
+  * `views::stride`
 * Range Algorithms
   * `ranges::iota`
   * `ranges::shift_left`

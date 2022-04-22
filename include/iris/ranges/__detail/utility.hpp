@@ -110,4 +110,11 @@ template <typename Fn, typename T, std::size_t N>
 using __invoke_result_repeat_n_t =
     typename __invoke_result_repeat_n<Fn, T, N>::type;
 
+template <typename T>
+constexpr T __div_ceil(T num, T denom)
+{
+    IRIS_ASSERT(denom > 0);
+    return (num + denom - 1) / denom;
+}
+
 }
