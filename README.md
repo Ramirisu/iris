@@ -26,6 +26,7 @@
   * `ranges::slide_view<Range>`
   * `ranges::repeat_view<Value, Bound>`
   * `ranges::stride_view<Range>`
+  * `ranges::as_rvalue_view<Range>`
 * Range Utilities
   * `ranges::to`
   * `ranges::elements_of`
@@ -47,6 +48,7 @@
   * `views::enumerate`
   * `views::repeat`
   * `views::stride`
+  * `views::as_rvalue`
 * Range Algorithms
   * `ranges::iota`
   * `ranges::shift_left`
