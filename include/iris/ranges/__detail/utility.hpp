@@ -38,20 +38,6 @@ template <typename T, typename U>
 struct __tuple_or_pair<T, U> : std::type_identity<std::pair<T, U>> {
 };
 
-template <typename... Ts>
-using __tuple_or_pair_t = typename __tuple_or_pair<Ts...>::type;
-
-template <typename F, typename Tuple>
-constexpr auto __tuple_transform(F&& f, Tuple&& tuple)
-{
-    return std::apply(
-        [&]<class... Ts>(Ts && ... elements) {
-            return __tuple_or_pair_t<std::invoke_result_t<F&, Ts>...>(
-                std::invoke(f, std::forward<Ts>(elements))...);
-        },
-        std::forward<Tuple>(tuple));
-}
-
 template <typename T, std::size_t N>
 struct __repeat_n_helper {
     using type = T;
@@ -115,6 +101,38 @@ constexpr T __div_ceil(T num, T denom)
 {
     IRIS_ASSERT(denom > 0);
     return (num + denom - 1) / denom;
+}
+
+template <typename... Ts>
+using __tuple_or_pair_t = typename __tuple_or_pair<Ts...>::type;
+
+template <typename F, typename Tuple>
+constexpr auto __tuple_transform(F&& f, Tuple&& tuple)
+{
+    return std::apply(
+        [&]<class... Ts>(Ts && ... elements) {
+            return __tuple_or_pair_t<std::invoke_result_t<F&, Ts>...>(
+                std::invoke(f, std::forward<Ts>(elements))...);
+        },
+        std::forward<Tuple>(tuple));
+}
+
+template <typename TupleLHS, typename TupleRHS, std::size_t... Is>
+constexpr void __tuple_iter_swap(
+    TupleLHS&& lhs,
+    TupleRHS&& rhs,
+    std::index_sequence<
+        Is...>) noexcept(noexcept((std::ranges::
+                                       iter_swap(
+                                           std::get<Is>(
+                                               std::forward<TupleLHS>(lhs)),
+                                           std::get<Is>(
+                                               std::forward<TupleRHS>(rhs))),
+                                   ...)))
+{
+    (std::ranges::iter_swap(std::get<Is>(std::forward<TupleLHS>(lhs)),
+                            std::get<Is>(std::forward<TupleRHS>(rhs))),
+     ...);
 }
 
 }

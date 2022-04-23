@@ -51,16 +51,6 @@ namespace __zip_view_detail {
     }
 
     template <typename TupleLHS, typename TupleRHS, std::size_t... Is>
-    constexpr void __tuple_iter_swap(TupleLHS&& lhs,
-                                     TupleRHS&& rhs,
-                                     std::index_sequence<Is...>)
-    {
-        (std::ranges::iter_swap(std::get<Is>(std::forward<TupleLHS>(lhs)),
-                                std::get<Is>(std::forward<TupleRHS>(rhs))),
-         ...);
-    }
-
-    template <typename TupleLHS, typename TupleRHS, std::size_t... Is>
     constexpr bool __tuple_smallest_dist(TupleLHS&& lhs,
                                          TupleRHS&& rhs,
                                          std::index_sequence<Is...>)
@@ -309,16 +299,15 @@ public:
 
         friend constexpr void iter_swap(const iterator& lhs,
                                         const iterator& rhs) //
-            noexcept(noexcept(__zip_view_detail::__tuple_iter_swap(
+            noexcept(noexcept(__detail::__tuple_iter_swap(
                 lhs.current_,
                 rhs.current_,
                 std::index_sequence_for<Views...> {}))) //
             requires(std::indirectly_swappable<std::ranges::iterator_t<
                          __detail::__maybe_const<IsConst, Views>>>&&...)
         {
-            __zip_view_detail::__tuple_iter_swap(
-                lhs.current_, rhs.current_,
-                std::index_sequence_for<Views...> {});
+            __detail::__tuple_iter_swap(lhs.current_, rhs.current_,
+                                        std::index_sequence_for<Views...> {});
         }
 
         constexpr auto& __current() const

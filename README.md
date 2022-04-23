@@ -27,6 +27,7 @@
   * `ranges::repeat_view<Value, Bound>`
   * `ranges::stride_view<Range>`
   * `ranges::as_rvalue_view<Range>`
+  * `ranges::cartesian_product_view<Ranges...>`
 * Range Utilities
   * `ranges::to`
   * `ranges::elements_of`
@@ -49,6 +50,7 @@
   * `views::repeat`
   * `views::stride`
   * `views::as_rvalue`
+  * `views::cartesian_product`
 * Range Algorithms
   * `ranges::iota`
   * `ranges::shift_left`

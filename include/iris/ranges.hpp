@@ -8,6 +8,7 @@
 #include <iris/ranges/adjacent_view.hpp>
 #include <iris/ranges/as_rvalue_view.hpp>
 #include <iris/ranges/base64_view.hpp>
+#include <iris/ranges/cartesian_product_view.hpp>
 #include <iris/ranges/chunk_by_view.hpp>
 #include <iris/ranges/chunk_view.hpp>
 #include <iris/ranges/elements_of.hpp>
