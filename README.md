@@ -83,7 +83,7 @@
   * `front_of`
   * `back_of`
 * Utilities
-  * `expected<T, E>`
+  * `expected<T, E>` (***C++23***)
   * `semver`
   * `scope_exit`
   * `scope_failure`

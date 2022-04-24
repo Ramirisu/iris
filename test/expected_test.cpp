@@ -14,7 +14,7 @@ enum class error_code {
 TEST_CASE("unexpected")
 {
     iris::unexpected<error_code> unexp(error_code::timeout);
-    CHECK_EQ(unexp.value(), error_code::timeout);
+    CHECK_EQ(unexp.error(), error_code::timeout);
 }
 
 TEST_CASE("ctor")
