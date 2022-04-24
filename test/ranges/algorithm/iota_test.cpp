@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/algorithm/iota.hpp>
+#include <iris/ranges/algorithm/iota.hpp>
 
 using namespace iris;
 

@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/zip_view.hpp>
+#include <iris/ranges/view/zip_view.hpp>
 
 #include <forward_list>
 #include <list>

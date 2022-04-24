@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/chunk_view.hpp>
+#include <iris/ranges/view/chunk_view.hpp>
 
 #include <span>
 

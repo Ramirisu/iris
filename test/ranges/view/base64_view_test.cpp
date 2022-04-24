@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/base64_view.hpp>
+#include <iris/ranges/view/base64_view.hpp>
 
 #include <algorithm>
 #include <string_view>

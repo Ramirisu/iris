@@ -2,7 +2,7 @@
 
 #include <iris/config.hpp>
 
-#include <iris/algorithm/base.hpp>
+#include <iris/ranges/algorithm/base.hpp>
 
 #include <ranges>
 

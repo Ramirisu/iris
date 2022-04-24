@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/enumerate_view.hpp>
+#include <iris/ranges/view/enumerate_view.hpp>
 
 using namespace iris;
 

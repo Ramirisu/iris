@@ -2,9 +2,9 @@
 
 #include <iris/config.hpp>
 
-#include <iris/algorithm/contains.hpp>
-#include <iris/algorithm/ends_with.hpp>
-#include <iris/algorithm/fold.hpp>
-#include <iris/algorithm/iota.hpp>
-#include <iris/algorithm/shift.hpp>
-#include <iris/algorithm/starts_with.hpp>
+#include <iris/ranges/algorithm/contains.hpp>
+#include <iris/ranges/algorithm/ends_with.hpp>
+#include <iris/ranges/algorithm/fold.hpp>
+#include <iris/ranges/algorithm/iota.hpp>
+#include <iris/ranges/algorithm/shift.hpp>
+#include <iris/ranges/algorithm/starts_with.hpp>

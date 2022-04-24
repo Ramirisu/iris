@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/algorithm/fold.hpp>
+#include <iris/ranges/algorithm/fold.hpp>
 
 #include <algorithm>
 

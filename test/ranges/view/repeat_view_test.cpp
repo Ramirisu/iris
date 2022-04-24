@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/repeat_view.hpp>
+#include <iris/ranges/view/repeat_view.hpp>
 
 #include <vector>
 

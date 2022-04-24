@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/as_rvalue_view.hpp>
+#include <iris/ranges/view/as_rvalue_view.hpp>
 
 using namespace iris;
 

@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/chunk_by_view.hpp>
+#include <iris/ranges/view/chunk_by_view.hpp>
 
 #include <forward_list>
 #include <list>

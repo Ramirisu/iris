@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/algorithm/shift.hpp>
+#include <iris/ranges/algorithm/shift.hpp>
 
 #include <span>
 #include <vector>

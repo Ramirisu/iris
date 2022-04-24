@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/stride_view.hpp>
+#include <iris/ranges/view/stride_view.hpp>
 
 #include <forward_list>
 #include <list>

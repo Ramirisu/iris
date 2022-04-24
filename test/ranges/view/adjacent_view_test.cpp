@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/adjacent_view.hpp>
+#include <iris/ranges/view/adjacent_view.hpp>
 
 #include <forward_list>
 #include <list>

@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/cartesian_product_view.hpp>
+#include <iris/ranges/view/cartesian_product_view.hpp>
 
 #include <forward_list>
 #include <list>

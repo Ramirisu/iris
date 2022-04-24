@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/utf_view.hpp>
+#include <iris/ranges/view/utf_view.hpp>
 
 #include <algorithm>
 #include <string>

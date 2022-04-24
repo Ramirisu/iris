@@ -3,7 +3,7 @@
 #include <iris/config.hpp>
 
 #include <iris/ranges/range_adaptor_closure.hpp>
-#include <iris/ranges/zip_view.hpp>
+#include <iris/ranges/view/zip_view.hpp>
 
 namespace iris::ranges {
 namespace views {

@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/algorithm/ends_with.hpp>
+#include <iris/ranges/algorithm/ends_with.hpp>
 
 #include <span>
 #include <vector>

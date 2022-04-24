@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/adjacent_transform_view.hpp>
+#include <iris/ranges/view/adjacent_transform_view.hpp>
 #include <iris/type_traits.hpp>
 
 #include <forward_list>

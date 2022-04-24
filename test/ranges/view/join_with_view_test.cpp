@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/ranges/join_with_view.hpp>
+#include <iris/ranges/view/join_with_view.hpp>
 
 using namespace iris;
 

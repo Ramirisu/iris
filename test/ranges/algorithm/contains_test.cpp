@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/algorithm/contains.hpp>
+#include <iris/ranges/algorithm/contains.hpp>
 
 #include <span>
 #include <vector>
