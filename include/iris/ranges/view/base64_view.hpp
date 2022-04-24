@@ -4,6 +4,7 @@
 
 #include <iris/base64.hpp>
 #include <iris/expected.hpp>
+#include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
 
 namespace iris::ranges {
@@ -13,51 +14,39 @@ template <std::ranges::input_range View, typename Binary, typename Text>
 class to_base64_view
     : public std::ranges::view_interface<to_base64_view<View, Binary, Text>> {
 public:
+    template <bool IsConst>
     class iterator {
+        friend class to_base64_view;
+
+        using Parent = __detail::__maybe_const<IsConst, to_base64_view>;
+        using Base = __detail::__maybe_const<IsConst, View>;
         using encoder = base64<Binary, Text>;
 
     public:
         using iterator_concept
-            = std::conditional_t<std::ranges::forward_range<View>,
+            = std::conditional_t<std::ranges::forward_range<Base>,
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
         using iterator_category = std::conditional_t<
             std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<View>>::iterator_category,
+                    std::ranges::iterator_t<Base>>::iterator_category,
                 std::forward_iterator_tag>,
             std::forward_iterator_tag,
             std::input_iterator_tag>;
         using value_type = Text;
-        using difference_type = std::ptrdiff_t;
+        using difference_type = std::ranges::range_difference_t<Base>;
 
-        iterator() requires
-            std::default_initializable<std::ranges::iterator_t<View>>
-        = default;
+        iterator() = default;
 
-        constexpr iterator(View& base, std::ranges::iterator_t<View> curr)
-            : base_(std::addressof(base))
-            , curr_(std::move(curr))
+        constexpr iterator(iterator<!IsConst> other) requires(
+            IsConst&& std::convertible_to<std::ranges::iterator_t<View>,
+                                          std::ranges::iterator_t<Base>>)
+            : parent_(other.parent_)
+            , curr_(std::move(other.curr_))
+            , result_(std::move(other.result_))
+            , offset_(other.offset_)
         {
-            next();
-        }
-
-        iterator(const iterator&) = default;
-        iterator& operator=(const iterator&) = default;
-
-        iterator(iterator&&) = default;
-        iterator& operator=(iterator&&) = default;
-
-        constexpr const std::ranges::iterator_t<View>& base() const& noexcept
-        {
-            return curr_;
-        }
-
-        constexpr std::ranges::iterator_t<View> base() && //
-            noexcept(std::is_nothrow_move_constructible_v<
-                     std::ranges::iterator_t<View>>)
-        {
-            return std::move(curr_);
         }
 
         constexpr const value_type& operator*() const noexcept
@@ -80,11 +69,15 @@ public:
             return *this;
         }
 
-        constexpr iterator operator++(int)
+        constexpr auto operator++(int)
         {
-            auto tmp = *this;
-            ++*this;
-            return tmp;
+            if constexpr (std::ranges::forward_range<Base>) {
+                auto tmp = *this;
+                ++*this;
+                return tmp;
+            } else {
+                ++*this;
+            }
         }
 
         constexpr bool operator==(std::default_sentinel_t) const
@@ -99,14 +92,22 @@ public:
         }
 
     private:
+        constexpr explicit iterator(Parent& parent,
+                                    std::ranges::iterator_t<Base> curr)
+            : parent_(std::addressof(parent))
+            , curr_(std::move(curr))
+        {
+            next();
+        }
+
         void next()
         {
-            result_ = encoder::encode(curr_, std::ranges::end(*base_));
+            result_ = encoder::encode(curr_, std::ranges::end(parent_->base_));
             offset_ = 0;
         }
 
-        View* base_ {};
-        std::ranges::iterator_t<View> curr_ {};
+        Parent* parent_ {};
+        std::ranges::iterator_t<Base> curr_ {};
         encoder::text_result_type result_ {};
         std::size_t offset_ {};
     };
@@ -136,12 +137,18 @@ public:
         return std::move(base_);
     }
 
-    constexpr iterator begin()
+    constexpr auto begin()
     {
-        return { base_, std::ranges::begin(base_) };
+        return iterator<false>(*this, std::ranges::begin(base_));
     }
 
-    constexpr std::default_sentinel_t end() noexcept
+    constexpr auto begin() const //
+        requires std::ranges::range<const View>
+    {
+        return iterator<true>(*this, std::ranges::begin(base_));
+    }
+
+    constexpr std::default_sentinel_t end() const noexcept
     {
         return {};
     }
@@ -191,51 +198,40 @@ template <std::ranges::input_range View, typename Binary, typename Text>
 class from_base64_view
     : public std::ranges::view_interface<from_base64_view<View, Binary, Text>> {
 public:
+    template <bool IsConst>
     class iterator {
+        friend class from_base64_view;
+
+        using Parent = __detail::__maybe_const<IsConst, from_base64_view>;
+        using Base = __detail::__maybe_const<IsConst, View>;
         using encoder = base64<Binary, Text>;
 
     public:
         using iterator_concept
-            = std::conditional_t<std::ranges::forward_range<View>,
+            = std::conditional_t<std::ranges::forward_range<Base>,
                                  std::forward_iterator_tag,
                                  std::input_iterator_tag>;
         using iterator_category = std::conditional_t<
             std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<View>>::iterator_category,
+                    std::ranges::iterator_t<Base>>::iterator_category,
                 std::forward_iterator_tag>,
             std::forward_iterator_tag,
             std::input_iterator_tag>;
         using value_type = expected<Binary, base64_error>;
-        using difference_type = std::ptrdiff_t;
+        using difference_type = std::ranges::range_difference_t<Base>;
 
-        iterator() requires
-            std::default_initializable<std::ranges::iterator_t<View>>
-        = default;
+        iterator() = default;
 
-        constexpr iterator(View& base, std::ranges::iterator_t<View> curr)
-            : base_(std::addressof(base))
-            , curr_(std::move(curr))
+        constexpr iterator(iterator<!IsConst> other) requires(
+            IsConst&& std::convertible_to<std::ranges::iterator_t<View>,
+                                          std::ranges::iterator_t<Base>>)
+            : parent_(other.parent_)
+            , curr_(std::move(other.curr_))
+            , result_(std::move(other.result_))
+            , offset_(other.offset_)
+            , value_(std::move(other.value_))
         {
-            next();
-            setup_result();
-        }
-
-        iterator(const iterator&) = default;
-        iterator& operator=(const iterator&) = default;
-
-        iterator(iterator&&) = default;
-        iterator& operator=(iterator&&) = default;
-
-        constexpr const std::ranges::iterator_t<View>& base() const& noexcept
-        {
-            return curr_;
-        }
-
-        constexpr std::ranges::iterator_t<View> base() && noexcept(
-            std::is_nothrow_move_constructible_v<std::ranges::iterator_t<View>>)
-        {
-            return std::move(curr_);
         }
 
         constexpr const value_type& operator*() const noexcept
@@ -258,11 +254,15 @@ public:
             return *this;
         }
 
-        constexpr iterator operator++(int)
+        constexpr auto operator++(int)
         {
-            auto tmp = *this;
-            ++*this;
-            return tmp;
+            if constexpr (std::ranges::forward_range<Base>) {
+                auto tmp = *this;
+                ++*this;
+                return tmp;
+            } else {
+                ++*this;
+            }
         }
 
         constexpr bool operator==(std::default_sentinel_t) const
@@ -277,9 +277,18 @@ public:
         }
 
     private:
+        constexpr explicit iterator(Parent& parent,
+                                    std::ranges::iterator_t<Base> curr)
+            : parent_(std::addressof(parent))
+            , curr_(std::move(curr))
+        {
+            next();
+            setup_result();
+        }
+
         void next()
         {
-            result_ = encoder::decode(curr_, std::ranges::end(*base_));
+            result_ = encoder::decode(curr_, std::ranges::end(parent_->base_));
             offset_ = 0;
         }
 
@@ -292,8 +301,8 @@ public:
             }
         }
 
-        View* base_ {};
-        std::ranges::iterator_t<View> curr_ {};
+        Parent* parent_ {};
+        std::ranges::iterator_t<Base> curr_ {};
         encoder::binary_result_type result_ {};
         std::size_t offset_ {};
         value_type value_;
@@ -322,12 +331,18 @@ public:
         return std::move(base_);
     }
 
-    constexpr iterator begin()
+    constexpr auto begin()
     {
-        return { base_, std::ranges::begin(base_) };
+        return iterator<false>(*this, std::ranges::begin(base_));
     }
 
-    constexpr std::default_sentinel_t end() noexcept
+    constexpr auto begin() const //
+        requires std::ranges::range<const View>
+    {
+        return iterator<true>(*this, std::ranges::begin(base_));
+    }
+
+    constexpr std::default_sentinel_t end() const noexcept
     {
         return {};
     }
