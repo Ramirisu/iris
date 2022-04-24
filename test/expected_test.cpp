@@ -1,41 +1,263 @@
 #include <thirdparty/test.hpp>
 
+#include <iris/bind.hpp>
 #include <iris/expected.hpp>
+#include <iris/utility.hpp>
+
+#include <functional>
 
 using namespace iris;
 
 TEST_SUITE_BEGIN("expected");
 
-enum class error_code {
-    timeout = 1,
-    invalid_argument,
-};
-
 TEST_CASE("unexpected")
 {
-    iris::unexpected<error_code> unexp(error_code::timeout);
-    CHECK_EQ(unexp.error(), error_code::timeout);
+    SUBCASE("ctor")
+    {
+        CHECK_EQ(iris::unexpected<std::string>("e").error(), "e");
+        CHECK_EQ(iris::unexpected<std::string>(std::in_place, "e").error(),
+                 "e");
+        CHECK_EQ(iris::unexpected<std::string>(std::in_place, { 'e' }).error(),
+                 "e");
+    }
+    SUBCASE("copy ctor")
+    {
+        auto lvalue = iris::unexpected<std::string>("e");
+        CHECK_EQ(iris::unexpected<std::string>(lvalue).error(), "e");
+    }
+    SUBCASE("move ctor")
+    {
+        CHECK_EQ(
+            iris::unexpected<std::string>(iris::unexpected<std::string>("e"))
+                .error(),
+            "e");
+    }
+    SUBCASE("swap")
+    {
+        auto a = iris::unexpected<std::string>("a");
+        auto b = iris::unexpected<std::string>("b");
+        swap(a, b);
+        CHECK_EQ(a.error(), "b");
+        CHECK_EQ(b.error(), "a");
+    }
+    SUBCASE("operator==")
+    {
+        CHECK_EQ(iris::unexpected<std::string>("e"),
+                 iris::unexpected<std::string_view>("e"));
+    }
 }
 
-TEST_CASE("ctor")
+TEST_CASE("expected: ctor")
 {
-    CHECK(expected<void, error_code>());
-    CHECK(!expected<void, error_code>(iris::unexpected(error_code::timeout)));
-    CHECK(!expected<void, error_code>(unexpect, error_code::timeout));
-    CHECK(expected<int, error_code>());
-    CHECK(expected<int, error_code>(100));
-    CHECK(!expected<int, error_code>(iris::unexpected(error_code::timeout)));
-    CHECK(expected<int, error_code>(std::in_place, 0));
-    CHECK(!expected<int, error_code>(unexpect, error_code::timeout));
-    CHECK(expected<std::string, error_code>());
-    CHECK(expected<std::string, error_code>("success"));
-    CHECK(!expected<std::string, error_code>(
-        iris::unexpected(error_code::timeout)));
-    CHECK(expected<std::string, error_code>(std::in_place, 0, 1));
-    CHECK(!expected<std::string, error_code>(unexpect, error_code::timeout));
+    CHECK(expected<void, int>());
+    CHECK(!expected<void, int>(iris::unexpected(0)));
+    CHECK(!expected<void, int>(unexpect, 0));
+    CHECK_EQ(expected<int, int>().value(), 0);
+    CHECK_EQ(expected<int, int>(0).value(), 0);
+    CHECK_EQ(expected<int, int>(iris::unexpected(0)).error(), 0);
+    CHECK_EQ(expected<int, int>(std::in_place, 0).value(), 0);
+    CHECK_EQ(expected<int, int>(unexpect, 0).error(), 0);
+    CHECK_EQ(expected<std::string, std::string>().value(), "");
+    CHECK_EQ(expected<std::string, std::string>("v").value(), "v");
+    CHECK_EQ(expected<std::string, std::string>(iris::unexpected("e")).error(),
+             "e");
+    CHECK_EQ(expected<std::string, std::string>(std::in_place, 1, 'v').value(),
+             "v");
+    CHECK_EQ(expected<std::string, std::string>(std::in_place, { 'v' }).value(),
+             "v");
+    CHECK_EQ(expected<std::string, std::string>(unexpect, "e").error(), "e");
+    CHECK_EQ(expected<std::string, std::string>(unexpect, { 'e' }).error(),
+             "e");
 }
 
-TEST_CASE("ctor nested conversion")
+TEST_CASE("expected: assignment")
+{
+    SUBCASE("void")
+    {
+        static const auto exp = expected<void, int>();
+        static const auto expu = expected<void, int>(unexpect, 1);
+        static const auto unexp = iris::unexpected<int>(1);
+
+        auto copy_assignment = expected<void, int>();
+        copy_assignment = unexp;
+        CHECK_EQ(copy_assignment.error(), 1);
+        copy_assignment = exp;
+        CHECK(copy_assignment);
+        copy_assignment = expu;
+        CHECK_EQ(copy_assignment.error(), 1);
+
+        auto move_assignment = expected<void, int>();
+        move_assignment = iris::unexpected<int>(unexp);
+        CHECK_EQ(move_assignment.error(), 1);
+        move_assignment = expected<void, int>(exp);
+        CHECK(move_assignment);
+        move_assignment = expected<void, int>(expu);
+        CHECK_EQ(move_assignment.error(), 1);
+    }
+    SUBCASE("non-void")
+    {
+        static const auto exp = expected<int, int>(0);
+        static const auto expu = expected<int, int>(unexpect, 1);
+        static const auto unexp = iris::unexpected<int>(1);
+
+        auto copy_assignment = expected<int, int>(1);
+        copy_assignment = unexp;
+        CHECK_EQ(copy_assignment.error(), 1);
+        copy_assignment = exp;
+        CHECK_EQ(copy_assignment.value(), 0);
+        copy_assignment = expu;
+        CHECK_EQ(copy_assignment.error(), 1);
+        copy_assignment = 0;
+        CHECK_EQ(copy_assignment.value(), 0);
+
+        auto move_assignment = expected<int, int>(1);
+        move_assignment = iris::unexpected<int>(unexp);
+        CHECK_EQ(move_assignment.error(), 1);
+        move_assignment = expected<int, int>(exp);
+        CHECK_EQ(move_assignment.value(), 0);
+        move_assignment = expected<int, int>(expu);
+        CHECK_EQ(move_assignment.error(), 1);
+        move_assignment = 0;
+        CHECK_EQ(move_assignment.value(), 0);
+    }
+}
+
+TEST_CASE("expected: emplace")
+{
+    class nothrow_constructible {
+    public:
+        nothrow_constructible(int value) noexcept
+            : value_(value)
+        {
+        }
+
+        nothrow_constructible(std::initializer_list<int> list) noexcept
+            : value_(std::max(list))
+        {
+        }
+
+        operator int() const noexcept
+        {
+            return value_;
+        }
+
+    private:
+        int value_ {};
+    };
+
+    SUBCASE("void")
+    {
+        auto exp = expected<void, nothrow_constructible>(unexpect, 1);
+        CHECK(!exp);
+        exp.emplace();
+        CHECK(exp);
+    }
+    SUBCASE("non-void")
+    {
+        auto exp = expected<nothrow_constructible, nothrow_constructible>(
+            unexpect, 1);
+        CHECK(!exp);
+        exp.emplace(1);
+        CHECK(exp);
+        CHECK_EQ(exp.value(), 1);
+        exp.emplace({ 2 });
+        CHECK(exp);
+        CHECK_EQ(exp.value(), 2);
+    }
+}
+
+TEST_CASE("expected: swap")
+{
+    struct void_test_case_t {
+        expected<void, int> lhs;
+        expected<void, int> rhs;
+    };
+
+    static const void_test_case_t void_test_cases[] = {
+        { iris::unexpected(0), iris::unexpected(1) },
+    };
+
+    for (auto& test_case : void_test_cases) {
+        auto lhs = test_case.lhs;
+        auto rhs = test_case.rhs;
+        swap(lhs, rhs);
+        CHECK_EQ(lhs, test_case.rhs);
+        CHECK_EQ(rhs, test_case.lhs);
+    }
+
+    struct test_case_t {
+        expected<int, int> lhs;
+        expected<int, int> rhs;
+    };
+
+    static const test_case_t test_cases[] = {
+        { 0, 1 },
+        { 0, iris::unexpected(0) },
+        { iris::unexpected(0), 0 },
+        { iris::unexpected(0), iris::unexpected(1) },
+    };
+
+    for (auto& test_case : test_cases) {
+        auto lhs = test_case.lhs;
+        auto rhs = test_case.rhs;
+        swap(lhs, rhs);
+        CHECK_EQ(lhs, test_case.rhs);
+        CHECK_EQ(rhs, test_case.lhs);
+    }
+}
+
+TEST_CASE("expected: observers")
+{
+    auto get_nothing = [](bool success) -> expected<void, int> {
+        if (success) {
+            return {};
+        }
+        return iris::unexpected(0);
+    };
+    auto get_string = [](bool success) -> expected<std::string, std::string> {
+        if (success) {
+            return "v";
+        }
+        return iris::unexpected("e");
+    };
+    SUBCASE("void w/ value")
+    {
+        auto exp = get_nothing(true);
+        CHECK(exp);
+        CHECK(exp.has_value());
+        CHECK_NOTHROW(exp.value());
+        CHECK_NOTHROW(*exp);
+    }
+    SUBCASE("void w/ error")
+    {
+        auto exp = get_nothing(false);
+        CHECK(!exp);
+        CHECK(!exp.has_value());
+        CHECK_THROWS_AS(exp.value(), bad_expected_access<int>);
+        CHECK_EQ(exp.error(), 0);
+    }
+    SUBCASE("non-void w/ value")
+    {
+        auto exp = get_string(true);
+        CHECK(exp);
+        CHECK(exp.has_value());
+        CHECK_EQ(exp.value_or("u"), "v");
+        CHECK_EQ(exp.value(), "v");
+        CHECK_EQ(*exp, "v");
+        CHECK_EQ(exp->size(), std::string_view("v").size());
+    }
+    SUBCASE("non-voidw/ error")
+    {
+        auto exp = get_string(false);
+        CHECK(!exp);
+        CHECK(!exp.has_value());
+        CHECK_EQ(exp.value_or("u"), "u");
+        CHECK_THROWS_AS(exp.value(), bad_expected_access<std::string>);
+        CHECK_EQ(exp.error(), "e");
+    }
+}
+
+TEST_CASE("expected: ctor nested conversion")
 {
     struct base {
         int b = 0;
@@ -45,15 +267,15 @@ TEST_CASE("ctor nested conversion")
         int d = 0;
     };
 
-    auto inner_func = [](bool inner_success) -> expected<derived, error_code> {
+    auto inner_func = [](bool inner_success) -> expected<derived, int> {
         if (inner_success) {
             return derived { base { 1 }, 1 };
         }
-        return iris::unexpected(error_code::invalid_argument);
+        return iris::unexpected(0);
     };
 
-    auto outer_func = [&](bool outer_success,
-                          bool inner_success) -> expected<base, error_code> {
+    auto outer_func
+        = [&](bool outer_success, bool inner_success) -> expected<base, int> {
         auto inner = inner_func(inner_success);
         if (!inner) {
             return inner;
@@ -61,7 +283,7 @@ TEST_CASE("ctor nested conversion")
         if (outer_success) {
             return 2;
         }
-        return iris::unexpected(error_code::timeout);
+        return iris::unexpected(1);
     };
 
     SUBCASE("(true, true)")
@@ -73,187 +295,20 @@ TEST_CASE("ctor nested conversion")
     {
         auto exp = outer_func(false, true);
         CHECK(!exp);
-        CHECK_EQ(exp.error(), error_code::timeout);
+        CHECK_EQ(exp.error(), 1);
     }
     SUBCASE("(true, false)")
     {
         auto exp = outer_func(true, false);
         CHECK(!exp);
-        CHECK_EQ(exp.error(), error_code::invalid_argument);
+        CHECK_EQ(exp.error(), 0);
     }
     SUBCASE("(false, false)")
     {
         auto exp = outer_func(false, false);
         CHECK(!exp);
-        CHECK_EQ(exp.error(), error_code::invalid_argument);
+        CHECK_EQ(exp.error(), 0);
     }
-}
-
-TEST_CASE("emplace")
-{
-    SUBCASE("non-void")
-    {
-        struct nothrow_constructible {
-            nothrow_constructible(int a, int b) noexcept
-                : a(a)
-                , b(b)
-            {
-            }
-
-            int a = 0;
-            int b = 0;
-        };
-
-        expected<nothrow_constructible, error_code> exp
-            = iris::unexpected(error_code::timeout);
-        CHECK(!exp);
-        exp.emplace(10, 20);
-        CHECK(exp);
-        CHECK_EQ(exp.value().a, 10);
-        CHECK_EQ(exp.value().b, 20);
-    }
-    SUBCASE("void")
-    {
-        expected<void, error_code> exp = iris::unexpected(error_code::timeout);
-        CHECK(!exp);
-        exp.emplace();
-        CHECK(exp);
-    }
-}
-
-TEST_CASE("swap")
-{
-    SUBCASE("swap(value, value)")
-    {
-        expected<int, error_code> lhs = 0;
-        expected<int, error_code> rhs = 1;
-        swap(lhs, rhs);
-        CHECK(lhs);
-        CHECK_EQ(lhs.value(), 1);
-        CHECK(rhs);
-        CHECK_EQ(rhs.value(), 0);
-    }
-    SUBCASE("swap(value, error)")
-    {
-        expected<int, error_code> lhs = 0;
-        expected<int, error_code> rhs = iris::unexpected(error_code::timeout);
-        swap(lhs, rhs);
-        CHECK(!lhs);
-        CHECK_EQ(lhs.error(), error_code::timeout);
-        CHECK(rhs);
-        CHECK_EQ(rhs.value(), 0);
-    }
-    SUBCASE("swap(error, value)")
-    {
-        expected<int, error_code> lhs = iris::unexpected(error_code::timeout);
-        expected<int, error_code> rhs = 1;
-        swap(lhs, rhs);
-        CHECK(lhs);
-        CHECK_EQ(lhs.value(), 1);
-        CHECK(!rhs);
-        CHECK_EQ(rhs.error(), error_code::timeout);
-    }
-    SUBCASE("swap(error, error)")
-    {
-        expected<int, error_code> lhs = iris::unexpected(error_code::timeout);
-        expected<int, error_code> rhs = iris::unexpected(error_code::timeout);
-        swap(lhs, rhs);
-        CHECK(!lhs);
-        CHECK_EQ(lhs.error(), error_code::timeout);
-        CHECK(!rhs);
-        CHECK_EQ(rhs.error(), error_code::timeout);
-    }
-    SUBCASE("swap(void, void)")
-    {
-        expected<void, error_code> lhs;
-        expected<void, error_code> rhs;
-        swap(lhs, rhs);
-        CHECK(lhs);
-        CHECK(rhs);
-    }
-    SUBCASE("swap(void, error)")
-    {
-        expected<void, error_code> lhs;
-        expected<void, error_code> rhs = iris::unexpected(error_code::timeout);
-        swap(lhs, rhs);
-        CHECK(!lhs);
-        CHECK_EQ(lhs.error(), error_code::timeout);
-        CHECK(rhs);
-    }
-    SUBCASE("swap(error, void)")
-    {
-        expected<void, error_code> lhs = iris::unexpected(error_code::timeout);
-        expected<void, error_code> rhs;
-        swap(lhs, rhs);
-        CHECK(lhs);
-        CHECK(!rhs);
-        CHECK_EQ(rhs.error(), error_code::timeout);
-    }
-    SUBCASE("swap(error, error)")
-    {
-        expected<void, error_code> lhs = iris::unexpected(error_code::timeout);
-        expected<void, error_code> rhs = iris::unexpected(error_code::timeout);
-        swap(lhs, rhs);
-        CHECK(!lhs);
-        CHECK_EQ(lhs.error(), error_code::timeout);
-        CHECK(!rhs);
-        CHECK_EQ(rhs.error(), error_code::timeout);
-    }
-}
-
-expected<int, error_code> run(bool success)
-{
-    if (success) {
-        return 0;
-    }
-    return iris::unexpected(error_code::timeout);
-}
-
-TEST_CASE("expected w/ value")
-{
-    auto exp = run(true);
-    CHECK(exp);
-    CHECK(exp.has_value());
-    CHECK_EQ(exp.value_or(1), 0);
-    CHECK_EQ(exp.value(), 0);
-}
-
-TEST_CASE("expected w/ error")
-{
-    auto exp = run(false);
-    CHECK(!exp);
-    CHECK(!exp.has_value());
-    CHECK_EQ(exp.value_or(1), 1);
-    CHECK_EQ(exp.error(), error_code::timeout);
-}
-
-TEST_CASE("equality")
-{
-    CHECK_EQ(expected<int, error_code>(1), expected<int, error_code>(1));
-    CHECK_NE(expected<int, error_code>(1), expected<int, error_code>(0));
-    CHECK_NE(expected<int, error_code>(1),
-             expected<int, error_code>(iris::unexpected(error_code::timeout)));
-    CHECK_NE(expected<int, error_code>(iris::unexpected(error_code::timeout)),
-             expected<int, error_code>(1));
-    CHECK_EQ(expected<int, error_code>(iris::unexpected(error_code::timeout)),
-             expected<int, error_code>(iris::unexpected(error_code::timeout)));
-    CHECK_EQ(expected<int, error_code>(1), 1);
-    CHECK_NE(expected<int, error_code>(1),
-             iris::unexpected(error_code::timeout));
-    CHECK_EQ(expected<int, error_code>(iris::unexpected(error_code::timeout)),
-             iris::unexpected(error_code::timeout));
-
-    CHECK_EQ(expected<void, error_code>(), expected<void, error_code>());
-    CHECK_NE(expected<void, error_code>(),
-             expected<void, error_code>(iris::unexpected(error_code::timeout)));
-    CHECK_NE(expected<void, error_code>(iris::unexpected(error_code::timeout)),
-             expected<void, error_code>());
-    CHECK_EQ(expected<void, error_code>(iris::unexpected(error_code::timeout)),
-             expected<void, error_code>(iris::unexpected(error_code::timeout)));
-    CHECK_NE(expected<void, error_code>(),
-             iris::unexpected(error_code::timeout));
-    CHECK_EQ(expected<void, error_code>(iris::unexpected(error_code::timeout)),
-             iris::unexpected(error_code::timeout));
 }
 
 TEST_SUITE_END();

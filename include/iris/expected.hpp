@@ -58,9 +58,9 @@ public:
     template <typename U, typename... Args>
         requires std::is_constructible_v<E, std::initializer_list<U>&, Args...>
     constexpr explicit unexpected(std::in_place_t,
-                                  std::initializer_list<U>,
+                                  std::initializer_list<U> list,
                                   Args&&... args)
-        : error_(std::forward<Args>(args)...)
+        : error_(list, std::forward<Args>(args)...)
     // clang-format on
     {
     }
@@ -484,6 +484,7 @@ public:
         } else {
             __expected_detail::__reinit(value_, error_,
                                         std::forward<T2>(value));
+            state_ = state::has_value;
         }
 
         return *this;
