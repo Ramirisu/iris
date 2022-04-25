@@ -5,7 +5,7 @@ project(
   VERSION 0.0.0
   LANGUAGES CXX)
 
-option(IRIS_ENABLE_TESTING "Build unit tests" ON)
+option(IRIS_ENABLE_TESTING "Build unit tests" OFF)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD "20")
