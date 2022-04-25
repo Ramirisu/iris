@@ -13,10 +13,6 @@
 ## Feature
 
 * Range Adaptors
-  * `ranges::to_base64_view<Range, Binary, Text>`
-  * `ranges::from_base64_view<Range, Binary, Text>`
-  * `ranges::to_utf_view<Range, Unicode, UTF>`
-  * `ranges::from_utf_view<Range, Unicode, UTF>`
   * `ranges::join_with_view<Range, Pattern>` (***C++23***)
   * `ranges::zip_view<Ranges...>` (***C++23***)
   * `ranges::zip_transform_view<Fn, Ranges...>` (***C++23***)
@@ -30,11 +26,11 @@
   * `ranges::as_rvalue_view<Range>` (***C++23***)
   * `ranges::cartesian_product_view<Ranges...>` (***C++23***)
   * `ranges::enumerate_view<Range>` (***C++26 ?***)
+  * `ranges::to_base64_view<Range, Binary, Text>`
+  * `ranges::from_base64_view<Range, Binary, Text>`
+  * `ranges::to_utf_view<Range, Unicode, UTF>`
+  * `ranges::from_utf_view<Range, Unicode, UTF>`
 * Range Adaptor Objects
-  * `views::to_base64`
-  * `views::from_base64`
-  * `views::to_utf<UTF>`
-  * `views::from_utf`
   * `views::join_with` (***C++23***)
   * `views::zip` (***C++23***)
   * `views::zip_transform` (***C++23***)
@@ -50,6 +46,10 @@
   * `views::as_rvalue` (***C++23***)
   * `views::cartesian_product` (***C++23***)
   * `views::enumerate` (***C++26 ?***)
+  * `views::to_base64`
+  * `views::from_base64`
+  * `views::to_utf<UTF>`
+  * `views::from_utf`
 * Range Utilities
   * `ranges::to` (***C++23***)
   * `ranges::elements_of` (***C++23***)
@@ -66,14 +66,8 @@
   * `ranges::fold_right` (***C++23***)
   * `ranges::fold_right_last` (***C++23***)
 * Coroutine Types
-  * `lazy<T>`
   * `generator<R, V, Allocator>`
-* Networking
-  * `net::mac_address`
-  * `net::ipv4_address`
-  * `net::ipv6_address`
-  * `net::ip_address`
-  * `net::network_interface`
+  * `lazy<T>` (***C++26 ?***)
 * Encoding
   * `base64<Binary, Text>`
   * `utf<Unicode, UTF>`
@@ -93,3 +87,9 @@
   * `to_underlying` (***C++23***)
   * `bind_front` (***C++20***)
   * `bind_back` (***C++23***)
+* Networking
+  * `net::mac_address`
+  * `net::ipv4_address`
+  * `net::ipv6_address`
+  * `net::ip_address`
+  * `net::network_interface`
