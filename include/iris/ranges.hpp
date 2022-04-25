@@ -17,6 +17,7 @@
 #include <iris/ranges/view/join_with_view.hpp>
 #include <iris/ranges/view/slide_view.hpp>
 #include <iris/ranges/view/stride_view.hpp>
+#include <iris/ranges/view/unwrap_view.hpp>
 #include <iris/ranges/view/utf_view.hpp>
 #include <iris/ranges/view/zip_transform_view.hpp>
 #include <iris/ranges/view/zip_view.hpp>

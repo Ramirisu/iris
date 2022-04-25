@@ -46,6 +46,7 @@
   * `views::as_rvalue` (***C++23***)
   * `views::cartesian_product` (***C++23***)
   * `views::enumerate` (***C++26 ?***)
+  * `views::unwrap`
   * `views::to_base64`
   * `views::from_base64`
   * `views::to_utf<UTF>`
