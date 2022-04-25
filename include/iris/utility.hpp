@@ -6,6 +6,20 @@
 
 namespace iris {
 
+template <std::integral T>
+constexpr auto to_unsigned(T value) noexcept
+{
+    using type = std::make_unsigned_t<T>;
+    return static_cast<type>(value);
+}
+
+template <std::integral T>
+constexpr auto to_signed(T value) noexcept
+{
+    using type = std::make_signed_t<T>;
+    return static_cast<type>(value);
+}
+
 template <typename Enum>
 constexpr auto to_underlying(Enum e) noexcept
 {

@@ -84,6 +84,8 @@
   * `scope_success`
   * `out_ptr` (***C++23***)
   * `inout_ptr` (***C++23***)
+  * `to_unsigned`
+  * `to_signed`
   * `to_underlying` (***C++23***)
   * `bind_front` (***C++20***)
   * `bind_back` (***C++23***)
