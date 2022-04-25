@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <functional>
 #include <ranges>
 
 namespace iris::ranges::__detail {

@@ -28,7 +28,7 @@ jobs:
     - name: Configure
       env:
         CXX: ${{matrix.cxx}}
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_CXX_STANDARD:STRING=${{matrix.std}} -DIRIS_ENABLE_TESTING=ON
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{matrix.build_type}} -DCMAKE_CXX_STANDARD:STRING=${{matrix.std}} -DIRIS_ENABLE_EXAMPLE=ON -DIRIS_ENABLE_TESTING=ON
 
     - name: Build
       run: |

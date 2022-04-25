@@ -4,7 +4,8 @@ project(
   iris
   VERSION 0.0.0
   LANGUAGES CXX)
-
+  
+option(IRIS_ENABLE_EXAMPLE "Build examples" OFF)
 option(IRIS_ENABLE_TESTING "Build unit tests" OFF)
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
@@ -20,6 +21,10 @@ else()
 endif()
 add_library(iris STATIC ${IRIS_SOURCE_FILES} ${IRIS_HEADER_FILES})
 target_include_directories(iris PUBLIC include)
+
+if(IRIS_ENABLE_EXAMPLE)
+  add_subdirectory(example)
+endif()
 
 if(IRIS_ENABLE_TESTING)
   enable_testing()
