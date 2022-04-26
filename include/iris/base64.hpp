@@ -22,7 +22,7 @@ public:
     using text_result_type = expected<base64_result<Text, 4>, base64_error>;
     using binary_result_type = expected<base64_result<Binary, 3>, base64_error>;
 
-    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    template <std::input_iterator I, std::sentinel_for<I> S>
     static constexpr expected<base64_result<Text, 4>, base64_error>
     encode(I& first, const S& last) noexcept
     {
@@ -58,7 +58,7 @@ public:
         };
     }
 
-    template <std::input_or_output_iterator I, std::sentinel_for<I> S>
+    template <std::input_iterator I, std::sentinel_for<I> S>
     static constexpr expected<base64_result<Binary, 3>, base64_error>
     decode(I& first, const S& last) noexcept
     {
