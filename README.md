@@ -67,29 +67,29 @@
   * `ranges::fold_right` (***C++23***)
   * `ranges::fold_right_last` (***C++23***)
 * Coroutine Types
-  * `generator<R, V, Allocator>`
+  * `generator<R, V, Allocator>` (***C++23 Partial***)
   * `lazy<T>` (***C++26 ?***)
 * Encoding
   * `base64<Binary, Text>`
   * `utf<Unicode, UTF>`
 * Type Traits
-  * `is_specialization_of`
   * `is_scoped_enum` (***C++23***)
+  * `is_specialization_of`
   * `front_of`
   * `back_of`
 * Utilities
   * `expected<T, E>` (***C++23***)
+  * `out_ptr` (***C++23***)
+  * `inout_ptr` (***C++23***)
+  * `bind_front` (***C++20***)
+  * `bind_back` (***C++23***)
+  * `to_underlying` (***C++23***)
+  * `to_unsigned`
+  * `to_signed`
   * `semver`
   * `scope_exit`
   * `scope_failure`
   * `scope_success`
-  * `out_ptr` (***C++23***)
-  * `inout_ptr` (***C++23***)
-  * `to_unsigned`
-  * `to_signed`
-  * `to_underlying` (***C++23***)
-  * `bind_front` (***C++20***)
-  * `bind_back` (***C++23***)
 * Networking
   * `net::mac_address`
   * `net::ipv4_address`
