@@ -10,7 +10,7 @@ TEST_SUITE_BEGIN("unwrap_view");
 TEST_CASE("expected")
 {
     static const expected<int, int> input[] { 0, 1, 2, 3, 4 };
-    auto view = views::unwrap(input);
+    auto view = input | views::unwrap;
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, 0);
     CHECK_EQ(*curr++, 1);
@@ -23,7 +23,7 @@ TEST_CASE("expected")
 TEST_CASE("expected with error")
 {
     static const expected<int, int> input[] { 0, 1, 2, 3, iris::unexpected(4) };
-    auto view = views::unwrap(input);
+    auto view = input | views::unwrap;
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, 0);
     CHECK_EQ(*curr++, 1);
@@ -36,7 +36,7 @@ TEST_CASE("expected with error")
 TEST_CASE("optional")
 {
     static const std::optional<int> input[] { 0, 1, 2, 3, 4 };
-    auto view = views::unwrap(input);
+    auto view = input | views::unwrap;
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, 0);
     CHECK_EQ(*curr++, 1);
@@ -46,10 +46,10 @@ TEST_CASE("optional")
     CHECK_EQ(curr, std::ranges::end(view));
 }
 
-TEST_CASE("expected with error")
+TEST_CASE("optional with error")
 {
     static const std::optional<int> input[] { 0, 1, 2, 3, std::nullopt };
-    auto view = views::unwrap(input);
+    auto view = input | views::unwrap;
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, 0);
     CHECK_EQ(*curr++, 1);

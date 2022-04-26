@@ -1,5 +1,6 @@
 #include <thirdparty/test.hpp>
 
+#include <iris/ranges/view/unwrap_view.hpp>
 #include <iris/ranges/view/utf_view.hpp>
 
 #include <algorithm>
@@ -44,23 +45,22 @@ TEST_CASE("to_utf")
 
 TEST_CASE("utf8/16/32 conversion between one another")
 {
-    auto unwrap = std::views::transform([](auto exp) { return exp.value(); });
-    CHECK(std::ranges::equal(utf8_str | views::from_utf | unwrap
+    CHECK(std::ranges::equal(utf8_str | views::from_utf | views::unwrap
                                  | views::to_utf<char16_t>,
                              utf16_str));
-    CHECK(std::ranges::equal(utf8_str | views::from_utf | unwrap
+    CHECK(std::ranges::equal(utf8_str | views::from_utf | views::unwrap
                                  | views::to_utf<char32_t>,
                              utf32_str));
-    CHECK(std::ranges::equal(utf16_str | views::from_utf | unwrap
+    CHECK(std::ranges::equal(utf16_str | views::from_utf | views::unwrap
                                  | views::to_utf<char8_t>,
                              utf8_str));
-    CHECK(std::ranges::equal(utf16_str | views::from_utf | unwrap
+    CHECK(std::ranges::equal(utf16_str | views::from_utf | views::unwrap
                                  | views::to_utf<char32_t>,
                              utf32_str));
-    CHECK(std::ranges::equal(utf32_str | views::from_utf | unwrap
+    CHECK(std::ranges::equal(utf32_str | views::from_utf | views::unwrap
                                  | views::to_utf<char8_t>,
                              utf8_str));
-    CHECK(std::ranges::equal(utf32_str | views::from_utf | unwrap
+    CHECK(std::ranges::equal(utf32_str | views::from_utf | views::unwrap
                                  | views::to_utf<char16_t>,
                              utf16_str));
 }
