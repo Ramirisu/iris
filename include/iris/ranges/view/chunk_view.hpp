@@ -629,7 +629,6 @@ namespace views {
 
     inline constexpr __chunk_fn chunk {};
 }
-
 }
 
 namespace iris {

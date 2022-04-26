@@ -384,11 +384,8 @@ zip_transform_view(Fn, Ranges&&...)
     -> zip_transform_view<Fn, std::ranges::views::all_t<Ranges>...>;
 
 namespace views {
-
     class __zip_transform_fn {
     public:
-        constexpr __zip_transform_fn() noexcept = default;
-
         // clang-format off
         template <typename Fn>
             requires std::copy_constructible<std::decay_t<Fn>> 
@@ -415,7 +412,6 @@ namespace views {
 
     inline constexpr __zip_transform_fn zip_transform {};
 }
-
 }
 
 namespace iris {

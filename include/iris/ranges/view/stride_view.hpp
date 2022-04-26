@@ -397,8 +397,6 @@ stride_view(Range&&, std::ranges::range_difference_t<Range>)
 namespace views {
     class __stride_fn {
     public:
-        constexpr __stride_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range>
         constexpr auto
         operator()(Range&& range,

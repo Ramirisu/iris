@@ -207,11 +207,8 @@ template <typename Value, typename Bound>
 repeat_view(Value, Bound) -> repeat_view<Value, Bound>;
 
 namespace views {
-
     class __repeat_fn {
     public:
-        constexpr __repeat_fn() noexcept = default;
-
         template <typename Value>
         constexpr auto operator()(Value&& value) const
             noexcept(noexcept(repeat_view {

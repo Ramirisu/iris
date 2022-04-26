@@ -373,8 +373,6 @@ namespace views {
     class __adjacent_transform_fn
         : public range_adaptor_closure<__adjacent_transform_fn<N>> {
     public:
-        constexpr __adjacent_transform_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range, typename Fn>
         constexpr auto operator()(Range&& range, Fn&& fn) const
         {

@@ -179,12 +179,9 @@ private:
 };
 
 namespace views {
-
     template <typename UTF>
     class __to_utf_fn : public range_adaptor_closure<__to_utf_fn<UTF>> {
     public:
-        constexpr __to_utf_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const
             noexcept(noexcept(to_utf_view<std::ranges::views::all_t<Range>,
@@ -362,8 +359,6 @@ from_utf_view(Range&&) -> from_utf_view<std::ranges::views::all_t<Range>,
 namespace views {
     class __from_utf_fn : public range_adaptor_closure<__from_utf_fn> {
     public:
-        constexpr __from_utf_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const
             noexcept(noexcept(from_utf_view {

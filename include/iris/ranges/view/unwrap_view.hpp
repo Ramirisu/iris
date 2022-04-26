@@ -16,8 +16,6 @@ namespace __unwrap_detail {
 namespace views {
     class __unwrap_fn : public range_adaptor_closure<__unwrap_fn> {
     public:
-        constexpr __unwrap_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const requires
             __unwrap_detail::__has_member_value<

@@ -485,11 +485,8 @@ template <typename... Ranges>
 zip_view(Ranges&&...) -> zip_view<std::ranges::views::all_t<Ranges>...>;
 
 namespace views {
-
     class __zip_fn : public range_adaptor_closure<__zip_fn> {
     public:
-        constexpr __zip_fn() noexcept = default;
-
         constexpr auto operator()() const noexcept
         {
             return std::views::empty<std::tuple<>>;
@@ -506,7 +503,6 @@ namespace views {
 
     inline constexpr __zip_fn zip {};
 }
-
 }
 
 namespace iris {

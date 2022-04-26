@@ -82,8 +82,6 @@ as_rvalue_view(Range&&) -> as_rvalue_view<std::views::all_t<Range>>;
 namespace views {
     class __as_rvalue_fn : public range_adaptor_closure<__as_rvalue_fn> {
     public:
-        constexpr __as_rvalue_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const
         {

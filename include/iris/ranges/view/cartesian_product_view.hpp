@@ -551,8 +551,6 @@ cartesian_product_view(Ranges&&...)
 namespace views {
     class __cartesian_product_fn {
     public:
-        constexpr __cartesian_product_fn() noexcept = default;
-
         constexpr auto operator()() const
         {
             return std::views::empty<std::tuple<>>;

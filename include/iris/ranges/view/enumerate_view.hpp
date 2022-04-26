@@ -451,11 +451,8 @@ template <typename Range>
 enumerate_view(Range&&) -> enumerate_view<std::views::all_t<Range>>;
 
 namespace views {
-
     class __enumerate_fn : public range_adaptor_closure<__enumerate_fn> {
     public:
-        constexpr __enumerate_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const
         {

@@ -16,7 +16,10 @@ class range_adaptor_closure
 #endif
 {
 public:
+    range_adaptor_closure() requires(sizeof...(Args) == 0) = default;
+
     template <typename... Args2>
+        requires(sizeof...(Args) > 0)
     constexpr explicit range_adaptor_closure(Args2&&... args)
         : args_(std::forward<Args2>(args)...)
     {

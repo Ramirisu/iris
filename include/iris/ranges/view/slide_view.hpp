@@ -392,7 +392,8 @@ slide_view(Range&&, std::ranges::range_difference_t<Range>)
     -> slide_view<std::ranges::views::all_t<Range>>;
 
 namespace views {
-    struct __slide_fn {
+    class __slide_fn {
+    public:
         template <std::ranges::viewable_range Range>
         constexpr auto
         operator()(Range&& range,

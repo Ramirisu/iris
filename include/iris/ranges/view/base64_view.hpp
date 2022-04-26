@@ -176,8 +176,6 @@ to_base64_view(Range&&) -> to_base64_view<std::views::all_t<Range>,
 namespace views {
     class __to_base64_fn : public range_adaptor_closure<__to_base64_fn> {
     public:
-        constexpr __to_base64_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const
             noexcept(noexcept(to_base64_view {
@@ -360,8 +358,6 @@ from_base64_view(Range&&)
 namespace views {
     class __from_base64_fn : public range_adaptor_closure<__from_base64_fn> {
     public:
-        constexpr __from_base64_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const
             noexcept(noexcept(from_base64_view {

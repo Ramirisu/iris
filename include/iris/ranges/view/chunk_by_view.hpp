@@ -175,8 +175,6 @@ chunk_by_view(Range&&, Pred)
 namespace views {
     class __chunk_by_fn {
     public:
-        constexpr __chunk_by_fn() noexcept = default;
-
         template <std::ranges::viewable_range Range, typename Pred>
         constexpr auto operator()(Range&& range, Pred&& pred) const
             noexcept(noexcept(chunk_by_view {

@@ -385,8 +385,6 @@ namespace views {
     template <std::size_t N>
     class __adjacent_fn : public range_adaptor_closure<__adjacent_fn<N>> {
     public:
-        constexpr __adjacent_fn() noexcept = default;
-
         constexpr auto operator()() const noexcept
         {
             return std::views::empty<std::tuple<>>;
@@ -412,7 +410,6 @@ namespace views {
 
     inline constexpr auto pairwise = adjacent<2>;
 }
-
 }
 
 namespace iris {
