@@ -10,7 +10,7 @@ namespace iris::ranges::__detail {
 // clang-format off
 template <typename Range>
 concept __simple_view = std::ranges::view<Range> 
-    && std::ranges::range<Range> 
+    && std::ranges::range<const Range> 
     && std::same_as<
         std::ranges::iterator_t<Range>, 
         std::ranges::iterator_t<const Range>> 
