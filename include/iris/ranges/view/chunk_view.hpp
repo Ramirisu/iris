@@ -572,7 +572,7 @@ public:
         }
     }
 
-    constexpr auto end() requires std::ranges::forward_range<const View>
+    constexpr auto end() const requires std::ranges::forward_range<const View>
     {
         if constexpr (std::ranges::common_range<
                           View> && std::ranges::sized_range<View>) {
