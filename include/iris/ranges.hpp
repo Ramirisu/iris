@@ -15,6 +15,7 @@
 #include <iris/ranges/view/chunk_view.hpp>
 #include <iris/ranges/view/enumerate_view.hpp>
 #include <iris/ranges/view/join_with_view.hpp>
+#include <iris/ranges/view/repeat_view.hpp>
 #include <iris/ranges/view/slide_view.hpp>
 #include <iris/ranges/view/stride_view.hpp>
 #include <iris/ranges/view/unwrap_view.hpp>

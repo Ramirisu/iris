@@ -57,6 +57,7 @@ TEST_CASE("bidirectional_range")
     static const auto input1 = std::list { 0u, 1u, 2u };
     static const auto input2 = std::list { '0', '1', '2' };
     auto view = views::zip(input0, input1, input2);
+    CHECK_EQ(std::ranges::size(view), 3);
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, std::tuple { 0, 0u, '0' });
     CHECK_EQ(*curr--, std::tuple { 1, 1u, '1' });
@@ -74,6 +75,8 @@ TEST_CASE("random_access_range")
     static const std::uint32_t input1[] = { 0u, 1u, 2u };
     static const char input2[] = { '0', '1', '2' };
     auto view = views::zip(input0, input1, input2);
+    CHECK_EQ(std::ranges::size(view), 3);
+    CHECK_EQ(std::ranges::end(view) - std::ranges::begin(view), 3);
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr, std::tuple { 0, 0u, '0' });
     curr += 1;
@@ -92,11 +95,26 @@ TEST_CASE("range size are not the same")
     static const int input1[] = { 0u, 1u, 2u, 3u, 4u };
     static const char input2[] = { '0', '1', '2' };
     auto view = views::zip(input0, input1, input2);
+    CHECK_EQ(std::ranges::size(view), 3);
+    CHECK_EQ(std::ranges::end(view) - std::ranges::begin(view), 3);
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, std::tuple { 0, 0u, '0' });
     CHECK_EQ(*curr++, std::tuple { 1, 1u, '1' });
     CHECK_EQ(*curr++, std::tuple { 2, 2u, '2' });
     CHECK_EQ(curr, std::ranges::end(view));
+}
+
+TEST_CASE("zip/keys/values/elements")
+{
+    static const int input0[] = { 0, 1, 2, 3, 4 };
+    static const char input1[] = { 'a', 'b', 'c', 'd', 'e' };
+    static const double input2[] = { 0, 1, 2, 3, 4 };
+    CHECK(std::ranges::equal(
+        views::zip(input0, input1, input2) | std::views::keys, input0));
+    CHECK(std::ranges::equal(
+        views::zip(input0, input1, input2) | std::views::values, input1));
+    CHECK(std::ranges::equal(
+        views::zip(input0, input1, input2) | std::views::elements<2>, input2));
 }
 
 TEST_SUITE_END();

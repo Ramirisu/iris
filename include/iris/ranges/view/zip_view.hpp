@@ -51,7 +51,7 @@ namespace __zip_view_detail {
     }
 
     template <typename TupleLHS, typename TupleRHS, std::size_t... Is>
-    constexpr bool __tuple_smallest_dist(TupleLHS&& lhs,
+    constexpr auto __tuple_smallest_dist(TupleLHS&& lhs,
                                          TupleRHS&& rhs,
                                          std::index_sequence<Is...>)
     {

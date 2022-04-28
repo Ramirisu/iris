@@ -25,7 +25,7 @@ static const auto test_cases = std::vector<test_case_t> {
 TEST_CASE("to_base64")
 {
     for (auto& test_case : test_cases) {
-        CHECK(std::ranges::equal(views::to_base64(test_case.binary),
+        CHECK(std::ranges::equal(test_case.binary | views::to_base64,
                                  test_case.text));
     }
 }
@@ -33,7 +33,7 @@ TEST_CASE("to_base64")
 TEST_CASE("from_base64")
 {
     for (auto& test_case : test_cases) {
-        CHECK(std::ranges::equal(views::from_base64(test_case.text),
+        CHECK(std::ranges::equal(test_case.text | views::from_base64,
                                  test_case.binary));
     }
 }
@@ -44,7 +44,7 @@ static const auto encode_twice_test_cases = std::vector<test_case_t> {
       "VFdGdWVTQm9ZVzVrY3lCdFlXdGxJR3hwWjJoMElIZHZjbXN1" }
 };
 
-TEST_CASE("pipe")
+TEST_CASE("twice")
 {
     for (auto& test_case : encode_twice_test_cases) {
         CHECK(std::ranges::equal(

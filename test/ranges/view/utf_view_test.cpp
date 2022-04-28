@@ -21,25 +21,17 @@ static const auto unicode
 
 TEST_CASE("from_utf")
 {
-    CHECK(std::ranges::equal(views::from_utf(utf8_cstr), unicode));
     CHECK(std::ranges::equal(utf8_cstr | views::from_utf, unicode));
-    CHECK(std::ranges::equal(views::from_utf(utf8_str), unicode));
     CHECK(std::ranges::equal(utf8_str | views::from_utf, unicode));
-    CHECK(std::ranges::equal(views::from_utf(utf16_str), unicode));
     CHECK(std::ranges::equal(utf16_str | views::from_utf, unicode));
-    CHECK(std::ranges::equal(views::from_utf(utf32_str), unicode));
     CHECK(std::ranges::equal(utf32_str | views::from_utf, unicode));
 }
 
 TEST_CASE("to_utf")
 {
-    CHECK(std::ranges::equal(views::to_utf<char>(unicode), utf8_cstr));
     CHECK(std::ranges::equal(unicode | views::to_utf<char>, utf8_cstr));
-    CHECK(std::ranges::equal(views::to_utf<char8_t>(unicode), utf8_str));
     CHECK(std::ranges::equal(unicode | views::to_utf<char8_t>, utf8_str));
-    CHECK(std::ranges::equal(views::to_utf<char16_t>(unicode), utf16_str));
     CHECK(std::ranges::equal(unicode | views::to_utf<char16_t>, utf16_str));
-    CHECK(std::ranges::equal(views::to_utf<char32_t>(unicode), utf32_str));
     CHECK(std::ranges::equal(unicode | views::to_utf<char32_t>, utf32_str));
 }
 
