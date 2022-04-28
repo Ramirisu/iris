@@ -6,16 +6,13 @@ on:
   pull_request:
     branches: [ main ]
 
-env:
-  BUILD_TYPE: Debug
-
 jobs:
   build:
     runs-on: windows-latest
     strategy:
       matrix:
         std: [23]
-        build_type: [Debug, Release]
+        build_type: [Debug]
 
     steps:
     - uses: actions/checkout@v2

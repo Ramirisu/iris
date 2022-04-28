@@ -13,7 +13,7 @@ jobs:
       matrix:
         cxx: [g++-11]
         std: [20]
-        build_type: [Debug, Release]
+        build_type: [Debug]
 
     steps:
     - uses: actions/checkout@v2
