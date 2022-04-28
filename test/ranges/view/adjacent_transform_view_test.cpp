@@ -54,7 +54,7 @@ TEST_CASE("value_type: tuple or pair")
 TEST_CASE("forward_range")
 {
     static const auto input = std::forward_list { 0, 1, 2, 3, 4 };
-    auto view = views::adjacent_transform<3>(input, multiply<int> {});
+    auto view = input | views::adjacent_transform<3>(multiply<int> {});
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, 0);
     CHECK_EQ(*curr++, 6);
@@ -65,7 +65,8 @@ TEST_CASE("forward_range")
 TEST_CASE("bidirectional_range")
 {
     static const auto input = std::list { 0, 1, 2, 3, 4 };
-    auto view = views::adjacent_transform<3>(input, multiply<int> {});
+    auto view = input | views::adjacent_transform<3>(multiply<int> {});
+    CHECK_EQ(std::ranges::size(view), 3);
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, 0);
     CHECK_EQ(*curr--, 6);
@@ -80,7 +81,9 @@ TEST_CASE("bidirectional_range")
 TEST_CASE("random_access_range")
 {
     static const int input[] = { 0, 1, 2, 3, 4 };
-    auto view = views::adjacent_transform<3>(input, multiply<int> {});
+    auto view = input | views::adjacent_transform<3>(multiply<int> {});
+    CHECK_EQ(std::ranges::size(view), 3);
+    CHECK_EQ(std::ranges::end(view) - std::ranges::begin(view), 3);
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr, 0);
     curr += 1;

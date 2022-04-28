@@ -370,8 +370,7 @@ private:
 
 namespace views {
     template <std::size_t N>
-    class __adjacent_transform_fn
-        : public range_adaptor_closure<__adjacent_transform_fn<N>> {
+    class __adjacent_transform_fn {
     public:
         template <std::ranges::viewable_range Range, typename Fn>
         constexpr auto operator()(Range&& range, Fn&& fn) const
@@ -385,6 +384,16 @@ namespace views {
                     std::forward<Range>(range), std::forward<Fn>(fn)
                 };
             }
+        }
+
+        template <typename Fn>
+            requires std::constructible_from<std::decay_t<Fn>, Fn>
+        constexpr auto operator()(Fn&& fn) const
+            noexcept(std::is_nothrow_constructible_v<std::decay_t<Fn>, Fn>)
+        {
+            return range_adaptor_closure<__adjacent_transform_fn,
+                                         std::decay_t<Fn>>(
+                std::forward<Fn>(fn));
         }
     };
 
