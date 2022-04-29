@@ -397,15 +397,23 @@ namespace views {
         template <std::ranges::viewable_range Range>
         constexpr auto
         operator()(Range&& range,
-                   std::ranges::range_difference_t<Range> n) const
+                   const std::ranges::range_difference_t<Range> n) const
+            noexcept(noexcept(slide_view(std::forward<Range>(range),
+                                         n))) requires requires
         {
-            return slide_view { std::forward<Range>(range), n };
+            slide_view(std::forward<Range>(range), n);
+        }
+        {
+            return slide_view(std::forward<Range>(range), n);
         }
 
-        template <std::integral N>
-        constexpr auto operator()(N n) const
+        template <typename N>
+        constexpr auto operator()(N&& n) const noexcept(
+            std::is_nothrow_constructible_v<std::decay_t<N>, N>) requires
+            std::constructible_from<std::decay_t<N>, N>
         {
-            return range_adaptor_closure<__slide_fn, N> { n };
+            return range_adaptor_closure<__slide_fn, std::decay_t<N>>(
+                std::forward<N>(n));
         }
     };
 

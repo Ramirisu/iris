@@ -176,27 +176,25 @@ namespace views {
     class __chunk_by_fn {
     public:
         template <std::ranges::viewable_range Range, typename Pred>
-        constexpr auto operator()(Range&& range, Pred&& pred) const
-            noexcept(noexcept(chunk_by_view {
-                std::forward<Range>(range),
-                std::forward<Pred>(pred) })) requires requires
+        constexpr auto operator()(Range&& range, Pred&& pred) const noexcept(
+            noexcept(chunk_by_view(std::forward<Range>(range),
+                                   std::forward<Pred>(pred)))) requires requires
         {
-            chunk_by_view { std::forward<Range>(range),
-                            std::forward<Pred>(pred) };
+            chunk_by_view(std::forward<Range>(range), std::forward<Pred>(pred));
         }
         {
-            return chunk_by_view { std::forward<Range>(range),
-                                   std::forward<Pred>(pred) };
+            return chunk_by_view(std::forward<Range>(range),
+                                 std::forward<Pred>(pred));
         }
 
         template <typename Pred>
+        constexpr auto operator()(Pred&& pred) const //
+            noexcept(std::is_nothrow_constructible_v<std::decay_t<Pred>,
+                                                     Pred>) //
             requires std::constructible_from<std::decay_t<Pred>, Pred>
-        constexpr auto operator()(Pred&& pred) const
-            noexcept(std::is_nothrow_constructible_v<std::decay_t<Pred>, Pred>)
         {
-            return range_adaptor_closure<__chunk_by_fn, std::decay_t<Pred>> {
-                std::forward<Pred>(pred)
-            };
+            return range_adaptor_closure<__chunk_by_fn, std::decay_t<Pred>>(
+                std::forward<Pred>(pred));
         }
     };
 
