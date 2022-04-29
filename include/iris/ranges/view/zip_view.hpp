@@ -50,14 +50,19 @@ namespace __zip_view_detail {
                 || ...);
     }
 
-    template <typename TupleLHS, typename TupleRHS, std::size_t... Is>
+    template <typename DiffType,
+              typename TupleLHS,
+              typename TupleRHS,
+              std::size_t... Is>
     constexpr auto __tuple_smallest_dist(TupleLHS&& lhs,
                                          TupleRHS&& rhs,
                                          std::index_sequence<Is...>)
     {
-        return std::min({ (((std::get<Is>(std::forward<TupleLHS>(lhs))
-                             - std::get<Is>(std::forward<TupleRHS>(rhs)))),
-                           ...) });
+        return std::ranges::min(
+            { ((DiffType(std::get<Is>(std::forward<TupleLHS>(lhs))
+                         - std::get<Is>(std::forward<TupleRHS>(rhs)))),
+               ...) },
+            [](auto lhs, auto rhs) { return std::abs(lhs) < std::abs(rhs); });
     }
 }
 
@@ -278,7 +283,7 @@ public:
                      std::ranges::iterator_t<
                          __detail::__maybe_const<IsConst, Views>>>&&...)
         {
-            return __zip_view_detail::__tuple_smallest_dist(
+            return __zip_view_detail::__tuple_smallest_dist<difference_type>(
                 lhs.current_, rhs.current_,
                 std::index_sequence_for<Views...> {});
         }
@@ -373,7 +378,9 @@ public:
             __detail::__maybe_const<OtherIsConst, Views>>...>
         operator-(const iterator<OtherIsConst>& lhs, const sentinel& rhs)
         {
-            return __zip_view_detail::__tuple_smallest_dist(
+            return __zip_view_detail::__tuple_smallest_dist<
+                std::common_type_t<std::ranges::range_difference_t<
+                    __detail::__maybe_const<OtherIsConst, Views>>...>>(
                 lhs.__current(), rhs.end_,
                 std::index_sequence_for<Views...> {});
         }
