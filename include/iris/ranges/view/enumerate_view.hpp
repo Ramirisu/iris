@@ -418,12 +418,12 @@ public:
     }
 
     constexpr auto end() const //
-        requires
-        std::ranges::common_range<const View> && std::ranges::sized_range<View>
+        requires std::ranges::common_range<
+            const View> && std::ranges::sized_range<const View>
     {
         return iterator<true> {
             std::ranges::end(base_),
-            static_cast<std::ranges::range_difference_t<View>>(size())
+            static_cast<std::ranges::range_difference_t<const View>>(size())
         };
     }
 

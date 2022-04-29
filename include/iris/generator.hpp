@@ -266,7 +266,7 @@ public:
         }
 
     private:
-        explicit iterator(std::coroutine_handle<promise_type> handle)
+        explicit iterator(std::coroutine_handle<promise_type> handle) noexcept
             : handle_(handle)
         {
         }
