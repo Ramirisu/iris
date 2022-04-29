@@ -421,13 +421,13 @@ public:
 
     // clang-format off
     template <std::ranges::input_range Range>
-        requires std::constructible_from<View, std::ranges::views::all_t<Range>> 
+        requires std::constructible_from<View, std::views::all_t<Range>> 
             && std::constructible_from<Pattern, std::ranges::single_view<InnerRange>>
     // clang-format on
     constexpr join_with_view(Range&& range,
                              std::ranges::range_value_t<InnerRange> element)
-        : base_(std::ranges::views::all(std::forward<Range>(range)))
-        , pattern_(std::ranges::views::single(std::move(element)))
+        : base_(std::views::all(std::forward<Range>(range)))
+        , pattern_(std::views::single(std::move(element)))
     {
     }
 
@@ -506,13 +506,12 @@ private:
 
 template <typename View, typename Pattern>
 join_with_view(View&&, Pattern&&)
-    -> join_with_view<std::ranges::views::all_t<View>,
-                      std::ranges::views::all_t<Pattern>>;
+    -> join_with_view<std::views::all_t<View>, std::views::all_t<Pattern>>;
 
 template <std::ranges::input_range Range>
 join_with_view(
     Range&&, std::ranges::range_value_t<std::ranges::range_reference_t<Range>>)
-    -> join_with_view<std::ranges::views::all_t<Range>,
+    -> join_with_view<std::views::all_t<Range>,
                       std::ranges::single_view<std::ranges::range_value_t<
                           std::ranges::range_reference_t<Range>>>>;
 

@@ -198,18 +198,18 @@ namespace views {
     public:
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const
-            noexcept(noexcept(to_utf_view<std::ranges::views::all_t<Range>,
+            noexcept(noexcept(to_utf_view<std::views::all_t<Range>,
                                           std::ranges::range_reference_t<Range>,
                                           UTF> {
                 std::forward<Range>(range) })) requires requires
         {
-            to_utf_view<std::ranges::views::all_t<Range>,
+            to_utf_view<std::views::all_t<Range>,
                         std::ranges::range_reference_t<Range>, UTF> {
                 std::forward<Range>(range)
             };
         }
         {
-            return to_utf_view<std::ranges::views::all_t<Range>,
+            return to_utf_view<std::views::all_t<Range>,
                                std::ranges::range_reference_t<Range>, UTF> {
                 std::forward<Range>(range)
             };
@@ -380,7 +380,7 @@ private:
 };
 
 template <typename Range>
-from_utf_view(Range&&) -> from_utf_view<std::ranges::views::all_t<Range>,
+from_utf_view(Range&&) -> from_utf_view<std::views::all_t<Range>,
                                         std::uint32_t,
                                         std::ranges::range_value_t<Range>>;
 

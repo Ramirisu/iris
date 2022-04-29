@@ -169,8 +169,7 @@ private:
 };
 
 template <typename Range, typename Pred>
-chunk_by_view(Range&&, Pred)
-    -> chunk_by_view<std::ranges::views::all_t<Range>, Pred>;
+chunk_by_view(Range&&, Pred) -> chunk_by_view<std::views::all_t<Range>, Pred>;
 
 namespace views {
     class __chunk_by_fn {

@@ -389,7 +389,7 @@ private:
 
 template <typename Range>
 slide_view(Range&&, std::ranges::range_difference_t<Range>)
-    -> slide_view<std::ranges::views::all_t<Range>>;
+    -> slide_view<std::views::all_t<Range>>;
 
 namespace views {
     class __slide_fn {

@@ -482,7 +482,7 @@ private:
 };
 
 template <typename... Ranges>
-zip_view(Ranges&&...) -> zip_view<std::ranges::views::all_t<Ranges>...>;
+zip_view(Ranges&&...) -> zip_view<std::views::all_t<Ranges>...>;
 
 namespace views {
     class __zip_fn : public range_adaptor_closure<__zip_fn> {

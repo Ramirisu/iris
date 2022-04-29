@@ -381,7 +381,7 @@ private:
 
 template <typename Fn, typename... Ranges>
 zip_transform_view(Fn, Ranges&&...)
-    -> zip_transform_view<Fn, std::ranges::views::all_t<Ranges>...>;
+    -> zip_transform_view<Fn, std::views::all_t<Ranges>...>;
 
 namespace views {
     class __zip_transform_fn {
@@ -403,8 +403,7 @@ namespace views {
             requires(sizeof...(Ranges) > 0)
         constexpr auto operator()(Fn&& fn, Ranges&&... ranges) const
         {
-            return zip_transform_view<Fn,
-                                      std::ranges::views::all_t<Ranges>...> {
+            return zip_transform_view<Fn, std::views::all_t<Ranges>...> {
                 std::forward<Fn>(fn), std::forward<Ranges>(ranges)...
             };
         }

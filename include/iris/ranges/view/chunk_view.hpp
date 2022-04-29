@@ -608,7 +608,7 @@ private:
 
 template <typename Range>
 chunk_view(Range&&, std::ranges::range_difference_t<Range>)
-    -> chunk_view<std::ranges::views::all_t<Range>>;
+    -> chunk_view<std::views::all_t<Range>>;
 
 namespace views {
     struct __chunk_fn {
