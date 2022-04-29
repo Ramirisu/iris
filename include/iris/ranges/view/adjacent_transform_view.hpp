@@ -379,10 +379,9 @@ namespace views {
                 IRIS_UNUSED(range);
                 return zip_transform(std::forward<Fn>(fn));
             } else {
-                return adjacent_transform_view<std::views::all_t<Range>,
-                                               std::decay_t<Fn>, N> {
-                    std::forward<Range>(range), std::forward<Fn>(fn)
-                };
+                return adjacent_transform_view<std::views::all_t<Range&&>,
+                                               std::decay_t<Fn>, N>(
+                    std::forward<Range>(range), std::forward<Fn>(fn));
             }
         }
 

@@ -454,9 +454,13 @@ namespace views {
     class __enumerate_fn : public range_adaptor_closure<__enumerate_fn> {
     public:
         template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const
+        constexpr auto operator()(Range&& range) const noexcept(noexcept(
+            enumerate_view(std::forward<Range>(range)))) requires requires
         {
-            return enumerate_view { std::forward<Range>(range) };
+            enumerate_view(std::forward<Range>(range));
+        }
+        {
+            return enumerate_view(std::forward<Range>(range));
         }
     };
 
