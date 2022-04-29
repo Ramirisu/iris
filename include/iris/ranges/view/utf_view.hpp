@@ -89,7 +89,7 @@ public:
         friend constexpr bool operator==(const iterator& lhs,
                                          const iterator& rhs)
         {
-            return lhs.curr_ == rhs.curr_;
+            return lhs.curr_ == rhs.curr_ && lhs.value_ == rhs.value_;
         }
 
     private:
@@ -158,9 +158,23 @@ public:
         return iterator<true>(*this, std::ranges::begin(base_));
     }
 
-    constexpr std::default_sentinel_t end() noexcept
+    constexpr auto end()
     {
-        return {};
+        if constexpr (std::ranges::common_range<View>) {
+            return iterator<false>(*this, std::ranges::end(base_));
+        } else {
+            return std::default_sentinel;
+        }
+    }
+
+    constexpr auto end() const //
+        requires std::ranges::range<const View>
+    {
+        if constexpr (std::ranges::common_range<const View>) {
+            return iterator<true>(*this, std::ranges::end(base_));
+        } else {
+            return std::default_sentinel;
+        }
     }
 
     constexpr auto size() //
@@ -275,7 +289,7 @@ public:
         friend constexpr bool operator==(const iterator& lhs,
                                          const iterator& rhs)
         {
-            return lhs.curr_ == rhs.curr_;
+            return lhs.curr_ == rhs.curr_ && lhs.value_ == rhs.value_;
         }
 
     private:
@@ -331,9 +345,23 @@ public:
         return iterator<true>(*this, std::ranges::begin(base_));
     }
 
-    constexpr std::default_sentinel_t end() noexcept
+    constexpr auto end()
     {
-        return {};
+        if constexpr (std::ranges::common_range<View>) {
+            return iterator<false>(*this, std::ranges::end(base_));
+        } else {
+            return std::default_sentinel;
+        }
+    }
+
+    constexpr auto end() const //
+        requires std::ranges::range<const View>
+    {
+        if constexpr (std::ranges::common_range<const View>) {
+            return iterator<true>(*this, std::ranges::end(base_));
+        } else {
+            return std::default_sentinel;
+        }
     }
 
     constexpr auto size() //

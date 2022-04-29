@@ -29,6 +29,10 @@ public:
         return size_;
     }
 
+    friend constexpr bool operator==(const __static_storage& lhs,
+                                     const __static_storage& rhs)
+        = default;
+
 private:
     T data_[N];
     std::size_t size_;
