@@ -26,6 +26,7 @@
   * `ranges::as_rvalue_view<Range>` (***C++23***)
   * `ranges::cartesian_product_view<Ranges...>` (***C++23***)
   * `ranges::enumerate_view<Range>` (***C++26 ?***)
+  * `ranges::concat_view<Ranges...>` (***C++26 ?***)
   * `ranges::to_base64_view<Range, Binary, Text>`
   * `ranges::from_base64_view<Range, Binary, Text>`
   * `ranges::to_utf_view<Range, Unicode, UTF>`
@@ -46,6 +47,7 @@
   * `views::as_rvalue` (***C++23***)
   * `views::cartesian_product` (***C++23***)
   * `views::enumerate` (***C++26 ?***)
+  * `views::concat` (***C++26 ?***)
   * `views::unwrap`
   * `views::to_base64`
   * `views::from_base64`
@@ -67,7 +69,7 @@
   * `ranges::fold_right` (***C++23***)
   * `ranges::fold_right_last` (***C++23***)
 * Coroutine Types
-  * `generator<R, V, Allocator>` (***C++23 Partial***)
+  * `generator<R, V, Allocator>`
   * `lazy<T>` (***C++26 ?***)
 * Encoding
   * `base64<Binary, Text>`
