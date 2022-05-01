@@ -69,13 +69,13 @@ TEST_CASE("bidirectional_range")
     CHECK_EQ(std::ranges::size(view), 3);
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, 0);
-    CHECK_EQ(*curr--, 6);
-    CHECK_EQ(*curr++, 0);
-    CHECK_EQ(*curr++, 6);
-    CHECK_EQ(*curr--, 24);
     CHECK_EQ(*curr++, 6);
     CHECK_EQ(*curr++, 24);
     CHECK_EQ(curr, std::ranges::end(view));
+    curr--;
+    curr--;
+    curr--;
+    CHECK_EQ(curr, std::ranges::begin(view));
 }
 
 TEST_CASE("random_access_range")
@@ -83,17 +83,24 @@ TEST_CASE("random_access_range")
     static const int input[] = { 0, 1, 2, 3, 4 };
     auto view = input | views::adjacent_transform<3>(multiply<int> {});
     CHECK_EQ(std::ranges::size(view), 3);
-    CHECK_EQ(std::ranges::end(view) - std::ranges::begin(view), 3);
     auto curr = std::ranges::begin(view);
+    CHECK_EQ(std::ranges::begin(view) - curr, 0);
+    CHECK_EQ(std::ranges::end(view) - curr, 3);
     CHECK_EQ(*curr, 0);
     curr += 1;
+    CHECK_EQ(std::ranges::begin(view) - curr, -1);
+    CHECK_EQ(std::ranges::end(view) - curr, 2);
     CHECK_EQ(*curr, 6);
     curr += 1;
+    CHECK_EQ(std::ranges::begin(view) - curr, -2);
+    CHECK_EQ(std::ranges::end(view) - curr, 1);
     CHECK_EQ(*curr, 24);
     curr += 1;
+    CHECK_EQ(std::ranges::begin(view) - curr, -3);
+    CHECK_EQ(std::ranges::end(view) - curr, 0);
     CHECK_EQ(curr, std::ranges::end(view));
     curr -= 3;
-    CHECK_EQ(*curr, 0);
+    CHECK_EQ(curr, std::ranges::begin(view));
 }
 
 TEST_SUITE_END();

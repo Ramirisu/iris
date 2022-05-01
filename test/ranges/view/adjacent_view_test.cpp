@@ -48,29 +48,38 @@ TEST_CASE("bidirectional_range")
     auto view = input | views::adjacent<3>;
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, std::tuple { 0, 1, 2 });
-    CHECK_EQ(*curr--, std::tuple { 1, 2, 3 });
-    CHECK_EQ(*curr++, std::tuple { 0, 1, 2 });
-    CHECK_EQ(*curr++, std::tuple { 1, 2, 3 });
-    CHECK_EQ(*curr--, std::tuple { 2, 3, 4 });
     CHECK_EQ(*curr++, std::tuple { 1, 2, 3 });
     CHECK_EQ(*curr++, std::tuple { 2, 3, 4 });
     CHECK_EQ(curr, std::ranges::end(view));
+    curr--;
+    curr--;
+    curr--;
+    CHECK_EQ(curr, std::ranges::begin(view));
 }
 
 TEST_CASE("random_access_range")
 {
     static const int input[] = { 0, 1, 2, 3, 4 };
     auto view = input | views::adjacent<3>;
+    CHECK_EQ(std::ranges::size(view), 3);
     auto curr = std::ranges::begin(view);
+    CHECK_EQ(std::ranges::begin(view) - curr, 0);
+    CHECK_EQ(std::ranges::end(view) - curr, 3);
     CHECK_EQ(*curr, std::tuple { 0, 1, 2 });
     curr += 1;
+    CHECK_EQ(std::ranges::begin(view) - curr, -1);
+    CHECK_EQ(std::ranges::end(view) - curr, 2);
     CHECK_EQ(*curr, std::tuple { 1, 2, 3 });
     curr += 1;
+    CHECK_EQ(std::ranges::begin(view) - curr, -2);
+    CHECK_EQ(std::ranges::end(view) - curr, 1);
     CHECK_EQ(*curr, std::tuple { 2, 3, 4 });
     curr += 1;
+    CHECK_EQ(std::ranges::begin(view) - curr, -3);
+    CHECK_EQ(std::ranges::end(view) - curr, 0);
     CHECK_EQ(curr, std::ranges::end(view));
     curr -= 3;
-    CHECK_EQ(*curr, std::tuple { 0, 1, 2 });
+    CHECK_EQ(curr, std::ranges::begin(view));
 }
 
 TEST_SUITE_END();

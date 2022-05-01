@@ -38,4 +38,35 @@ TEST_CASE("forward_range")
     CHECK_EQ(curr, std::ranges::end(view));
 }
 
+TEST_CASE("bidirectional_range")
+{
+    static const int input[] = { 0, 1, 2, 3, 4 };
+    auto view = input | views::chunk(2);
+    auto curr = std::ranges::begin(view);
+    CHECK(std::ranges::equal(*curr++, std::span(input).subspan(0, 2)));
+    CHECK(std::ranges::equal(*curr--, std::span(input).subspan(2, 2)));
+    CHECK(std::ranges::equal(*curr++, std::span(input).subspan(0, 2)));
+    CHECK(std::ranges::equal(*curr++, std::span(input).subspan(2, 2)));
+    CHECK(std::ranges::equal(*curr--, std::span(input).subspan(4, 1)));
+    CHECK(std::ranges::equal(*curr++, std::span(input).subspan(2, 2)));
+    CHECK(std::ranges::equal(*curr++, std::span(input).subspan(4, 1)));
+    CHECK_EQ(curr, std::ranges::end(view));
+}
+
+TEST_CASE("random_access_range")
+{
+    static const int input[] = { 0, 1, 2, 3, 4 };
+    auto view = input | views::chunk(2);
+    auto curr = std::ranges::begin(view);
+    CHECK(std::ranges::equal(*curr, std::span(input).subspan(0, 2)));
+    curr += 1;
+    CHECK(std::ranges::equal(*curr, std::span(input).subspan(2, 2)));
+    curr += 1;
+    CHECK(std::ranges::equal(*curr, std::span(input).subspan(4, 1)));
+    curr += 1;
+    CHECK_EQ(curr, std::ranges::end(view));
+    curr -= 3;
+    CHECK_EQ(curr, std::ranges::begin(view));
+}
+
 TEST_SUITE_END();
