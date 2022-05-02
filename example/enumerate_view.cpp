@@ -1,6 +1,10 @@
 
 #include <iris/ranges/view/enumerate_view.hpp>
 
+#include <iris/expected.hpp>
+#include <iris/ranges/view/unwrap_view.hpp>
+#include <iris/ranges/view/utf_view.hpp>
+
 #include <iostream>
 
 int main()

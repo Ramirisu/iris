@@ -18,7 +18,6 @@ expected<std::string, std::error_code> get_host_name() noexcept
     if (GetComputerNameW(buffer, &size) == TRUE) {
         buffer[size + 1] = 0;
         return std::wstring_view(buffer) | views::from_utf | views::unwrap
-            | ranges::to<std::vector<std::uint32_t>>()
             | views::to_utf<char> | views::unwrap | ranges::to<std::string>();
     }
 
@@ -32,7 +31,6 @@ expected<std::string, std::error_code> get_user_name() noexcept
     if (GetUserNameW(buffer, &size) == TRUE) {
         buffer[size] = 0;
         return std::wstring_view(buffer) | views::from_utf | views::unwrap
-            | ranges::to<std::vector<std::uint32_t>>()
             | views::to_utf<char> | views::unwrap | ranges::to<std::string>();
     }
 

@@ -21,39 +21,47 @@ static const auto unicode
 
 TEST_CASE("from_utf")
 {
-    CHECK(std::ranges::equal(utf8_cstr | views::from_utf, unicode));
-    CHECK(std::ranges::equal(utf8_str | views::from_utf, unicode));
-    CHECK(std::ranges::equal(utf16_str | views::from_utf, unicode));
-    CHECK(std::ranges::equal(utf32_str | views::from_utf, unicode));
+    CHECK(std::ranges::equal(utf8_cstr | views::from_utf | views::unwrap,
+                             unicode));
+    CHECK(std::ranges::equal(utf8_str | views::from_utf | views::unwrap,
+                             unicode));
+    CHECK(std::ranges::equal(utf16_str | views::from_utf | views::unwrap,
+                             unicode));
+    CHECK(std::ranges::equal(utf32_str | views::from_utf | views::unwrap,
+                             unicode));
 }
 
 TEST_CASE("to_utf")
 {
-    CHECK(std::ranges::equal(unicode | views::to_utf<char>, utf8_cstr));
-    CHECK(std::ranges::equal(unicode | views::to_utf<char8_t>, utf8_str));
-    CHECK(std::ranges::equal(unicode | views::to_utf<char16_t>, utf16_str));
-    CHECK(std::ranges::equal(unicode | views::to_utf<char32_t>, utf32_str));
+    CHECK(std::ranges::equal(unicode | views::to_utf<char> | views::unwrap,
+                             utf8_cstr));
+    CHECK(std::ranges::equal(unicode | views::to_utf<char8_t> | views::unwrap,
+                             utf8_str));
+    CHECK(std::ranges::equal(unicode | views::to_utf<char16_t> | views::unwrap,
+                             utf16_str));
+    CHECK(std::ranges::equal(unicode | views::to_utf<char32_t> | views::unwrap,
+                             utf32_str));
 }
 
 TEST_CASE("utf8/16/32 conversion between one another")
 {
     CHECK(std::ranges::equal(utf8_str | views::from_utf | views::unwrap
-                                 | views::to_utf<char16_t>,
+                                 | views::to_utf<char16_t> | views::unwrap,
                              utf16_str));
     CHECK(std::ranges::equal(utf8_str | views::from_utf | views::unwrap
-                                 | views::to_utf<char32_t>,
+                                 | views::to_utf<char32_t> | views::unwrap,
                              utf32_str));
     CHECK(std::ranges::equal(utf16_str | views::from_utf | views::unwrap
-                                 | views::to_utf<char8_t>,
+                                 | views::to_utf<char8_t> | views::unwrap,
                              utf8_str));
     CHECK(std::ranges::equal(utf16_str | views::from_utf | views::unwrap
-                                 | views::to_utf<char32_t>,
+                                 | views::to_utf<char32_t> | views::unwrap,
                              utf32_str));
     CHECK(std::ranges::equal(utf32_str | views::from_utf | views::unwrap
-                                 | views::to_utf<char8_t>,
+                                 | views::to_utf<char8_t> | views::unwrap,
                              utf8_str));
     CHECK(std::ranges::equal(utf32_str | views::from_utf | views::unwrap
-                                 | views::to_utf<char16_t>,
+                                 | views::to_utf<char16_t> | views::unwrap,
                              utf16_str));
 }
 

@@ -35,6 +35,7 @@ public:
             std::forward_iterator_tag,
             std::input_iterator_tag>;
         using value_type = expected<UTF, utf_error>;
+        using reference = value_type&;
         using difference_type = std::ranges::range_difference_t<Base>;
 
         iterator() = default;
@@ -206,16 +207,16 @@ namespace views {
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const noexcept(noexcept(
             to_utf_view<std::views::all_t<Range&&>,
-                        std::ranges::range_reference_t<Range&&>,
+                        std::ranges::range_value_t<Range&&>,
                         UTF>(std::forward<Range>(range)))) requires requires
         {
             to_utf_view<std::views::all_t<Range&&>,
-                        std::ranges::range_reference_t<Range&&>, UTF>(
+                        std::ranges::range_value_t<Range&&>, UTF>(
                 std::forward<Range>(range));
         }
         {
             return to_utf_view<std::views::all_t<Range&&>,
-                               std::ranges::range_reference_t<Range&&>, UTF>(
+                               std::ranges::range_value_t<Range&&>, UTF>(
                 std::forward<Range>(range));
         }
     };
@@ -250,6 +251,7 @@ public:
             std::forward_iterator_tag,
             std::input_iterator_tag>;
         using value_type = typename encoder::unicode_result_type;
+        using reference = value_type&;
         using difference_type = std::ranges::range_difference_t<Base>;
 
         iterator() = default;
