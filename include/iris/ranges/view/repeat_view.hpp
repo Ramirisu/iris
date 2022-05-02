@@ -58,7 +58,7 @@ public:
         {
             auto tmp = *this;
             ++*this;
-            return *this;
+            return tmp;
         }
 
         constexpr iterator& operator--()
