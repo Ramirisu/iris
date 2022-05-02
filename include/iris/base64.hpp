@@ -65,28 +65,28 @@ public:
             return unexpected(base64_error::eof);
         }
 
-        std::uint8_t b0 = decode_table_[*first++];
+        std::uint8_t b0 = decode_table_[std::uint8_t(*first++)];
         if (b0 == eq || b0 == err) {
             return unexpected(base64_error::illegal_character);
         }
         if (first == last) {
             return unexpected(base64_error::incomplete);
         }
-        std::uint8_t b1 = decode_table_[*first++];
+        std::uint8_t b1 = decode_table_[std::uint8_t(*first++)];
         if (b1 == eq || b1 == err) {
             return unexpected(base64_error::illegal_character);
         }
         if (first == last) {
             return unexpected(base64_error::incomplete);
         }
-        std::uint8_t b2 = decode_table_[*first++];
+        std::uint8_t b2 = decode_table_[std::uint8_t(*first++)];
         if (b2 == err) {
             return unexpected(base64_error::illegal_character);
         }
         if (first == last) {
             return unexpected(base64_error::incomplete);
         }
-        std::uint8_t b3 = decode_table_[*first++];
+        std::uint8_t b3 = decode_table_[std::uint8_t(*first++)];
         if (b3 == err) {
             return unexpected(base64_error::illegal_character);
         }

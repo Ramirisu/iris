@@ -14,7 +14,9 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  set(IRIS_COMPILE_FLAGS "/W4")
+  set(IRIS_COMPILE_FLAGS /W4)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(IRIS_COMPILE_FLAGS -Wall -Wextra -Wno-unused-local-typedefs)
 endif()
 
 file(GLOB_RECURSE IRIS_HEADER_FILES "include/*.hpp")

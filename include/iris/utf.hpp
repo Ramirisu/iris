@@ -169,7 +169,8 @@ public:
         }
 
         std::uint32_t codepoint = *first++;
-        if (codepoint <= 0xd7ff || codepoint >= 0xe000 && codepoint <= 0xffff) {
+        if (codepoint <= 0xd7ff
+            || (codepoint >= 0xe000 && codepoint <= 0xffff)) {
             return utf16_code_units<UTF> { codepoint };
         } else if (codepoint >= 0x10000 && codepoint <= 0x10ffff) {
             codepoint -= 0x10000;
@@ -189,7 +190,7 @@ public:
         }
 
         std::uint16_t lead = *first++;
-        if (lead <= 0xd7ff || lead >= 0xe000 && lead <= 0xffff) {
+        if (lead <= 0xd7ff || lead >= 0xe000) {
             return lead;
         } else if (is_lead_surrogates(lead)) {
             if (first == last) {

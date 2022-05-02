@@ -59,9 +59,8 @@ namespace __zip_view_detail {
                                          std::index_sequence<Is...>)
     {
         return std::ranges::min(
-            { ((DiffType(std::get<Is>(std::forward<TupleLHS>(lhs))
-                         - std::get<Is>(std::forward<TupleRHS>(rhs)))),
-               ...) },
+            { DiffType(std::get<Is>(std::forward<TupleLHS>(lhs))
+                       - std::get<Is>(std::forward<TupleRHS>(rhs)))... },
             [](auto lhs, auto rhs) { return std::abs(lhs) < std::abs(rhs); });
     }
 }

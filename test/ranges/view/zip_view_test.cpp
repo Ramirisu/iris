@@ -96,10 +96,15 @@ TEST_CASE("range size are not the same")
     static const char input2[] = { '0', '1', '2' };
     auto view = views::zip(input0, input1, input2);
     CHECK_EQ(std::ranges::size(view), 3);
-    CHECK_EQ(std::ranges::end(view) - std::ranges::begin(view), 3);
     auto curr = std::ranges::begin(view);
+    CHECK_EQ(std::ranges::begin(view) - curr, 0);
+    CHECK_EQ(std::ranges::end(view) - curr, 3);
     CHECK_EQ(*curr++, std::tuple { 0, 0u, '0' });
+    CHECK_EQ(std::ranges::begin(view) - curr, -1);
+    CHECK_EQ(std::ranges::end(view) - curr, 2);
     CHECK_EQ(*curr++, std::tuple { 1, 1u, '1' });
+    CHECK_EQ(std::ranges::begin(view) - curr, -2);
+    CHECK_EQ(std::ranges::end(view) - curr, 1);
     CHECK_EQ(*curr++, std::tuple { 2, 2u, '2' });
     CHECK_EQ(curr, std::ranges::end(view));
 }

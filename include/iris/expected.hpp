@@ -1084,7 +1084,7 @@ public:
         IRIS_ASSERT(has_value());
     }
 
-    constexpr const void value() const&
+    constexpr void value() const&
     {
         if (!has_value()) {
             throw bad_expected_access(error());
