@@ -29,7 +29,7 @@ public:
 
     std::string to_string() const noexcept
     {
-        auto to_hex_char = [](std::uint8_t byte) {
+        auto to_hex_char = [](std::uint8_t byte) -> char {
             return byte >= 10 ? byte + 'a' - 10 : byte + '0';
         };
         std::string separator;
@@ -37,8 +37,10 @@ public:
                                std::string(), [&](auto accumulator, auto& b) {
                                    accumulator += separator;
                                    separator = ":";
-                                   accumulator += to_hex_char(b >> 4);
-                                   accumulator += to_hex_char(b & 0xf);
+                                   accumulator
+                                       += to_hex_char(std::uint8_t(b >> 4));
+                                   accumulator
+                                       += to_hex_char(std::uint8_t(b & 0xf));
                                    return accumulator;
                                });
     }

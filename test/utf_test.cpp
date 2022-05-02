@@ -59,7 +59,6 @@ TEST_CASE("utf: utf-8")
     test_utf_decode<std::uint32_t, char8_t>(utf8_cstr, unicode);
     test_utf_decode<std::uint32_t, char>(utf8_cstr, unicode);
     test_utf_decode<std::uint32_t, std::uint8_t>(utf8_cstr, unicode);
-
     test_utf_decode<char32_t, char8_t>(utf8_str, unicode);
     test_utf_decode<char32_t, char>(utf8_str, unicode);
     test_utf_decode<char32_t, std::uint8_t>(utf8_str, unicode);
@@ -99,12 +98,12 @@ TEST_CASE("utf: utf-32")
     test_utf_decode<char32_t, char32_t>(utf32_str, unicode);
     test_utf_decode<char32_t, std::uint32_t>(utf32_str, unicode);
     test_utf_decode<std::uint32_t, char32_t>(utf32_str, unicode);
-    test_utf_decode<std::uint32_t, std::uint16_t>(utf32_str, unicode);
+    test_utf_decode<std::uint32_t, std::uint32_t>(utf32_str, unicode);
 
-    test_utf_decode<char32_t, char32_t>(unicode, utf32_str);
-    test_utf_decode<char32_t, std::uint32_t>(unicode, utf32_str);
-    test_utf_decode<std::uint32_t, char32_t>(unicode, utf32_str);
-    test_utf_decode<std::uint32_t, std::uint16_t>(unicode, utf32_str);
+    test_utf_encode<char32_t, char32_t>(unicode, utf32_str);
+    test_utf_encode<char32_t, std::uint32_t>(unicode, utf32_str);
+    test_utf_encode<std::uint32_t, char32_t>(unicode, utf32_str);
+    test_utf_encode<std::uint32_t, std::uint32_t>(unicode, utf32_str);
 }
 
 TEST_SUITE_END();

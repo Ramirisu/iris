@@ -1,7 +1,11 @@
 #include <iris/system.hpp>
+
+#include <iris/ranges/to.hpp>
+#include <iris/ranges/view/unwrap_view.hpp>
+#include <iris/ranges/view/utf_view.hpp>
 #include <iris/win32/win32.hpp>
 
-#include <codecvt>
+#include <ranges>
 
 #include <Lmcons.h>
 
@@ -13,8 +17,9 @@ expected<std::string, std::error_code> get_host_name() noexcept
     DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
     if (GetComputerNameW(buffer, &size) == TRUE) {
         buffer[size + 1] = 0;
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>()
-            .to_bytes(buffer);
+        return std::wstring_view(buffer) | views::from_utf | views::unwrap
+            | ranges::to<std::vector<std::uint32_t>>()
+            | views::to_utf<char> | views::unwrap | ranges::to<std::string>();
     }
 
     return unexpected(std::error_code(GetLastError(), std::system_category()));
@@ -26,8 +31,9 @@ expected<std::string, std::error_code> get_user_name() noexcept
     DWORD size = UNLEN + 1;
     if (GetUserNameW(buffer, &size) == TRUE) {
         buffer[size] = 0;
-        return std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>, wchar_t>()
-            .to_bytes(buffer);
+        return std::wstring_view(buffer) | views::from_utf | views::unwrap
+            | ranges::to<std::vector<std::uint32_t>>()
+            | views::to_utf<char> | views::unwrap | ranges::to<std::string>();
     }
 
     return unexpected(std::error_code(GetLastError(), std::system_category()));

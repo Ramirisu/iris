@@ -56,7 +56,7 @@ public:
 
     std::string to_string() const noexcept
     {
-        std::size_t longest_index = -1;
+        std::size_t longest_index = std::size_t(-1);
         std::size_t longest_size = 0;
         for (std::size_t index = 0; index < 8;) {
             std::size_t size = 0;
@@ -74,7 +74,7 @@ public:
         std::string result;
         std::string separator;
 
-        auto to_hex_char = [](std::uint8_t byte) {
+        auto to_hex_char = [](std::uint8_t byte) -> char {
             return byte >= 10 ? byte + 'a' - 10 : byte + '0';
         };
 
@@ -87,16 +87,16 @@ public:
             auto hi = bytes_[2 * index];
             auto lo = bytes_[2 * index + 1];
             if (hi > 0xf) {
-                result += to_hex_char(hi >> 4);
-                result += to_hex_char(hi & 0xf);
-                result += to_hex_char(lo >> 4);
+                result += to_hex_char(std::uint8_t(hi >> 4));
+                result += to_hex_char(std::uint8_t(hi & 0xf));
+                result += to_hex_char(std::uint8_t(lo >> 4));
             } else if (hi > 0x0) {
-                result += to_hex_char(hi & 0xf);
-                result += to_hex_char(lo >> 4);
+                result += to_hex_char(std::uint8_t(hi & 0xf));
+                result += to_hex_char(std::uint8_t(lo >> 4));
             } else if (lo > 0xf) {
-                result += to_hex_char(lo >> 4);
+                result += to_hex_char(std::uint8_t(lo >> 4));
             }
-            result += to_hex_char(lo & 0xf);
+            result += to_hex_char(std::uint8_t(lo & 0xf));
         };
 
         for (std::size_t index = 0; index < 8;) {

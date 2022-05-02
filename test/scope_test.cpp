@@ -20,6 +20,7 @@ void test_scope_exit(bool release, bool throw_exception, bool result)
             throw std::exception();
         }
     } catch (const std::exception& ex) {
+        IRIS_UNUSED(ex);
     }
     CHECK_EQ(called, result);
 }

@@ -190,7 +190,7 @@ public:
             IRIS_ASSERT(!it_.valueless_by_exception());
             __concat_view_detail::__visit<sizeof...(Views) - 1>(
                 [&](auto I, auto& it) {
-                    ++std::get<I>(it_);
+                    ++std::get<I>(it);
                     satisfy<I>();
                 },
                 it_);
@@ -215,7 +215,11 @@ public:
         {
             IRIS_ASSERT(!it_.valueless_by_exception());
             __concat_view_detail::__visit<sizeof...(Views) - 1>(
-                [&](auto I, auto& it) { prev<I>(); }, it_);
+                [&](auto I, auto& it) {
+                    IRIS_UNUSED(it);
+                    prev<I>();
+                },
+                it_);
             return *this;
         }
 

@@ -30,6 +30,10 @@ using utf32_code_units = __detail::__static_storage<T, 1>;
 template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 1> {
 public:
+    static_assert(std::is_unsigned_v<
+                      std::remove_cvref_t<Unicode>> && (sizeof(Unicode) == 4),
+                  "Unicode should be unsigned interger with 4 bytes size.");
+
     using utf_result_type = expected<utf8_code_units<UTF>, utf_error>;
     using unicode_result_type = expected<Unicode, utf_error>;
 
@@ -40,23 +44,24 @@ public:
             return unexpected(utf_error::eof);
         }
 
-        if (*first <= 0x7f) {
-            auto b0 = *first++;
+        std::uint32_t codepoint = *first++;
+        if (codepoint <= 0x7f) {
+            auto b0 = codepoint;
             return utf8_code_units<UTF> { b0 };
-        } else if (*first <= 0x07ff) {
-            auto b0 = ((*first >> 6) & 0x1f) | 0xc0;
-            auto b1 = (*first++ & 0x3f) | 0x80;
+        } else if (codepoint <= 0x07ff) {
+            auto b0 = ((codepoint >> 6) & 0x1f) | 0xc0;
+            auto b1 = (codepoint & 0x3f) | 0x80;
             return utf8_code_units<UTF> { b0, b1 };
-        } else if (*first <= 0xffff) {
-            auto b0 = ((*first >> 12) & 0xff) | 0xe0;
-            auto b1 = ((*first >> 6) & 0x3f) | 0x80;
-            auto b2 = (*first++ & 0x3f) | 0x80;
+        } else if (codepoint <= 0xffff) {
+            auto b0 = ((codepoint >> 12) & 0xff) | 0xe0;
+            auto b1 = ((codepoint >> 6) & 0x3f) | 0x80;
+            auto b2 = (codepoint & 0x3f) | 0x80;
             return utf8_code_units<UTF> { b0, b1, b2 };
-        } else if (*first <= 0x1fffff) {
-            auto b0 = ((*first >> 18) & 0x7) | 0xf0;
-            auto b1 = ((*first >> 12) & 0x3f) | 0x80;
-            auto b2 = ((*first >> 6) & 0x3f) | 0x80;
-            auto b3 = (*first++ & 0x3f) | 0x80;
+        } else if (codepoint <= 0x1fffff) {
+            auto b0 = ((codepoint >> 18) & 0x7) | 0xf0;
+            auto b1 = ((codepoint >> 12) & 0x3f) | 0x80;
+            auto b2 = ((codepoint >> 6) & 0x3f) | 0x80;
+            auto b3 = (codepoint & 0x3f) | 0x80;
             return utf8_code_units<UTF> { b0, b1, b2, b3 };
         }
 
@@ -149,6 +154,10 @@ private:
 template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 2> {
 public:
+    static_assert(std::is_unsigned_v<
+                      std::remove_cvref_t<Unicode>> && (sizeof(Unicode) == 4),
+                  "Unicode should be unsigned interger with 4 bytes size.");
+
     using utf_result_type = expected<utf16_code_units<UTF>, utf_error>;
     using unicode_result_type = expected<Unicode, utf_error>;
 
@@ -210,6 +219,10 @@ private:
 template <typename Unicode, typename UTF>
 class utf<Unicode, UTF, 4> {
 public:
+    static_assert(std::is_unsigned_v<
+                      std::remove_cvref_t<Unicode>> && (sizeof(Unicode) == 4),
+                  "Unicode should be unsigned interger with 4 bytes size.");
+
     using utf_result_type = expected<utf32_code_units<UTF>, utf_error>;
     using unicode_result_type = expected<Unicode, utf_error>;
 

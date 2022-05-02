@@ -30,7 +30,6 @@ public:
             return unexpected(base64_error::eof);
         }
 
-        std::size_t padding = 0;
         std::uint32_t b = *first++ << 16;
         if (first == last) {
             return base64_result<Text, 4> {
