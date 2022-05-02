@@ -4,6 +4,17 @@
 [![Linux CI](https://github.com/Ramirisu/iris/actions/workflows/linux.yml/badge.svg)](https://github.com/Ramirisu/iris/actions/workflows/linux.yml)
 [![Windows CI](https://github.com/Ramirisu/iris/actions/workflows/windows.yml/badge.svg)](https://github.com/Ramirisu/iris/actions/workflows/windows.yml)
 
+## Integration
+
+CMake
+
+```
+# clone into your project's subdirectory
+add_subdirectory(path/to/iris)
+add_executable(your-exe ...)
+target_link_libraries(your-exe PRIVATE iris)
+```
+
 ## Supported Compilers
 
 * Visual Studio 2022 19.1 (`/std:latest`)
@@ -27,6 +38,7 @@
   * `ranges::cartesian_product_view<Ranges...>` ([P2374R3](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2374r3.html))
   * `ranges::enumerate_view<Range>` ([P2164R5](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2164r5.pdf))
   * `ranges::concat_view<Ranges...>` ([P2542R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2542r1.html))
+  * `ranges::unwrap_view<Range>`
   * `ranges::to_base64_view<Range, Binary, Text>`
   * `ranges::from_base64_view<Range, Binary, Text>`
   * `ranges::to_utf_view<Range, Unicode, UTF>`
