@@ -3,6 +3,7 @@
 #include <iris/config.hpp>
 
 #include <iris/ranges/__detail/utility.hpp>
+#include <iris/utility.hpp>
 
 #include <array>
 
@@ -508,7 +509,7 @@ public:
         __cartesian_product_view_detail::__cartesian_product_is_sized<First,
                                                                       Rests...>
     {
-        const auto value = std::apply(
+        return to_unsigned(std::apply(
             [&](auto&&... bases) {
                 using common_type
                     = std::common_type_t<std::ranges::range_size_t<First>,
@@ -516,15 +517,14 @@ public:
                 return std::max(
                     { static_cast<common_type>(std::ranges::size(bases))... });
             },
-            bases_);
-        return static_cast<std::make_unsigned_t<decltype(value)>>(value);
+            bases_));
     }
 
     constexpr auto size() const //
         requires __cartesian_product_view_detail::
             __cartesian_product_is_sized<const First, const Rests...>
     {
-        const auto value = std::apply(
+        return to_unsigned(std::apply(
             [&](auto&&... bases) {
                 using common_type
                     = std::common_type_t<std::ranges::range_size_t<First>,
@@ -532,8 +532,7 @@ public:
                 return std::max(
                     { static_cast<common_type>(std::ranges::size(bases))... });
             },
-            bases_);
-        return static_cast<std::make_unsigned_t<decltype(value)>>(value);
+            bases_));
     }
 
 #if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER

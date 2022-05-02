@@ -5,6 +5,7 @@
 #include <iris/ranges/__detail/non_propagating_cache.hpp>
 #include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
+#include <iris/utility.hpp>
 
 namespace iris::ranges {
 
@@ -251,14 +252,14 @@ public:
 
     constexpr auto size() requires std::ranges::sized_range<View>
     {
-        auto value = __detail::__div_ceil(std::ranges::distance(base_), n_);
-        return static_cast<std::make_unsigned_t<decltype(value)>>(value);
+        return to_unsigned(
+            __detail::__div_ceil(std::ranges::distance(base_), n_));
     }
 
     constexpr auto size() const requires std::ranges::sized_range<const View>
     {
-        auto value = __detail::__div_ceil(std::ranges::distance(base_), n_);
-        return static_cast<std::make_unsigned_t<decltype(value)>>(value);
+        return to_unsigned(
+            __detail::__div_ceil(std::ranges::distance(base_), n_));
     }
 
     constexpr auto& __base()
@@ -589,14 +590,14 @@ public:
 
     constexpr auto size() requires std::ranges::sized_range<View>
     {
-        auto value = __detail::__div_ceil(std::ranges::distance(base_), n_);
-        return static_cast<std::make_unsigned_t<decltype(value)>>(value);
+        return to_unsigned(
+            __detail::__div_ceil(std::ranges::distance(base_), n_));
     }
 
     constexpr auto size() const requires std::ranges::sized_range<const View>
     {
-        auto value = __detail::__div_ceil(std::ranges::distance(base_), n_);
-        return static_cast<std::make_unsigned_t<decltype(value)>>(value);
+        return to_unsigned(
+            __detail::__div_ceil(std::ranges::distance(base_), n_));
     }
 
     // clang-format off

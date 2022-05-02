@@ -4,6 +4,7 @@
 
 #include <iris/ranges/__detail/copyable_box.hpp>
 #include <iris/ranges/__detail/utility.hpp>
+#include <iris/utility.hpp>
 
 namespace iris::ranges {
 
@@ -176,7 +177,7 @@ public:
     constexpr auto size() const
         requires(!std::same_as<Bound, std::unreachable_sentinel_t>)
     {
-        return static_cast<std::make_unsigned_t<Bound>>(bound_);
+        return to_unsigned(bound_);
     }
 
 #if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER

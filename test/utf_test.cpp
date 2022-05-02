@@ -1,6 +1,7 @@
 #include <thirdparty/test.hpp>
 
 #include <iris/utf.hpp>
+#include <iris/utility.hpp>
 
 using namespace iris;
 
@@ -44,9 +45,7 @@ void test_utf_encode(InputRange input, ExpectedRange exp)
         CHECK(result);
         const auto& value = result.value();
         for (std::size_t i = 0; i < value.size(); ++i) {
-            CHECK_EQ(static_cast<std::make_unsigned_t<UTF>>(value[i]),
-                     static_cast<std::make_unsigned_t<std::remove_cvref_t<
-                         std::ranges::range_value_t<ExpectedRange>>>>(*iter++));
+            CHECK_EQ(to_unsigned(value[i]), to_unsigned(*iter++));
         }
     }
 }
