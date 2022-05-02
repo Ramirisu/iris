@@ -155,7 +155,7 @@ public:
                 [&](const auto&... iters) -> decltype(auto) {
                     return std::invoke(*parent_->fn_, iters[offset]...);
                 },
-                inner_.__current());
+                inner_iter_.__current());
         }
 
         friend constexpr bool operator==(const iterator& lhs,

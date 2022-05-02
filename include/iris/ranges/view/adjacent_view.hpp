@@ -109,6 +109,8 @@ public:
         constexpr auto operator[](difference_type n) const //
             requires std::ranges::random_access_range<Base>
         {
+            return __detail::__tuple_transform(
+                [&](auto& i) -> decltype(auto) { return i[n]; }, current_);
         }
 
         friend constexpr bool operator==(const iterator& lhs,

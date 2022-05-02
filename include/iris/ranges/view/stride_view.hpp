@@ -194,8 +194,8 @@ public:
             return lhs.current_ <=> rhs.current_;
         }
 
-        friend constexpr iterator& operator+(const iterator& i,
-                                             difference_type offset) //
+        friend constexpr iterator operator+(const iterator& i,
+                                            difference_type offset) //
             requires std::ranges::random_access_range<Base>
         {
             auto r = i;
@@ -203,8 +203,8 @@ public:
             return r;
         }
 
-        friend constexpr iterator& operator+(difference_type offset,
-                                             const iterator& i) //
+        friend constexpr iterator operator+(difference_type offset,
+                                            const iterator& i) //
             requires std::ranges::random_access_range<Base>
         {
             auto r = i;
@@ -212,8 +212,8 @@ public:
             return r;
         }
 
-        friend constexpr iterator& operator-(const iterator& i,
-                                             difference_type offset) //
+        friend constexpr iterator operator-(const iterator& i,
+                                            difference_type offset) //
             requires std::ranges::random_access_range<Base>
         {
             auto r = i;

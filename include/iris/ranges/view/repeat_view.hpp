@@ -21,10 +21,11 @@ public:
     class iterator {
         friend class repeat_view;
 
-        using index_type = std::conditional_t<
-            std::same_as<Bound, std::unreachable_sentinel_t>,
-            std::ptrdiff_t,
-            Bound>;
+        // using index_type = std::conditional_t<
+        //     std::same_as<Bound, std::unreachable_sentinel_t>,
+        //     std::ptrdiff_t,
+        //     Bound>;
+        using index_type = std::ptrdiff_t;
 
         constexpr explicit iterator(const Value* value,
                                     index_type current = index_type())

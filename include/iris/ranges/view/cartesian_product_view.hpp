@@ -511,8 +511,8 @@ public:
                 using common_type
                     = std::common_type_t<std::ranges::range_size_t<First>,
                                          std::ranges::range_size_t<Rests>...>;
-                return std::max(
-                    { static_cast<common_type>(std::ranges::size(bases))... });
+                return (static_cast<common_type>(std::ranges::size(bases))
+                        * ...);
             },
             bases_));
     }
@@ -526,8 +526,8 @@ public:
                 using common_type
                     = std::common_type_t<std::ranges::range_size_t<First>,
                                          std::ranges::range_size_t<Rests>...>;
-                return std::max(
-                    { static_cast<common_type>(std::ranges::size(bases))... });
+                return (static_cast<common_type>(std::ranges::size(bases))
+                        * ...);
             },
             bases_));
     }

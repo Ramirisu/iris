@@ -6,6 +6,22 @@
 #include <iris/ranges/range_adaptor_closure.hpp>
 
 namespace iris::ranges {
+namespace __enumerate_view_detail {
+    template <typename Range>
+    struct __index_type {
+        using type
+            = std::make_unsigned_t<std::ranges::range_difference_t<Range>>;
+    };
+
+    template <typename Range>
+        requires std::ranges::sized_range<Range>
+    struct __index_type<Range> {
+        using type = std::ranges::range_size_t<Range>;
+    };
+
+    template <typename Range>
+    using __index_type_t = typename __index_type<Range>::type;
+}
 
 template <typename Index, typename Value>
 struct enumerate_result;
@@ -119,10 +135,7 @@ public:
         friend class enumerate_view;
 
         using Base = __detail::__maybe_const<Const, View>;
-        using index_type = std::conditional_t<
-            std::ranges::sized_range<Base>,
-            std::ranges::range_size_t<Base>,
-            std::make_unsigned_t<std::ranges::range_difference_t<Base>>>;
+        using index_type = __enumerate_view_detail::__index_type_t<Base>;
 
     public:
         using iterator_cateory = typename std::iterator_traits<
@@ -215,7 +228,9 @@ public:
         constexpr decltype(auto) operator[](difference_type offset) const //
             requires std::ranges::random_access_range<Base>
         {
-            return reference { static_cast<difference_type>(index_ + offset),
+            return reference { static_cast<index_type>(
+                                   static_cast<difference_type>(index_
+                                                                + offset)),
                                *(current_ + offset) };
         }
 
@@ -296,6 +311,11 @@ public:
             return lhs.current_ - rhs.current_;
         }
 
+        constexpr auto& __current() const
+        {
+            return current_;
+        }
+
 #if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
         void __placeholder();
 #endif
@@ -333,10 +353,16 @@ public:
             return end_;
         }
 
-        friend constexpr bool operator==(const iterator<Const>& lhs,
-                                         const sentinel& rhs)
+        // note: not the same as what paper specified.
+        template <bool OtherConst>
+        friend constexpr bool operator==(const iterator<OtherConst>& lhs,
+                                         const sentinel& rhs) //
+            requires
+            std::sentinel_for<std::ranges::sentinel_t<Base>,
+                              std::ranges::iterator_t<
+                                  __detail::__maybe_const<OtherConst, View>>>
         {
-            return lhs.current_ == rhs.end_;
+            return lhs.__current() == rhs.end_;
         }
 
         friend constexpr std::ranges::range_difference_t<Base>

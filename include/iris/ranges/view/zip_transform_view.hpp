@@ -171,7 +171,7 @@ public:
                         *parent_->fn_,
                         iters[std::iter_difference_t<Is>(offset)]...);
                 },
-                inner_iter_.current_);
+                inner_iter_.__current());
         }
 
         friend constexpr bool operator==(const iterator& lhs,
