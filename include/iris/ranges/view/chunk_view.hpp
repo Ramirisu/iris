@@ -295,12 +295,12 @@ template <std::ranges::view View>
     requires std::ranges::forward_range<View>
 class chunk_view<View> : public std::ranges::view_interface<chunk_view<View>> {
 public:
-    template <bool IsConst>
+    template <bool Const>
     class iterator {
         friend class chunk_view;
 
-        using Parent = __detail::__maybe_const<IsConst, chunk_view>;
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Parent = __detail::__maybe_const<Const, chunk_view>;
+        using Base = __detail::__maybe_const<Const, View>;
 
     public:
         using iterator_category = std::input_iterator_tag;
@@ -319,9 +319,9 @@ public:
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other)
+        constexpr iterator(iterator<!Const> other)
             // clang-format off
-            requires(IsConst
+            requires(Const
                 && std::convertible_to<
                     std::ranges::iterator_t<View>,
                     std::ranges::iterator_t<Base>> 

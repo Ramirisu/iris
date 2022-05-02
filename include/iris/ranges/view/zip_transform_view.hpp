@@ -31,73 +31,73 @@ class zip_transform_view
     // clang-format on
     : public std::ranges::view_interface<zip_transform_view<Fn, Views...>> {
     using InnerView = zip_view<Views...>;
-    template <bool IsConst>
+    template <bool Const>
     using InnerIterator
-        = std::ranges::iterator_t<__detail::__maybe_const<IsConst, InnerView>>;
-    template <bool IsConst>
+        = std::ranges::iterator_t<__detail::__maybe_const<Const, InnerView>>;
+    template <bool Const>
     using InnerSentinel
-        = std::ranges::sentinel_t<__detail::__maybe_const<IsConst, InnerView>>;
+        = std::ranges::sentinel_t<__detail::__maybe_const<Const, InnerView>>;
 
 public:
-    template <bool IsConst, bool BaseIsForwardRange>
+    template <bool Const, bool BaseIsForwardRange>
     class iterator_base {
     };
 
-    template <bool IsConst>
-    class iterator_base<IsConst, true> {
+    template <bool Const>
+    class iterator_base<Const, true> {
     public:
         // clang-format off
         using iterator_category = std::conditional_t<
             !std::is_lvalue_reference_v<
                 std::invoke_result_t<
-                    __detail::__maybe_const<IsConst, Fn>&, 
-                    std::ranges::range_reference_t<__detail::__maybe_const<IsConst, Views>>...>>, 
+                    __detail::__maybe_const<Const, Fn>&, 
+                    std::ranges::range_reference_t<__detail::__maybe_const<Const, Views>>...>>, 
             std::input_iterator_tag,
             std::conditional_t<
             (std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<__detail::__maybe_const<IsConst, Views>>
+                    std::ranges::iterator_t<__detail::__maybe_const<Const, Views>>
                 >::iterator_category, std::random_access_iterator_tag> && ...), 
             std::random_access_iterator_tag,
             std::conditional_t<
             (std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<__detail::__maybe_const<IsConst, Views>>
+                    std::ranges::iterator_t<__detail::__maybe_const<Const, Views>>
                 >::iterator_category, std::bidirectional_iterator_tag> && ...), 
             std::bidirectional_iterator_tag, 
             std::conditional_t<
             (std::derived_from<
                 typename std::iterator_traits<
-                    std::ranges::iterator_t<__detail::__maybe_const<IsConst, Views>>
+                    std::ranges::iterator_t<__detail::__maybe_const<Const, Views>>
                 >::iterator_category, std::forward_iterator_tag> && ...), 
             std::forward_iterator_tag, std::input_iterator_tag>>>>;
         // clang-format on
     };
 
-    template <bool IsConst>
-    class iterator : public iterator_base<
-                         IsConst,
-                         std::ranges::forward_range<
-                             __detail::__maybe_const<IsConst, InnerView>>> {
+    template <bool Const>
+    class iterator
+        : public iterator_base<Const,
+                               std::ranges::forward_range<
+                                   __detail::__maybe_const<Const, InnerView>>> {
         friend class zip_transform_view;
 
-        using Parent = __detail::__maybe_const<IsConst, zip_transform_view>;
-        using Base = __detail::__maybe_const<IsConst, InnerView>;
+        using Parent = __detail::__maybe_const<Const, zip_transform_view>;
+        using Base = __detail::__maybe_const<Const, InnerView>;
 
     public:
         using iterator_concept =
-            typename InnerIterator<IsConst>::iterator_concept;
+            typename InnerIterator<Const>::iterator_concept;
         using value_type = std::remove_cvref_t<std::invoke_result_t<
-            __detail::__maybe_const<IsConst, Fn>&,
+            __detail::__maybe_const<Const, Fn>&,
             std::ranges::range_reference_t<
-                __detail::__maybe_const<IsConst, Views>>...>>;
+                __detail::__maybe_const<Const, Views>>...>>;
         using difference_type = std::ranges::range_difference_t<Base>;
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other) requires(
-            IsConst&& std::convertible_to<InnerIterator<false>,
-                                          InnerIterator<IsConst>>)
+        constexpr iterator(iterator<!Const> other) requires(
+            Const&&
+                std::convertible_to<InnerIterator<false>, InnerIterator<Const>>)
             : parent_(other.parent_)
             , inner_iter_(std::move(other.inner_iter_))
         {
@@ -176,7 +176,7 @@ public:
 
         friend constexpr bool operator==(const iterator& lhs,
                                          const iterator& rhs) //
-            requires std::equality_comparable<InnerIterator<IsConst>>
+            requires std::equality_comparable<InnerIterator<Const>>
         {
             return lhs.inner_iter_ == rhs.inner_iter_;
         }
@@ -212,7 +212,7 @@ public:
         friend constexpr auto operator<=>(const iterator& lhs,
                                           const iterator& rhs) //
             requires std::ranges::random_access_range<
-                Base> && std::three_way_comparable<InnerIterator<IsConst>>
+                Base> && std::three_way_comparable<InnerIterator<Const>>
         {
             return lhs.inner_iter_ <=> rhs.inner_iter_;
         }
@@ -239,8 +239,8 @@ public:
 
         friend constexpr difference_type operator-(const iterator& lhs,
                                                    const iterator& rhs) //
-            requires std::sized_sentinel_for<InnerIterator<IsConst>,
-                                             InnerIterator<IsConst>>
+            requires
+            std::sized_sentinel_for<InnerIterator<Const>, InnerIterator<Const>>
         {
             return lhs.inner_iter_ - rhs.inner_iter_;
         }
@@ -255,65 +255,65 @@ public:
 #endif
 
     private:
-        constexpr iterator(Parent& parent, InnerIterator<IsConst> inner_iter)
+        constexpr iterator(Parent& parent, InnerIterator<Const> inner_iter)
             : parent_(std::addressof(parent))
             , inner_iter_(std::move(inner_iter))
         {
         }
 
         Parent* parent_ {};
-        InnerIterator<IsConst> inner_iter_;
+        InnerIterator<Const> inner_iter_;
     };
 
-    template <bool IsConst>
+    template <bool Const>
     class sentinel {
         friend class zip_transform_view;
 
     public:
         sentinel() = default;
 
-        constexpr sentinel(sentinel<!IsConst> other) requires IsConst
-            && std::convertible_to<InnerSentinel<false>, InnerSentinel<IsConst>>
+        constexpr sentinel(sentinel<!Const> other) requires Const
+            && std::convertible_to<InnerSentinel<false>, InnerSentinel<Const>>
             : inner_iter_(std::move(other.inner_iter_))
         {
         }
 
-        template <bool OtherIsConst>
-            requires std::sentinel_for<InnerSentinel<IsConst>,
-                                       InnerIterator<OtherIsConst>>
-        friend constexpr bool operator==(const iterator<OtherIsConst>& lhs,
+        template <bool OtherConst>
+            requires std::sentinel_for<InnerSentinel<Const>,
+                                       InnerIterator<OtherConst>>
+        friend constexpr bool operator==(const iterator<OtherConst>& lhs,
                                          const sentinel& rhs)
         {
             return lhs.__inner() == rhs.inner_iter_;
         }
 
-        template <bool OtherIsConst>
-            requires std::sized_sentinel_for<InnerSentinel<IsConst>,
-                                             InnerIterator<OtherIsConst>>
+        template <bool OtherConst>
+            requires std::sized_sentinel_for<InnerSentinel<Const>,
+                                             InnerIterator<OtherConst>>
         friend constexpr std::ranges::range_difference_t<
-            __detail::__maybe_const<OtherIsConst, InnerView>>
-        operator-(const iterator<OtherIsConst>& lhs, const sentinel& rhs)
+            __detail::__maybe_const<OtherConst, InnerView>>
+        operator-(const iterator<OtherConst>& lhs, const sentinel& rhs)
         {
             return lhs.inner_iter_ - rhs.inner_iter_;
         }
 
-        template <bool OtherIsConst>
-            requires std::sized_sentinel_for<InnerSentinel<IsConst>,
-                                             InnerIterator<OtherIsConst>>
+        template <bool OtherConst>
+            requires std::sized_sentinel_for<InnerSentinel<Const>,
+                                             InnerIterator<OtherConst>>
         friend constexpr std::ranges::range_difference_t<
-            __detail::__maybe_const<OtherIsConst, InnerView>>
-        operator-(const sentinel& lhs, const iterator<OtherIsConst>& rhs)
+            __detail::__maybe_const<OtherConst, InnerView>>
+        operator-(const sentinel& lhs, const iterator<OtherConst>& rhs)
         {
             return lhs.inner_iter_ - rhs.inner_iter_;
         }
 
     private:
-        constexpr explicit sentinel(InnerSentinel<IsConst> inner_iter)
+        constexpr explicit sentinel(InnerSentinel<Const> inner_iter)
             : inner_iter_(inner_iter)
         {
         }
 
-        InnerSentinel<IsConst> inner_iter_;
+        InnerSentinel<Const> inner_iter_;
     };
 
     zip_transform_view() = default;

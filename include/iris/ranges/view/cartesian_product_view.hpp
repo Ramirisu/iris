@@ -57,11 +57,11 @@ template <std::ranges::input_range First, std::ranges::forward_range... Rests>
 class cartesian_product_view : public std::ranges::view_interface<
                                    cartesian_product_view<First, Rests...>> {
 public:
-    template <bool IsConst>
+    template <bool Const>
     class iterator {
         friend class cartesian_product_view;
 
-        using Parent = __detail::__maybe_const<IsConst, cartesian_product_view>;
+        using Parent = __detail::__maybe_const<Const, cartesian_product_view>;
 
     public:
         using iterator_category = std::input_iterator_tag;
@@ -78,26 +78,26 @@ public:
             std::input_iterator_tag>>>;
         // clang-format on
         using value_type = __detail::__tuple_or_pair_t<
-            std::ranges::range_value_t<__detail::__maybe_const<IsConst, First>>,
+            std::ranges::range_value_t<__detail::__maybe_const<Const, First>>,
             std::ranges::range_value_t<
-                __detail::__maybe_const<IsConst, Rests>>...>;
+                __detail::__maybe_const<Const, Rests>>...>;
         using reference = __detail::__tuple_or_pair_t<
             std::ranges::range_reference_t<
-                __detail::__maybe_const<IsConst, First>>,
+                __detail::__maybe_const<Const, First>>,
             std::ranges::range_reference_t<
-                __detail::__maybe_const<IsConst, Rests>>...>;
+                __detail::__maybe_const<Const, Rests>>...>;
         using difference_type
             = std::common_type_t<std::ranges::range_difference_t<First>,
                                  std::ranges::range_difference_t<Rests>...>;
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other) requires(
-            IsConst&& std::convertible_to<
+        constexpr iterator(iterator<!Const> other) requires(
+            Const&& std::convertible_to<
                 std::ranges::iterator_t<First>,
                 std::ranges::iterator_t<__detail::__maybe_const<
-                    IsConst,
-                    First>>> && (std::convertible_to<std::ranges::iterator_t<Rests>, std::ranges::iterator_t<__detail::__maybe_const<IsConst, Rests>>> && ...))
+                    Const,
+                    First>>> && (std::convertible_to<std::ranges::iterator_t<Rests>, std::ranges::iterator_t<__detail::__maybe_const<Const, Rests>>> && ...))
             : current_(std::move(other.current_))
         {
         }
@@ -124,8 +124,8 @@ public:
         constexpr iterator& operator--() //
             requires(__cartesian_product_view_detail::
                          __cartesian_product_is_bidrectional<
-                             __detail::__maybe_const<IsConst, First>,
-                             __detail::__maybe_const<IsConst, Rests>...>)
+                             __detail::__maybe_const<Const, First>,
+                             __detail::__maybe_const<Const, Rests>...>)
         {
             prev();
             return *this;
@@ -134,8 +134,8 @@ public:
         constexpr iterator operator--(int) //
             requires(__cartesian_product_view_detail::
                          __cartesian_product_is_bidrectional<
-                             __detail::__maybe_const<IsConst, First>,
-                             __detail::__maybe_const<IsConst, Rests>...>)
+                             __detail::__maybe_const<Const, First>,
+                             __detail::__maybe_const<Const, Rests>...>)
         {
             auto tmp = *this;
             --*this;
@@ -145,8 +145,8 @@ public:
         constexpr iterator& operator+=(difference_type offset) //
             requires(__cartesian_product_view_detail::
                          __cartesian_product_is_random_access<
-                             __detail::__maybe_const<IsConst, First>,
-                             __detail::__maybe_const<IsConst, Rests>...>)
+                             __detail::__maybe_const<Const, First>,
+                             __detail::__maybe_const<Const, Rests>...>)
         {
             if (offset > 0) {
                 while (offset-- > 0) {
@@ -163,8 +163,8 @@ public:
         constexpr iterator& operator-=(difference_type offset) //
             requires(__cartesian_product_view_detail::
                          __cartesian_product_is_random_access<
-                             __detail::__maybe_const<IsConst, First>,
-                             __detail::__maybe_const<IsConst, Rests>...>)
+                             __detail::__maybe_const<Const, First>,
+                             __detail::__maybe_const<Const, Rests>...>)
         {
             *this += -offset;
             return *this;
@@ -173,8 +173,8 @@ public:
         constexpr reference operator[](difference_type offset) const //
             requires(__cartesian_product_view_detail::
                          __cartesian_product_is_random_access<
-                             __detail::__maybe_const<IsConst, First>,
-                             __detail::__maybe_const<IsConst, Rests>...>)
+                             __detail::__maybe_const<Const, First>,
+                             __detail::__maybe_const<Const, Rests>...>)
         {
             return *((*this) + offset);
         }
@@ -182,9 +182,9 @@ public:
         friend constexpr bool operator==(const iterator& lhs,
                                          const iterator& rhs) //
             requires(std::equality_comparable<std::ranges::iterator_t<
-                         __detail::__maybe_const<IsConst, First>>>&&...&&
+                         __detail::__maybe_const<Const, First>>>&&...&&
                          std::equality_comparable<std::ranges::iterator_t<
-                             __detail::__maybe_const<IsConst, Rests>>>)
+                             __detail::__maybe_const<Const, Rests>>>)
         {
             return lhs.current_ == rhs.current_;
         }
@@ -199,9 +199,9 @@ public:
         friend constexpr auto operator<(const iterator& lhs,
                                         const iterator& rhs) //
             requires(std::ranges::random_access_range<
-                     __detail::__maybe_const<IsConst, First>>&&...&&
+                     __detail::__maybe_const<Const, First>>&&...&&
                          std::ranges::random_access_range<
-                             __detail::__maybe_const<IsConst, Rests>>)
+                             __detail::__maybe_const<Const, Rests>>)
         {
             return lhs.current_ < rhs.current_;
         }
@@ -209,9 +209,9 @@ public:
         friend constexpr auto operator>(const iterator& lhs,
                                         const iterator& rhs) //
             requires(std::ranges::random_access_range<
-                     __detail::__maybe_const<IsConst, First>>&&...&&
+                     __detail::__maybe_const<Const, First>>&&...&&
                          std::ranges::random_access_range<
-                             __detail::__maybe_const<IsConst, Rests>>)
+                             __detail::__maybe_const<Const, Rests>>)
         {
             return rhs < lhs;
         }
@@ -219,9 +219,9 @@ public:
         friend constexpr auto operator<=(const iterator& lhs,
                                          const iterator& rhs) //
             requires(std::ranges::random_access_range<
-                     __detail::__maybe_const<IsConst, First>>&&...&&
+                     __detail::__maybe_const<Const, First>>&&...&&
                          std::ranges::random_access_range<
-                             __detail::__maybe_const<IsConst, Rests>>)
+                             __detail::__maybe_const<Const, Rests>>)
         {
             return !(rhs < lhs);
         }
@@ -229,9 +229,9 @@ public:
         friend constexpr auto operator>=(const iterator& lhs,
                                          const iterator& rhs) //
             requires(std::ranges::random_access_range<
-                     __detail::__maybe_const<IsConst, First>>&&...&&
+                     __detail::__maybe_const<Const, First>>&&...&&
                          std::ranges::random_access_range<
-                             __detail::__maybe_const<IsConst, Rests>>)
+                             __detail::__maybe_const<Const, Rests>>)
         {
             return !(lhs < rhs);
         }
@@ -240,17 +240,17 @@ public:
                                           const iterator& rhs) //
             requires((
                 std::ranges::random_access_range<
-                    __detail::__maybe_const<IsConst, First>> && ...
+                    __detail::__maybe_const<Const, First>> && ...
                 && std::ranges::random_access_range<__detail::__maybe_const<
-                    IsConst,
+                    Const,
                     Rests>>)&&(std::
                                    three_way_comparable<std::ranges::iterator_t<
-                                       __detail::__maybe_const<IsConst,
+                                       __detail::__maybe_const<Const,
                                                                First>>>&&...&&
                                        std::three_way_comparable<
                                            std::ranges::iterator_t<
                                                __detail::__maybe_const<
-                                                   IsConst,
+                                                   Const,
                                                    Rests>>>))
         {
             return lhs.current_ <=> rhs.current_;
@@ -260,8 +260,8 @@ public:
                                             difference_type n) //
             requires(__cartesian_product_view_detail::
                          __cartesian_product_is_random_access<
-                             __detail::__maybe_const<IsConst, First>,
-                             __detail::__maybe_const<IsConst, Rests>...>)
+                             __detail::__maybe_const<Const, First>,
+                             __detail::__maybe_const<Const, Rests>...>)
         {
             auto r = i;
             r += n;
@@ -272,8 +272,8 @@ public:
                                             const iterator& i) //
             requires(__cartesian_product_view_detail::
                          __cartesian_product_is_random_access<
-                             __detail::__maybe_const<IsConst, First>,
-                             __detail::__maybe_const<IsConst, Rests>...>)
+                             __detail::__maybe_const<Const, First>,
+                             __detail::__maybe_const<Const, Rests>...>)
         {
             auto r = i;
             r += n;
@@ -284,8 +284,8 @@ public:
                                             difference_type n) //
             requires(__cartesian_product_view_detail::
                          __cartesian_product_is_random_access<
-                             __detail::__maybe_const<IsConst, First>,
-                             __detail::__maybe_const<IsConst, Rests>...>)
+                             __detail::__maybe_const<Const, First>,
+                             __detail::__maybe_const<Const, Rests>...>)
         {
             auto r = i;
             r -= n;
@@ -296,14 +296,14 @@ public:
                                                    const iterator& rhs) //
             requires(std::sized_sentinel_for<
                      std::ranges::iterator_t<
-                         __detail::__maybe_const<IsConst, First>>,
+                         __detail::__maybe_const<Const, First>>,
                      std::ranges::iterator_t<
-                         __detail::__maybe_const<IsConst, First>>>&&...&&
+                         __detail::__maybe_const<Const, First>>>&&...&&
                          std::sized_sentinel_for<
                              std::ranges::iterator_t<
-                                 __detail::__maybe_const<IsConst, Rests>>,
+                                 __detail::__maybe_const<Const, Rests>>,
                              std::ranges::iterator_t<
-                                 __detail::__maybe_const<IsConst, Rests>>>)
+                                 __detail::__maybe_const<Const, Rests>>>)
         {
             return lhs.distance_to(rhs.current_);
         }
@@ -334,16 +334,16 @@ public:
         friend constexpr auto iter_move(const iterator& i) noexcept(
             (noexcept(std::ranges::iter_move(
                  std::declval<const std::ranges::iterator_t<
-                     __detail::__maybe_const<IsConst, First>>&>()))
+                     __detail::__maybe_const<Const, First>>&>()))
              && ...&& noexcept(std::ranges::iter_move(
                  std::declval<const std::ranges::iterator_t<
-                     __detail::__maybe_const<IsConst, Rests>>&>())))
+                     __detail::__maybe_const<Const, Rests>>&>())))
             && (std::is_nothrow_move_constructible_v<
                     std::ranges::range_rvalue_reference_t<
-                        __detail::__maybe_const<IsConst, First>>> && ...
+                        __detail::__maybe_const<Const, First>>> && ...
                 && std::is_nothrow_move_constructible_v<
                     std::ranges::range_rvalue_reference_t<
-                        __detail::__maybe_const<IsConst, Rests>>>))
+                        __detail::__maybe_const<Const, Rests>>>))
         {
             return __detail::__tuple_transform(std::ranges::iter_move,
                                                i.current_);
@@ -356,9 +356,9 @@ public:
                 rhs.current_,
                 std::index_sequence_for<First, Rests...> {}))) //
             requires(std::indirectly_swappable<std::ranges::iterator_t<
-                         __detail::__maybe_const<IsConst, First>>>&&...&&
+                         __detail::__maybe_const<Const, First>>>&&...&&
                          std::indirectly_swappable<std::ranges::iterator_t<
-                             __detail::__maybe_const<IsConst, Rests>>>)
+                             __detail::__maybe_const<Const, Rests>>>)
         {
             __detail::__tuple_iter_swap(
                 lhs.current_, rhs.current_,
@@ -373,10 +373,9 @@ public:
         constexpr explicit iterator(
             Parent& parent,
             __detail::__tuple_or_pair_t<
+                std::ranges::iterator_t<__detail::__maybe_const<Const, First>>,
                 std::ranges::iterator_t<
-                    __detail::__maybe_const<IsConst, First>>,
-                std::ranges::iterator_t<
-                    __detail::__maybe_const<IsConst, Rests>>...> current)
+                    __detail::__maybe_const<Const, Rests>>...> current)
             : parent_(std::addressof(parent))
             , current_(std::move(current))
         {
@@ -439,8 +438,8 @@ public:
 
         Parent* parent_ {};
         __detail::__tuple_or_pair_t<
-            std::ranges::iterator_t<__detail::__maybe_const<IsConst, First>>,
-            std::ranges::iterator_t<__detail::__maybe_const<IsConst, Rests>>...>
+            std::ranges::iterator_t<__detail::__maybe_const<Const, First>>,
+            std::ranges::iterator_t<__detail::__maybe_const<Const, Rests>>...>
             current_ {};
     };
 

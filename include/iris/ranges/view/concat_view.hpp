@@ -131,45 +131,45 @@ public:
         // clang-format on
     };
 
-    template <bool IsConst>
+    template <bool Const>
     class iterator
-        : public iterator_base<__detail::__maybe_const<IsConst, Views>...> {
+        : public iterator_base<__detail::__maybe_const<Const, Views>...> {
         friend class concat_view;
 
-        using Parent = __detail::__maybe_const<IsConst, concat_view>;
-        using BaseIterator = std::variant<std::ranges::iterator_t<
-            __detail::__maybe_const<IsConst, Views>>...>;
+        using Parent = __detail::__maybe_const<Const, concat_view>;
+        using BaseIterator = std::variant<
+            std::ranges::iterator_t<__detail::__maybe_const<Const, Views>>...>;
 
     public:
         // clang-format off
         using iterator_concept = 
             std::conditional_t<
                 __concat_view_detail::__concat_random_access<
-                    __detail::__maybe_const<IsConst, Views>...>,
+                    __detail::__maybe_const<Const, Views>...>,
             std::random_access_iterator_tag,
             std::conditional_t<
                 __concat_view_detail::__concat_bidirectional<
-                    __detail::__maybe_const<IsConst, Views>...>,
+                    __detail::__maybe_const<Const, Views>...>,
             std::bidirectional_iterator_tag,
             std::conditional_t<
-                (std::ranges::forward_range<__detail::__maybe_const<IsConst, Views>> && ...),
+                (std::ranges::forward_range<__detail::__maybe_const<Const, Views>> && ...),
             std::forward_iterator_tag,
             std::input_iterator_tag>>>;
         // clang-format on
         using value_type = std::common_type_t<std::ranges::range_value_t<
-            __detail::__maybe_const<IsConst, Views>>...>;
+            __detail::__maybe_const<Const, Views>>...>;
         using difference_type
             = std::common_type_t<std::ranges::range_difference_t<
-                __detail::__maybe_const<IsConst, Views>>...>;
+                __detail::__maybe_const<Const, Views>>...>;
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other) requires(
-            IsConst
+        constexpr iterator(iterator<!Const> other) requires(
+            Const
             && (std::convertible_to<
                     std::ranges::iterator_t<Views>,
                     std::ranges::iterator_t<
-                        __detail::__maybe_const<IsConst, Views>>> && ...))
+                        __detail::__maybe_const<Const, Views>>> && ...))
             : parent_(other.parent_)
             , it_(std::move(other.it_))
         {
@@ -181,7 +181,7 @@ public:
 
             using reference
                 = std::common_reference_t<std::ranges::range_reference_t<
-                    __detail::__maybe_const<IsConst, Views>>...>;
+                    __detail::__maybe_const<Const, Views>>...>;
             return std::visit([](auto&& it) -> reference { return *it; }, it_);
         }
 
@@ -199,8 +199,8 @@ public:
 
         constexpr decltype(auto) operator++(int)
         {
-            if constexpr ((std::ranges::forward_range<__detail::__maybe_const<
-                               IsConst, Views>> && ...)) {
+            if constexpr ((std::ranges::forward_range<
+                               __detail::__maybe_const<Const, Views>> && ...)) {
                 auto tmp = *this;
                 ++*this;
                 return tmp;
@@ -211,7 +211,7 @@ public:
 
         constexpr iterator& operator--() //
             requires __concat_view_detail::__concat_bidirectional<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!it_.valueless_by_exception());
             __concat_view_detail::__visit<sizeof...(Views) - 1>(
@@ -225,7 +225,7 @@ public:
 
         constexpr iterator operator--(int) //
             requires __concat_view_detail::__concat_bidirectional<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!it_.valueless_by_exception());
             auto tmp = *this;
@@ -235,7 +235,7 @@ public:
 
         constexpr iterator& operator+=(difference_type offset) requires
             __concat_view_detail::__concat_random_access<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!it_.valueless_by_exception());
             if (offset > 0) {
@@ -262,7 +262,7 @@ public:
 
         constexpr iterator& operator-=(difference_type offset) //
             requires __concat_view_detail::__concat_random_access<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!it_.valueless_by_exception());
             *this += -offset;
@@ -271,7 +271,7 @@ public:
 
         constexpr decltype(auto) operator[](difference_type offset) const //
             requires __concat_view_detail::__concat_random_access<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             return *((*this) + offset);
         }
@@ -279,7 +279,7 @@ public:
         friend constexpr bool operator==(const iterator& lhs,
                                          const iterator& rhs) //
             requires(std::equality_comparable<std::ranges::iterator_t<
-                         __detail::__maybe_const<IsConst, Views>>>&&...)
+                         __detail::__maybe_const<Const, Views>>>&&...)
         {
             IRIS_ASSERT(!lhs.it_.valueless_by_exception());
             IRIS_ASSERT(!rhs.it_.valueless_by_exception());
@@ -299,7 +299,7 @@ public:
         friend constexpr bool operator<(const iterator& lhs,
                                         const iterator& rhs) //
             requires(__concat_view_detail::__concat_random_access<
-                     __detail::__maybe_const<IsConst, Views>>&&...)
+                     __detail::__maybe_const<Const, Views>>&&...)
         {
             IRIS_ASSERT(!lhs.it_.valueless_by_exception());
             IRIS_ASSERT(!rhs.it_.valueless_by_exception());
@@ -309,7 +309,7 @@ public:
         friend constexpr bool operator>(const iterator& lhs,
                                         const iterator& rhs) //
             requires(__concat_view_detail::__concat_random_access<
-                     __detail::__maybe_const<IsConst, Views>>&&...)
+                     __detail::__maybe_const<Const, Views>>&&...)
         {
             IRIS_ASSERT(!lhs.it_.valueless_by_exception());
             IRIS_ASSERT(!rhs.it_.valueless_by_exception());
@@ -319,7 +319,7 @@ public:
         friend constexpr bool operator<=(const iterator& lhs,
                                          const iterator& rhs) //
             requires(__concat_view_detail::__concat_random_access<
-                     __detail::__maybe_const<IsConst, Views>>&&...)
+                     __detail::__maybe_const<Const, Views>>&&...)
         {
             IRIS_ASSERT(!lhs.it_.valueless_by_exception());
             IRIS_ASSERT(!rhs.it_.valueless_by_exception());
@@ -329,7 +329,7 @@ public:
         friend constexpr bool operator>=(const iterator& lhs,
                                          const iterator& rhs) //
             requires(__concat_view_detail::__concat_random_access<
-                     __detail::__maybe_const<IsConst, Views>>&&...)
+                     __detail::__maybe_const<Const, Views>>&&...)
         {
             IRIS_ASSERT(!lhs.it_.valueless_by_exception());
             IRIS_ASSERT(!rhs.it_.valueless_by_exception());
@@ -340,8 +340,8 @@ public:
                                           const iterator& rhs) //
             requires((
                 __concat_view_detail::__concat_random_access<__detail::__maybe_const<
-                    IsConst,
-                    Views>> && std::three_way_comparable<__detail::__maybe_const<IsConst, Views>>)&&...)
+                    Const,
+                    Views>> && std::three_way_comparable<__detail::__maybe_const<Const, Views>>)&&...)
         {
             IRIS_ASSERT(!lhs.it_.valueless_by_exception());
             IRIS_ASSERT(!rhs.it_.valueless_by_exception());
@@ -351,7 +351,7 @@ public:
         friend constexpr iterator operator+(const iterator& it,
                                             difference_type n) //
             requires __concat_view_detail::__concat_random_access<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!it.it_.valueless_by_exception());
             return iterator { it } += n;
@@ -360,7 +360,7 @@ public:
         friend constexpr iterator operator+(difference_type n,
                                             const iterator& it) //
             requires __concat_view_detail::__concat_random_access<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!it.it_.valueless_by_exception());
             return it + n;
@@ -369,7 +369,7 @@ public:
         friend constexpr iterator operator-(const iterator& it,
                                             difference_type n) //
             requires __concat_view_detail::__concat_random_access<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!it.it_.valueless_by_exception());
             return iterator { it } -= n;
@@ -378,7 +378,7 @@ public:
         friend constexpr difference_type operator-(const iterator& lhs,
                                                    const iterator& rhs) //
             requires __concat_view_detail::__concat_random_access<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!lhs.it_.valueless_by_exception());
             IRIS_ASSERT(!rhs.it_.valueless_by_exception());
@@ -423,7 +423,7 @@ public:
         friend constexpr difference_type operator-(const iterator& lhs,
                                                    std::default_sentinel_t) //
             requires __concat_view_detail::__concat_random_access<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!lhs.it_.valueless_by_exception());
             // TODO:
@@ -432,7 +432,7 @@ public:
         friend constexpr difference_type operator-(std::default_sentinel_t lhs,
                                                    const iterator& rhs) //
             requires __concat_view_detail::__concat_random_access<
-                __detail::__maybe_const<IsConst, Views>...>
+                __detail::__maybe_const<Const, Views>...>
         {
             return -(rhs - lhs);
         }
@@ -443,13 +443,13 @@ public:
                 std::is_nothrow_invocable_v<
                     decltype(std::ranges::iter_move),
                     const std::ranges::iterator_t<
-                        __detail::__maybe_const<IsConst, Views>>&> 
+                        __detail::__maybe_const<Const, Views>>&> 
                 && std::is_nothrow_convertible_v<
                     std::ranges::range_rvalue_reference_t<
-                        __detail::__maybe_const<IsConst, Views>>, 
+                        __detail::__maybe_const<Const, Views>>, 
                     std::common_reference_t<
                         std::ranges::range_rvalue_reference_t<
-                            __detail::__maybe_const<IsConst, Views>>...>>) 
+                            __detail::__maybe_const<Const, Views>>...>>) 
                 && ...)))
         // clang-format on
         {
@@ -458,7 +458,7 @@ public:
                 [](auto const& i)
                     -> std::common_reference_t<
                         std::ranges::range_rvalue_reference_t<
-                            __detail::__maybe_const<IsConst, Views>>...> {
+                            __detail::__maybe_const<Const, Views>>...> {
                     return std::ranges::iter_move(i);
                 },
                 it.it_);
@@ -509,7 +509,7 @@ public:
                 if (std::get<N>(it_)
                     == std::ranges::begin(std::get<N>(parent_->bases_))) {
                     using prev_view = __detail::__maybe_const<
-                        IsConst,
+                        Const,
                         std::tuple_element_t<N - 1, std::tuple<Views...>>>;
                     if constexpr (std::ranges::common_range<prev_view>) {
                         it_.template emplace<N - 1>(

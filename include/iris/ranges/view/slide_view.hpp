@@ -44,12 +44,12 @@ public:
         std::ranges::iterator_t<Base> last_element_ {};
     };
 
-    template <bool IsConst>
+    template <bool Const>
     class iterator
-        : public iterator_base<__detail::__maybe_const<IsConst, View>> {
+        : public iterator_base<__detail::__maybe_const<Const, View>> {
         friend class slide_view;
 
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Base = __detail::__maybe_const<Const, View>;
 
         constexpr iterator(std::ranges::iterator_t<Base> current,
                            std::ranges::range_difference_t<Base> n) //
@@ -63,8 +63,7 @@ public:
                            std::ranges::iterator_t<Base> last_element,
                            std::ranges::range_difference_t<Base> n) //
             requires(__slide_view_detail::__slide_caches_first<Base>)
-            : iterator_base<__detail::__maybe_const<IsConst, View>>(
-                last_element)
+            : iterator_base<__detail::__maybe_const<Const, View>>(last_element)
             , current_(current)
             , n_(n)
         {
@@ -85,8 +84,8 @@ public:
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other) //
-            requires(IsConst //
+        constexpr iterator(iterator<!Const> other) //
+            requires(Const //
                          && std::convertible_to<std::ranges::iterator_t<View>,
                                                 std::ranges::iterator_t<Base>>)
             : current_(std::move(other.current_))
@@ -259,7 +258,7 @@ public:
         std::ranges::range_difference_t<Base> n_ = 0;
     };
 
-    template <bool IsConst>
+    template <bool Const>
     class sentinel {
     public:
         sentinel() = default;

@@ -112,7 +112,7 @@ public:
         // clang-format on
     };
 
-    template <bool IsConst>
+    template <bool Const>
         requires std::ranges::view<View> && std::ranges::input_range<
             std::ranges::range_reference_t<View>> && std::ranges::
             view<Pattern> && __join_with_view_detail::
@@ -120,18 +120,18 @@ public:
                     std::ranges::range_reference_t<View>,
                     Pattern>
     class iterator : public iterator_base<
-                         __detail::__maybe_const<IsConst, View>,
+                         __detail::__maybe_const<Const, View>,
                          std::ranges::range_reference_t<
-                             __detail::__maybe_const<IsConst, View>>,
-                         __detail::__maybe_const<IsConst, Pattern>,
+                             __detail::__maybe_const<Const, View>>,
+                         __detail::__maybe_const<Const, Pattern>,
                          std::is_reference_v<std::ranges::range_reference_t<
-                             __detail::__maybe_const<IsConst, View>>>> {
+                             __detail::__maybe_const<Const, View>>>> {
         friend class join_with_view;
 
-        using Parent = __detail::__maybe_const<IsConst, join_with_view>;
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Parent = __detail::__maybe_const<Const, join_with_view>;
+        using Base = __detail::__maybe_const<Const, View>;
         using InnerBase = std::ranges::range_reference_t<Base>;
-        using PatternBase = __detail::__maybe_const<IsConst, Pattern>;
+        using PatternBase = __detail::__maybe_const<Const, Pattern>;
 
         using OuterIter = std::ranges::iterator_t<Base>;
         using InnerIter = std::ranges::iterator_t<InnerBase>;
@@ -227,8 +227,8 @@ public:
         // clang-format on
 
         // clang-format off
-        constexpr iterator(iterator<!IsConst> other) 
-            requires IsConst
+        constexpr iterator(iterator<!Const> other) 
+            requires Const
                 && std::convertible_to<std::ranges::iterator_t<View>, OuterIter> 
                 && std::convertible_to<std::ranges::iterator_t<InnerRange>, InnerIter> 
                 && std::convertible_to<std::ranges::iterator_t<Pattern>, PatternIter>
@@ -365,12 +365,12 @@ public:
         std::variant<PatternIter, InnerIter> inner_it_ {};
     };
 
-    template <bool IsConst>
+    template <bool Const>
     class sentinel {
         friend class join_with_view;
 
-        using Parent = __detail::__maybe_const<IsConst, join_with_view>;
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Parent = __detail::__maybe_const<Const, join_with_view>;
+        using Base = __detail::__maybe_const<Const, View>;
 
         constexpr explicit sentinel(Parent& parent)
             : end_(std::ranges::end(parent.base_))
@@ -380,9 +380,9 @@ public:
     public:
         sentinel() = default;
 
-        constexpr sentinel(sentinel<!IsConst> other)
+        constexpr sentinel(sentinel<!Const> other)
             // clang-format off
-            requires IsConst
+            requires Const
                 && std::convertible_to<
                     std::ranges::sentinel_t<View>,
                     std::ranges::sentinel_t<Base>>
@@ -391,13 +391,13 @@ public:
         {
         }
 
-        template <bool OtherIsConst>
+        template <bool OtherConst>
             // clang-format off
             requires std::sentinel_for<
                 std::ranges::sentinel_t<Base>,
-                std::ranges::iterator_t<__detail::__maybe_const<OtherIsConst, View>>>
+                std::ranges::iterator_t<__detail::__maybe_const<OtherConst, View>>>
         // clang-format on
-        friend constexpr bool operator==(const iterator<OtherIsConst>& lhs,
+        friend constexpr bool operator==(const iterator<OtherConst>& lhs,
                                          const sentinel& rhs)
         {
             return lhs.__outer_it() == rhs.end_;

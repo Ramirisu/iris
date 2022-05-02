@@ -14,12 +14,12 @@ template <std::ranges::input_range View, typename Unicode, typename UTF>
 class to_utf_view
     : public std::ranges::view_interface<to_utf_view<View, Unicode, UTF>> {
 public:
-    template <bool IsConst>
+    template <bool Const>
     class iterator {
         friend class to_utf_view;
 
-        using Parent = __detail::__maybe_const<IsConst, to_utf_view>;
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Parent = __detail::__maybe_const<Const, to_utf_view>;
+        using Base = __detail::__maybe_const<Const, View>;
         using encoder = utf<Unicode, UTF>;
 
     public:
@@ -39,9 +39,9 @@ public:
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other) requires(
-            IsConst&& std::convertible_to<std::ranges::iterator_t<View>,
-                                          std::ranges::iterator_t<Base>>)
+        constexpr iterator(iterator<!Const> other) requires(
+            Const&& std::convertible_to<std::ranges::iterator_t<View>,
+                                        std::ranges::iterator_t<Base>>)
             : parent_(other.parent_)
             , curr_(std::move(other.curr_))
             , result_(std::move(other.result_))
@@ -222,12 +222,12 @@ template <std::ranges::input_range View, typename Unicode, typename UTF>
 class from_utf_view
     : public std::ranges::view_interface<from_utf_view<View, Unicode, UTF>> {
 public:
-    template <bool IsConst>
+    template <bool Const>
     class iterator {
         friend class from_utf_view;
 
-        using Parent = __detail::__maybe_const<IsConst, from_utf_view>;
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Parent = __detail::__maybe_const<Const, from_utf_view>;
+        using Base = __detail::__maybe_const<Const, View>;
         using encoder = utf<Unicode, UTF>;
 
     public:
@@ -247,9 +247,9 @@ public:
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other) requires(
-            IsConst&& std::convertible_to<std::ranges::iterator_t<View>,
-                                          std::ranges::iterator_t<Base>>)
+        constexpr iterator(iterator<!Const> other) requires(
+            Const&& std::convertible_to<std::ranges::iterator_t<View>,
+                                        std::ranges::iterator_t<Base>>)
             : parent_(other.parent_)
             , curr_(std::move(other.curr_))
             , value_(std::move(other.value_))

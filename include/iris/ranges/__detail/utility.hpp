@@ -28,8 +28,8 @@ concept __can_reference = requires
     typename __with_reference<T>;
 };
 
-template <bool IsConst, typename T>
-using __maybe_const = std::conditional_t<IsConst, const T, T>;
+template <bool Const, typename T>
+using __maybe_const = std::conditional_t<Const, const T, T>;
 
 template <typename... Ts>
 struct __tuple_or_pair : std::type_identity<std::tuple<Ts...>> {

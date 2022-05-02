@@ -17,11 +17,11 @@ class adjacent_view
     };
 
 public:
-    template <bool IsConst>
+    template <bool Const>
     class iterator {
         friend class adjacent_view;
 
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Base = __detail::__maybe_const<Const, View>;
 
     public:
         using iterator_category = std::input_iterator_tag;
@@ -39,9 +39,9 @@ public:
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other) requires(
-            IsConst&& std::convertible_to<std::ranges::iterator_t<View>,
-                                          std::ranges::iterator_t<Base>>)
+        constexpr iterator(iterator<!Const> other) requires(
+            Const&& std::convertible_to<std::ranges::iterator_t<View>,
+                                        std::ranges::iterator_t<Base>>)
             : current_(std::move(other.current_))
         {
         }
@@ -249,53 +249,53 @@ public:
         std::array<std::ranges::iterator_t<Base>, N> current_ {};
     };
 
-    template <bool IsConst>
+    template <bool Const>
     class sentinel {
         friend class adjacent_view;
 
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Base = __detail::__maybe_const<Const, View>;
 
     public:
         sentinel() = default;
 
-        constexpr sentinel(sentinel<!IsConst> other) requires(
-            IsConst&& std::convertible_to<std::ranges::sentinel_t<View>,
-                                          std::ranges::sentinel_t<Base>>)
+        constexpr sentinel(sentinel<!Const> other) requires(
+            Const&& std::convertible_to<std::ranges::sentinel_t<View>,
+                                        std::ranges::sentinel_t<Base>>)
             : end_(std::move(other.end_))
         {
         }
 
-        template <bool OtherIsConst>
+        template <bool OtherConst>
             requires std::sentinel_for<
                 std::ranges::sentinel_t<Base>,
                 std::ranges::iterator_t<
-                    __detail::__maybe_const<OtherIsConst, View>>>
-        friend constexpr bool operator==(const iterator<OtherIsConst>& lhs,
+                    __detail::__maybe_const<OtherConst, View>>>
+        friend constexpr bool operator==(const iterator<OtherConst>& lhs,
                                          const sentinel& rhs)
         {
             return lhs.current_.back() == rhs.end_;
         }
 
-        template <bool OtherIsConst>
+        template <bool OtherConst>
             requires std::sized_sentinel_for<
                 std::ranges::sentinel_t<Base>,
                 std::ranges::iterator_t<
-                    __detail::__maybe_const<OtherIsConst, View>>>
+                    __detail::__maybe_const<OtherConst, View>>>
         friend constexpr std::ranges::range_difference_t<
-            __detail::__maybe_const<OtherIsConst, View>>
-        operator-(const iterator<OtherIsConst>& lhs, const sentinel& rhs)
+            __detail::__maybe_const<OtherConst, View>>
+        operator-(const iterator<OtherConst>& lhs, const sentinel& rhs)
         {
             return lhs.current_.back() - rhs.end_;
         }
 
-        template <bool OtherIsConst>
+        template <bool OtherConst>
             requires std::sized_sentinel_for<
                 std::ranges::sentinel_t<Base>,
                 std::ranges::iterator_t<
-                    __detail::__maybe_const<OtherIsConst, View>>>
+                    __detail::__maybe_const<OtherConst, View>>>
         friend constexpr std::ranges::range_difference_t<
-            __detail::__maybe_const<OtherIsConst, View>>
-        operator-(const sentinel& lhs, const iterator<OtherIsConst>& rhs)
+            __detail::__maybe_const<OtherConst, View>>
+        operator-(const sentinel& lhs, const iterator<OtherConst>& rhs)
         {
             return lhs.end_ - rhs.current_.back();
         }

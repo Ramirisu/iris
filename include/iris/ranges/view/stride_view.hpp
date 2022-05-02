@@ -30,13 +30,13 @@ public:
         // clang-format on
     };
 
-    template <bool IsConst>
+    template <bool Const>
     class iterator
-        : public iterator_base<__detail::__maybe_const<IsConst, View>> {
+        : public iterator_base<__detail::__maybe_const<Const, View>> {
         friend class stride_view;
 
-        using Parent = __detail::__maybe_const<IsConst, stride_view>;
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Parent = __detail::__maybe_const<Const, stride_view>;
+        using Base = __detail::__maybe_const<Const, View>;
 
     public:
         // clang-format off
@@ -57,9 +57,9 @@ public:
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other) requires(
-            IsConst&& std::convertible_to<std::ranges::iterator_t<View>,
-                                          std::ranges::iterator_t<Base>>&&
+        constexpr iterator(iterator<!Const> other) requires(
+            Const&& std::convertible_to<std::ranges::iterator_t<View>,
+                                        std::ranges::iterator_t<Base>>&&
                 std::convertible_to<std::ranges::sentinel_t<View>,
                                     std::ranges::sentinel_t<Base>>)
             : current_(std::move(other.current_))

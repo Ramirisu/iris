@@ -114,11 +114,11 @@ template <std::ranges::input_range View>
 class enumerate_view
     : public std::ranges::view_interface<enumerate_view<View>> {
 public:
-    template <bool IsConst>
+    template <bool Const>
     class iterator {
         friend class enumerate_view;
 
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Base = __detail::__maybe_const<Const, View>;
         using index_type = std::conditional_t<
             std::ranges::sized_range<Base>,
             std::ranges::range_size_t<Base>,
@@ -136,9 +136,9 @@ public:
 
         iterator() = default;
 
-        constexpr iterator(iterator<!IsConst> other) requires(
-            IsConst&& std::convertible_to<std::ranges::iterator_t<View>,
-                                          std::ranges::iterator_t<Base>>)
+        constexpr iterator(iterator<!Const> other) requires(
+            Const&& std::convertible_to<std::ranges::iterator_t<View>,
+                                        std::ranges::iterator_t<Base>>)
             : current_(std::move(other.current_))
             , index_(static_cast<index_type>(other.index_))
         {
@@ -312,19 +312,18 @@ public:
         index_type index_ = 0;
     };
 
-    template <bool IsConst>
+    template <bool Const>
     class sentinel {
         friend class enumerate_view;
 
-        using Base = __detail::__maybe_const<IsConst, View>;
+        using Base = __detail::__maybe_const<Const, View>;
 
     public:
         sentinel() = default;
 
-        constexpr sentinel(sentinel<!IsConst> other) //
-            requires(
-                IsConst&& std::convertible_to<std::ranges::sentinel_t<View>,
-                                              std::ranges::sentinel_t<Base>>)
+        constexpr sentinel(sentinel<!Const> other) //
+            requires(Const&& std::convertible_to<std::ranges::sentinel_t<View>,
+                                                 std::ranges::sentinel_t<Base>>)
             : end_(other.end_)
         {
         }
@@ -334,14 +333,14 @@ public:
             return end_;
         }
 
-        friend constexpr bool operator==(const iterator<IsConst>& lhs,
+        friend constexpr bool operator==(const iterator<Const>& lhs,
                                          const sentinel& rhs)
         {
             return lhs.current_ == rhs.end_;
         }
 
         friend constexpr std::ranges::range_difference_t<Base>
-        operator-(const iterator<IsConst>& lhs, const sentinel& rhs) //
+        operator-(const iterator<Const>& lhs, const sentinel& rhs) //
             requires std::sized_sentinel_for<std::ranges::sentinel_t<Base>,
                                              std::ranges::iterator_t<Base>>
         {
@@ -349,7 +348,7 @@ public:
         }
 
         friend constexpr std::ranges::range_difference_t<Base>
-        operator-(const sentinel& lhs, const iterator<IsConst>& rhs) //
+        operator-(const sentinel& lhs, const iterator<Const>& rhs) //
             requires std::sized_sentinel_for<std::ranges::sentinel_t<Base>,
                                              std::ranges::iterator_t<Base>>
         {
