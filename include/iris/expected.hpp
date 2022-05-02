@@ -781,9 +781,11 @@ public:
         return !lhs.has_value() && lhs.error() == rhs.error();
     }
 
-    // clang-format off
+#if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
+    void __placeholder();
+#endif
+
 private:
-    // clang-format on
     state state_;
     union {
         T value_;
@@ -1143,9 +1145,11 @@ public:
         return !lhs.has_value() && lhs.error() == rhs.error();
     }
 
-    // clang-format off
+#if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
+    void __placeholder();
+#endif
+
 private:
-    // clang-format on
     state state_;
     union {
         std::uint8_t dummy_;

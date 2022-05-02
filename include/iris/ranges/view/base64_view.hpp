@@ -113,10 +113,8 @@ public:
         std::size_t offset_ {};
     };
 
-    // clang-format off
-    to_base64_view()
-        requires std::default_initializable<View> = default;
-    // clang-format on
+    to_base64_view() requires std::default_initializable<View>
+    = default;
 
     constexpr explicit to_base64_view(View view) //
         noexcept(std::is_nothrow_move_constructible_v<View>)
@@ -171,6 +169,13 @@ public:
     constexpr auto size() //
         noexcept(noexcept(std::ranges::size(base_))) //
         requires std::ranges::sized_range<View>
+    {
+        return (std::ranges::size(base_) + 2) / 3 * 4;
+    }
+
+    constexpr auto size() const //
+        noexcept(noexcept(std::ranges::size(base_))) //
+        requires std::ranges::sized_range<const View>
     {
         return (std::ranges::size(base_) + 2) / 3 * 4;
     }
@@ -374,7 +379,12 @@ public:
         }
     }
 
-private : View base_;
+#if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
+    void __placeholder();
+#endif
+
+private:
+    View base_;
 };
 
 template <typename Range>

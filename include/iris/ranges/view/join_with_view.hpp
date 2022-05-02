@@ -97,19 +97,16 @@ public:
                 && std::ranges::common_range<Inner>
                 && std::ranges::common_range<Ptn>;
         // clang-format on
+
     public:
-        // clang-format off
         using iterator_category = std::conditional_t<
-            not_only_input,  
-            std::conditional_t<
-                can_be_bidirectional, 
-                std::bidirectional_iterator_tag, 
-                std::conditional_t<
-                    can_be_forward,
-                    std::forward_iterator_tag, 
-                    std::input_iterator_tag>>,
+            not_only_input,
+            std::conditional_t<can_be_bidirectional,
+                               std::bidirectional_iterator_tag,
+                               std::conditional_t<can_be_forward,
+                                                  std::forward_iterator_tag,
+                                                  std::input_iterator_tag>>,
             std::input_iterator_tag>;
-        // clang-format on
     };
 
     template <bool Const>
@@ -221,10 +218,8 @@ public:
                                  std::iter_difference_t<InnerIter>,
                                  std::iter_difference_t<PatternIter>>;
 
-        // clang-format off
-        iterator() 
-            requires std::default_initializable<OuterIter> = default;
-        // clang-format on
+        iterator() requires std::default_initializable<OuterIter>
+        = default;
 
         // clang-format off
         constexpr iterator(iterator<!Const> other) 
@@ -357,9 +352,7 @@ public:
             return outer_it_;
         }
 
-        // clang-format off
     private:
-        // clang-format on
         Parent* parent_ {};
         OuterIter outer_it_ {};
         std::variant<PatternIter, InnerIter> inner_it_ {};
@@ -407,11 +400,9 @@ public:
         std::ranges::sentinel_t<Base> end_ {};
     };
 
-    // clang-format off
-    join_with_view() 
-        requires std::default_initializable<View> 
-            && std::default_initializable<Pattern> = default;
-    // clang-format on
+    join_with_view() requires
+        std::default_initializable<View> && std::default_initializable<Pattern>
+    = default;
 
     constexpr join_with_view(View base, Pattern pattern)
         : base_(std::move(base))
@@ -419,11 +410,10 @@ public:
     {
     }
 
-    // clang-format off
     template <std::ranges::input_range Range>
-        requires std::constructible_from<View, std::views::all_t<Range>> 
-            && std::constructible_from<Pattern, std::ranges::single_view<InnerRange>>
-    // clang-format on
+        requires std::constructible_from<View,
+                                         std::views::all_t<Range>> && std::
+            constructible_from<Pattern, std::ranges::single_view<InnerRange>>
     constexpr join_with_view(Range&& range,
                              std::ranges::range_value_t<InnerRange> element)
         : base_(std::views::all(std::forward<Range>(range)))
@@ -497,9 +487,11 @@ public:
         }
     }
 
-    // clang-format off
+#if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
+    void __placeholder();
+#endif
+
 private:
-    // clang-format on
     View base_ {};
     Pattern pattern_ {};
 };

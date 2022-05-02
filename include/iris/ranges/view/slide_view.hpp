@@ -297,10 +297,8 @@ public:
         std::ranges::sentinel_t<View> end_ {};
     };
 
-    // clang-format off
-    slide_view()
-        requires std::default_initializable<View> = default;
-    // clang-format on
+    slide_view() requires std::default_initializable<View>
+    = default;
 
     constexpr explicit slide_view(View base,
                                   std::ranges::range_difference_t<View> n)

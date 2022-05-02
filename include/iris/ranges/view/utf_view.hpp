@@ -184,6 +184,13 @@ public:
         return std::ranges::size(base_);
     }
 
+    constexpr auto size() const //
+        noexcept(noexcept(std::ranges::size(base_))) //
+        requires(sizeof(UTF) == 4 && std::ranges::sized_range<const View>)
+    {
+        return std::ranges::size(base_);
+    }
+
 #if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
     void __placeholder();
 #endif
@@ -364,6 +371,13 @@ public:
     constexpr auto size() //
         noexcept(noexcept(std::ranges::size(base_))) //
         requires(sizeof(UTF) == 4 && std::ranges::sized_range<View>)
+    {
+        return std::ranges::size(base_);
+    }
+
+    constexpr auto size() const //
+        noexcept(noexcept(std::ranges::size(base_))) //
+        requires(sizeof(UTF) == 4 && std::ranges::sized_range<const View>)
     {
         return std::ranges::size(base_);
     }

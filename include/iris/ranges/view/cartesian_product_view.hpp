@@ -443,11 +443,9 @@ public:
             current_ {};
     };
 
-    // clang-format off
-    cartesian_product_view() 
-        requires std::default_initializable<First> 
-            && (std::default_initializable<Rests> && ...) = default;
-    // clang-format on
+    cartesian_product_view() requires std::default_initializable<First> &&(
+        std::default_initializable<Rests>&&...)
+        = default;
 
     constexpr explicit cartesian_product_view(First first, Rests... rests)
         : bases_(std::move(first), std::move(rests)...)

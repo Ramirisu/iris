@@ -80,11 +80,13 @@ public:
                 return -(rhs - lhs);
             }
 
-            // clang-format off
+#if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
+            void __placeholder();
+#endif
+
         private:
-            // clang-format on
             constexpr value_type(chunk_view& parent)
-            : parent_(std::addressof(parent))
+                : parent_(std::addressof(parent))
             {
             }
 
@@ -200,13 +202,15 @@ public:
             return -(rhs - lhs);
         }
 
-        // clang-format off
+#if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
+        void __placeholder();
+#endif
+
     private:
         constexpr explicit inner_iterator(chunk_view& parent) noexcept
             : parent_(std::addressof(parent))
         {
         }
-        // clang-format on
 
         constexpr auto get_remainder() const
         {
@@ -216,10 +220,8 @@ public:
         chunk_view* parent_ {};
     };
 
-    // clang-format off
-    chunk_view() 
-        requires std::default_initializable<View> = default;
-    // clang-format on
+    chunk_view() requires std::default_initializable<View>
+    = default;
 
     constexpr chunk_view(View base, std::ranges::range_difference_t<View> n)
         : base_(std::move(base))
@@ -282,9 +284,11 @@ public:
         return current_;
     }
 
-    // clang-format off
+#if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
+    void __placeholder();
+#endif
+
 private:
-    // clang-format on
     View base_ {};
     std::ranges::range_difference_t<View> n_ = 0;
     std::ranges::range_difference_t<View> remainder_ = 0;
@@ -526,10 +530,8 @@ public:
         std::ranges::range_difference_t<Base> missing_ = 0;
     };
 
-    // clang-format off
-    chunk_view()
-        requires std::default_initializable<View> = default;
-    // clang-format on
+    chunk_view() requires std::default_initializable<View>
+    = default;
 
     constexpr explicit chunk_view(View base,
                                   std::ranges::range_difference_t<View> n)
@@ -600,9 +602,11 @@ public:
             __detail::__div_ceil(std::ranges::distance(base_), n_));
     }
 
-    // clang-format off
+#if IRIS_FIX_CLANG_FORMAT_PLACEHOLDER
+    void __placeholder();
+#endif
+
 private:
-    // clang-format on
     View base_ {};
     std::ranges::range_difference_t<View> n_ = 0;
 };
