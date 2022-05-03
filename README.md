@@ -8,7 +8,7 @@
 
 CMake
 
-```
+```cmake
 # clone into your project's subdirectory
 add_subdirectory(path/to/iris)
 add_executable(your-exe ...)
@@ -21,7 +21,7 @@ target_link_libraries(your-exe PRIVATE iris)
 * Visual Studio 2022 19.2 (`/std:c++20`)
 * GCC 11.2 (`-std=c++20`)
 
-## Feature
+## Features
 
 * Range Adaptors
   * `ranges::join_with_view<Range, Pattern>` ([P2441R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2441r1.html))
