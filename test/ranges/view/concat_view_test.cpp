@@ -30,6 +30,10 @@ TEST_CASE("forward_range")
     static const auto input1 = std::list { 2, 3, 4 };
     static const auto input2 = std::views::single(5);
     auto view = views::concat(input0, input1, input2);
+    using view_type = decltype(view);
+    static_assert(std::same_as<
+                  typename std::ranges::iterator_t<view_type>::iterator_concept,
+                  std::forward_iterator_tag>);
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, 0);
     CHECK_EQ(*curr++, 1);
@@ -46,6 +50,10 @@ TEST_CASE("bidirectional_range")
     static const auto input1 = std::array { 2, 3, 4 };
     static const auto input2 = std::views::single(5);
     auto view = views::concat(input0, input1, input2);
+    using view_type = decltype(view);
+    static_assert(std::same_as<
+                  typename std::ranges::iterator_t<view_type>::iterator_concept,
+                  std::bidirectional_iterator_tag>);
     CHECK_EQ(std::ranges::size(view), 6);
     auto curr = std::ranges::begin(view);
     CHECK_EQ(*curr++, 0);
@@ -71,6 +79,10 @@ TEST_CASE("random_access_range")
     static const auto input1 = std::array { 2, 3, 4 };
     static const auto input2 = std::views::single(5);
     auto view = views::concat(input0, input1, input2);
+    using view_type = decltype(view);
+    static_assert(std::same_as<
+                  typename std::ranges::iterator_t<view_type>::iterator_concept,
+                  std::random_access_iterator_tag>);
     CHECK_EQ(std::ranges::size(view), 6);
     CHECK_EQ(std::ranges::begin(view) + 6, std::ranges::end(view));
     CHECK_EQ(6 + std::ranges::begin(view), std::ranges::end(view));

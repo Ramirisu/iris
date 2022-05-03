@@ -56,13 +56,13 @@ public:
         // clang-format off
         using iterator_concept = 
             std::conditional_t<
-                std::random_access_iterator<Base>, 
+                std::ranges::random_access_range<Base>, 
                 std::random_access_iterator_tag, 
             std::conditional_t<
-                std::bidirectional_iterator<Base>, 
+                std::ranges::bidirectional_range<Base>, 
                 std::bidirectional_iterator_tag, 
             std::conditional_t<
-                std::forward_iterator<Base>, 
+                std::ranges::forward_range<Base>, 
                 std::forward_iterator_tag, 
                 std::input_iterator_tag>>>;
         // clang-format on

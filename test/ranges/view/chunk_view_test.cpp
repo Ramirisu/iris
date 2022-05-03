@@ -31,6 +31,11 @@ TEST_CASE("forward_range")
 {
     static const int input[] = { 0, 1, 2, 3, 4 };
     auto view = input | views::chunk(2);
+    using view_type = decltype(view);
+    static_assert(
+        std::same_as<typename std::iterator_traits<
+                         std::ranges::iterator_t<view_type>>::iterator_category,
+                     std::input_iterator_tag>);
     auto curr = std::ranges::begin(view);
     CHECK(std::ranges::equal(*curr++, std::span(input).subspan(0, 2)));
     CHECK(std::ranges::equal(*curr++, std::span(input).subspan(2, 2)));
@@ -42,6 +47,11 @@ TEST_CASE("bidirectional_range")
 {
     static const int input[] = { 0, 1, 2, 3, 4 };
     auto view = input | views::chunk(2);
+    using view_type = decltype(view);
+    static_assert(
+        std::same_as<typename std::iterator_traits<
+                         std::ranges::iterator_t<view_type>>::iterator_category,
+                     std::input_iterator_tag>);
     auto curr = std::ranges::begin(view);
     CHECK(std::ranges::equal(*curr++, std::span(input).subspan(0, 2)));
     CHECK(std::ranges::equal(*curr--, std::span(input).subspan(2, 2)));
@@ -57,6 +67,11 @@ TEST_CASE("random_access_range")
 {
     static const int input[] = { 0, 1, 2, 3, 4 };
     auto view = input | views::chunk(2);
+    using view_type = decltype(view);
+    static_assert(
+        std::same_as<typename std::iterator_traits<
+                         std::ranges::iterator_t<view_type>>::iterator_category,
+                     std::input_iterator_tag>);
     CHECK_EQ(std::ranges::size(view), 3);
     CHECK_EQ(std::ranges::begin(view) + 3, std::ranges::end(view));
     CHECK_EQ(3 + std::ranges::begin(view), std::ranges::end(view));

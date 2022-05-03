@@ -35,6 +35,7 @@ public:
             std::forward_iterator_tag,
             std::input_iterator_tag>;
         using value_type = Text;
+        using reference = value_type&;
         using difference_type = std::ranges::range_difference_t<Base>;
 
         iterator() = default;
@@ -236,6 +237,7 @@ public:
             std::forward_iterator_tag,
             std::input_iterator_tag>;
         using value_type = expected<Binary, base64_error>;
+        using reference = value_type&;
         using difference_type = std::ranges::range_difference_t<Base>;
 
         iterator() = default;
