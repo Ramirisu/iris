@@ -110,3 +110,7 @@ target_link_libraries(your-exe PRIVATE iris)
   * `net::ipv6_address`
   * `net::ip_address`
   * `net::network_interface`
+
+## License
+
+IRIS is distributed under the [MIT License](https://github.com/Ramirisu/iris/blob/main/LICENSE).
