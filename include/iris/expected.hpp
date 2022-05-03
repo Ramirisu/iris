@@ -5,6 +5,7 @@
 #include <iris/type_traits.hpp>
 
 #include <concepts>
+#include <functional>
 #include <memory>
 #include <utility>
 
@@ -325,7 +326,7 @@ public:
     template <typename T2, typename E2>
     constexpr explicit(!std::is_convertible_v<const T2&, T> || !std::is_convertible_v<const E2&, E>) 
         expected(const expected<T2, E2>& other) 
-        requires (std::is_constructible_v<T, const T2&>
+        requires (std::is_constructible_v<T2&>
             && std::is_constructible_v<E, const E2&> 
             && !std::is_constructible_v<T, expected<T2, E2>&> 
             && !std::is_constructible_v<T, expected<T2, E2>> 
@@ -755,6 +756,315 @@ public:
     }
 
     // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F, T&>>::error_type, E> 
+            && std::is_copy_constructible_v<E>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, T&>>>
+    // clang-format on
+    constexpr auto and_then(F&& f) &
+    {
+        if (has_value()) {
+            return std::invoke(std::forward<F>(f), value());
+        } else {
+            return std::remove_cvref_t<std::invoke_result_t<F, T&>>(unexpect,
+                                                                    error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F, const T&>>::error_type, E> 
+            && std::is_copy_constructible_v<E>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, const T&>>>
+    // clang-format on
+    constexpr auto and_then(F&& f) const&
+    {
+        if (has_value()) {
+            return std::invoke(std::forward<F>(f), value());
+        } else {
+            return std::remove_cvref_t<std::invoke_result_t<F, const T&>>(
+                unexpect, error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F, T>>::error_type, E> 
+            && std::is_move_constructible_v<E>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, T>>>
+    // clang-format on
+    constexpr auto and_then(F&& f) &&
+    {
+        if (has_value()) {
+            return std::invoke(std::forward<F>(f), std::move(value()));
+        } else {
+            return std::remove_cvref_t<std::invoke_result_t<F, T>>(
+                unexpect, std::move(error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F, const T>>::error_type, E> 
+            && std::is_move_constructible_v<E>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, const T>>>
+    // clang-format on
+    constexpr auto and_then(F&& f) const&&
+    {
+        if (has_value()) {
+            return std::invoke(std::forward<F>(f), std::move(value()));
+        } else {
+            return std::remove_cvref_t<std::invoke_result_t<F, const T>>(
+                unexpect, std::move(error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F, E&>>::value_type, T> 
+            && std::is_copy_constructible_v<T>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, E&>>>
+    // clang-format on
+    constexpr auto or_else(F&& f) &
+    {
+        if (has_value()) {
+            return std::remove_cvref_t<std::invoke_result_t<F, E&>>(value());
+        } else {
+            return std::invoke(std::forward<F>(f), error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F, const E&>>::value_type, T> 
+            && std::is_copy_constructible_v<T>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, const E&>>>
+    // clang-format on
+    constexpr auto or_else(F&& f) const&
+    {
+        if (has_value()) {
+            return std::remove_cvref_t<std::invoke_result_t<F, const E&>>(
+                value());
+        } else {
+            return std::invoke(std::forward<F>(f), error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F, E>>::value_type, T> 
+            && std::is_move_constructible_v<T>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, E>>>
+    // clang-format on
+    constexpr auto or_else(F&& f) &&
+    {
+        if (has_value()) {
+            return std::remove_cvref_t<std::invoke_result_t<F, E>>(
+                std::move(value()));
+        } else {
+            return std::invoke(std::forward<F>(f), std::move(error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F, const E>>::value_type, T> 
+            && std::is_move_constructible_v<T>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, const E>>>
+    // clang-format on
+    constexpr auto or_else(F&& f) const&&
+    {
+        if (has_value()) {
+            return std::remove_cvref_t<std::invoke_result_t<F, const E>>(
+                std::move(value()));
+        } else {
+            return std::invoke(std::forward<F>(f), std::move(error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_copy_constructible_v<E>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, T&>>>
+    // clang-format on
+    constexpr auto transform(F&& f) &
+    {
+        using Ret
+            = expected<std::remove_cvref_t<std::invoke_result_t<F, T&>>, E>;
+        if (has_value()) {
+            return Ret(std::invoke(std::forward<F>(f), value()));
+        } else {
+            return Ret(unexpect, error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_copy_constructible_v<E>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, const T&>>>
+    // clang-format on
+    constexpr auto transform(F&& f) const&
+    {
+        using Ret
+            = expected<std::remove_cvref_t<std::invoke_result_t<F, const T&>>,
+                       E>;
+        if (has_value()) {
+            return Ret(std::invoke(std::forward<F>(f), value()));
+        } else {
+            return Ret(unexpect, error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_move_constructible_v<E>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, T>>>
+    // clang-format on
+    constexpr auto transform(F&& f) &&
+    {
+        using Ret
+            = expected<std::remove_cvref_t<std::invoke_result_t<F, T>>, E>;
+        if (has_value()) {
+            return Ret(std::invoke(std::forward<F>(f), std::move(value())));
+        } else {
+            return Ret(unexpect, std::move(error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_move_constructible_v<E>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, const T>>>
+    // clang-format on
+    constexpr auto transform(F&& f) const&&
+    {
+        using Ret
+            = expected<std::remove_cvref_t<std::invoke_result_t<F, const T>>,
+                       E>;
+        if (has_value()) {
+            return Ret(std::invoke(std::forward<F>(f), std::move(value())));
+        } else {
+            return Ret(unexpect, std::move(error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_copy_constructible_v<T>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, E&>>>
+    // clang-format on
+    constexpr auto transform_error(F&& f) &
+    {
+        using Ret
+            = expected<T, std::remove_cvref_t<std::invoke_result_t<F, E&>>>;
+        if (has_value()) {
+            return Ret(value());
+        } else {
+            return Ret(unexpect, std::invoke(std::forward<F>(f), error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_copy_constructible_v<T>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, const E&>>>
+    // clang-format on
+    constexpr auto transform_error(F&& f) const&
+    {
+        using Ret
+            = expected<T,
+                       std::remove_cvref_t<std::invoke_result_t<F, const E&>>>;
+        if (has_value()) {
+            return Ret(value());
+        } else {
+            return Ret(unexpect, std::invoke(std::forward<F>(f), error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_move_constructible_v<T>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, E>>>
+    // clang-format on
+    constexpr auto transform_error(F&& f) &&
+    {
+        using Ret
+            = expected<T, std::remove_cvref_t<std::invoke_result_t<F, E>>>;
+        if (has_value()) {
+            return Ret(std::move(value()));
+        } else {
+            return Ret(unexpect,
+                       std::invoke(std::forward<F>(f), std::move(error())));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_move_constructible_v<T>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F, const E>>>
+    // clang-format on
+    constexpr auto transform_error(F&& f) const&&
+    {
+        using Ret
+            = expected<T,
+                       std::remove_cvref_t<std::invoke_result_t<F, const E>>>;
+        if (has_value()) {
+            return Ret(std::move(value()));
+        } else {
+            return Ret(unexpect,
+                       std::invoke(std::forward<F>(f), std::move(error())));
+        }
+    }
+
+    // clang-format off
     template <typename T2, typename E2>
     friend constexpr bool  operator==(const expected& lhs, const expected<T2, E2>& rhs) 
         requires (!std::is_void_v<T2>)
@@ -1122,6 +1432,256 @@ public:
     {
         IRIS_ASSERT(!has_value());
         return std::move(error_);
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F>>::error_type, E> 
+            && std::is_copy_constructible_v<E>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F>>>
+    // clang-format on
+    constexpr auto and_then(F&& f) &
+    {
+        if (has_value()) {
+            return std::move(std::forward<F>(f)());
+        } else {
+            return std::remove_cvref_t<std::invoke_result_t<F>>(unexpect,
+                                                                error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F>>::error_type, E> 
+            && std::is_copy_constructible_v<E>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F>>>
+    // clang-format on
+    constexpr auto and_then(F&& f) const&
+    {
+        if (has_value()) {
+            return std::move(std::forward<F>(f)());
+        } else {
+            return std::remove_cvref_t<std::invoke_result_t<F>>(unexpect,
+                                                                error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F>>::error_type, E> 
+            && std::is_move_constructible_v<E>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F>>>
+    // clang-format on
+    constexpr auto and_then(F&& f) &&
+    {
+        if (has_value()) {
+            return std::move(std::forward<F>(f)());
+        } else {
+            return std::remove_cvref_t<std::invoke_result_t<F>>(
+                unexpect, std::move(error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_same_v<
+                typename std::remove_cvref_t<
+                    std::invoke_result_t<F>>::error_type, E> 
+            && std::is_move_constructible_v<E>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F>>>
+    // clang-format on
+    constexpr auto and_then(F&& f) const&&
+    {
+        if (has_value()) {
+            return std::move(std::forward<F>(f)());
+        } else {
+            return std::remove_cvref_t<std::invoke_result_t<F>>(
+                unexpect, std::move(error()));
+        }
+    }
+
+    template <class F>
+        requires std::is_copy_constructible_v<E>
+    constexpr expected or_else(F&& f) &
+    {
+        if (has_value()) {
+            return std::move(*this);
+        } else {
+            std::forward<F>(f)();
+            return {};
+        }
+    }
+
+    template <class F>
+        requires std::is_copy_constructible_v<E>
+    constexpr expected or_else(F&& f) const&
+    {
+        if (has_value()) {
+            return std::move(*this);
+        } else {
+            std::forward<F>(f)();
+            return {};
+        }
+    }
+
+    template <class F>
+        requires std::is_move_constructible_v<E>
+    constexpr expected or_else(F&& f) &&
+    {
+        if (has_value()) {
+            return std::move(*this);
+        } else {
+            std::forward<F>(f)();
+            return {};
+        }
+    }
+
+    template <class F>
+        requires std::is_move_constructible_v<E>
+    constexpr expected or_else(F&& f) const&&
+    {
+        if (has_value()) {
+            return std::move(*this);
+        } else {
+            std::forward<F>(f)();
+            return {};
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_copy_constructible_v<E>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F>>>
+    // clang-format on
+    constexpr auto transform(F&& f) &
+    {
+        using Ret = expected<std::remove_cvref_t<std::invoke_result_t<F>>, E>;
+        if (has_value()) {
+            return Ret(std::forward<F>(f)());
+        } else {
+            return Ret(unexpect, error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_copy_constructible_v<E>  
+            && std::is_copy_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F>>>
+    // clang-format on
+    constexpr auto transform(F&& f) const&
+    {
+        using Ret = expected<std::remove_cvref_t<std::invoke_result_t<F>>, E>;
+        if (has_value()) {
+            return Ret(std::forward<F>(f)());
+        } else {
+            return Ret(unexpect, error());
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_move_constructible_v<E>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F>>>
+    // clang-format on
+    constexpr auto transform(F&& f) &&
+    {
+        using Ret = expected<std::remove_cvref_t<std::invoke_result_t<F>>, E>;
+        if (has_value()) {
+            return Ret(std::forward<F>(f)());
+        } else {
+            return Ret(unexpect, std::move(error()));
+        }
+    }
+
+    // clang-format off
+    template <class F>
+        requires std::is_move_constructible_v<E>  
+            && std::is_move_constructible_v<
+                std::remove_cvref_t<
+                    std::invoke_result_t<F>>>
+    // clang-format on
+    constexpr auto transform(F&& f) const&&
+    {
+        using Ret = expected<std::remove_cvref_t<std::invoke_result_t<F>>, E>;
+        if (has_value()) {
+            return Ret(std::forward<F>(f)());
+        } else {
+            return Ret(unexpect, std::move(error()));
+        }
+    }
+
+    template <class F>
+        requires std::is_copy_constructible_v<E>
+    constexpr auto transform_error(F&& f) &
+    {
+        using Ret
+            = expected<void, std::remove_cvref_t<std::invoke_result_t<F, E&>>>;
+        if (has_value()) {
+            return Ret();
+        } else {
+            return Ret(unexpect, std::forward<F>(f)(error()));
+        }
+    }
+
+    template <class F>
+        requires std::is_copy_constructible_v<E>
+    constexpr auto transform_error(F&& f) const&
+    {
+        using Ret
+            = expected<void,
+                       std::remove_cvref_t<std::invoke_result_t<F, const E&>>>;
+        if (has_value()) {
+            return Ret();
+        } else {
+            return Ret(unexpect, std::forward<F>(f)(error()));
+        }
+    }
+
+    template <class F>
+        requires std::is_move_constructible_v<E>
+    constexpr auto transform_error(F&& f) &&
+    {
+        using Ret
+            = expected<void, std::remove_cvref_t<std::invoke_result_t<F, E>>>;
+        if (has_value()) {
+            return Ret();
+        } else {
+            return Ret(unexpect, std::forward<F>(f)(std::move(error())));
+        }
+    }
+
+    template <class F>
+        requires std::is_move_constructible_v<E>
+    constexpr auto transform_error(F&& f) const&&
+    {
+        using Ret
+            = expected<void,
+                       std::remove_cvref_t<std::invoke_result_t<F, const E>>>;
+        if (has_value()) {
+            return Ret();
+        } else {
+            return Ret(unexpect, std::forward<F>(f)(std::move(error())));
+        }
     }
 
     // clang-format off

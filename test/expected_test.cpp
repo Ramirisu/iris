@@ -311,4 +311,443 @@ TEST_CASE("expected: ctor nested conversion")
     }
 }
 
+TEST_CASE("expected<T, E>: and_then")
+{
+    auto then_succeed = [](int x) { return expected<int, int>(x + 1); };
+    auto then_fail = [](int x) { return expected<int, int>(unexpect, x - 1); };
+
+    {
+        expected<int, int> exp(0);
+        auto result = exp.and_then(then_succeed);
+        CHECK(result);
+        CHECK_EQ(*result, 1);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = exp.and_then(then_succeed);
+        CHECK(result);
+        CHECK_EQ(*result, 1);
+    }
+    {
+        expected<int, int> exp(0);
+        auto result = std::move(exp).and_then(then_succeed);
+        CHECK(result);
+        CHECK_EQ(*result, 1);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = std::move(exp).and_then(then_succeed);
+        CHECK(result);
+        CHECK_EQ(*result, 1);
+    }
+    {
+        expected<int, int> exp(0);
+        auto result = exp.and_then(then_fail);
+        CHECK(!result);
+        CHECK_EQ(result.error(), -1);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = exp.and_then(then_fail);
+        CHECK(!result);
+        CHECK_EQ(result.error(), -1);
+    }
+    {
+        expected<int, int> exp(0);
+        auto result = std::move(exp).and_then(then_fail);
+        CHECK(!result);
+        CHECK_EQ(result.error(), -1);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = std::move(exp).and_then(then_fail);
+        CHECK(!result);
+        CHECK_EQ(result.error(), -1);
+    }
+}
+
+TEST_CASE("expected<T, E>: or_else")
+{
+    auto handle_error = [](int x) { return expected<int, int>(x + 1); };
+
+    {
+        expected<int, int> exp(0);
+        auto result = exp.or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(*result, 0);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = exp.or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(*result, 0);
+    }
+    {
+        expected<int, int> exp(0);
+        auto result = std::move(exp).or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(*result, 0);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = std::move(exp).or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(*result, 0);
+    }
+    {
+        expected<int, int> exp(unexpect, 2);
+        auto result = exp.or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(*result, 3);
+    }
+    {
+        const expected<int, int> exp(unexpect, 2);
+        auto result = exp.or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(*result, 3);
+    }
+    {
+        expected<int, int> exp(unexpect, 2);
+        auto result = std::move(exp).or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(*result, 3);
+    }
+    {
+        const expected<int, int> exp(unexpect, 2);
+        auto result = std::move(exp).or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(*result, 3);
+    }
+}
+
+TEST_CASE("expected<T, E>: transform")
+{
+    static const auto succeed = std::string_view("succeed");
+    auto f = [](int) { return expected<std::string_view, int>(succeed); };
+
+    {
+        expected<int, int> exp(0);
+        auto result = exp.transform(f);
+        CHECK(result);
+        CHECK_EQ(*result, succeed);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = exp.transform(f);
+        CHECK(result);
+        CHECK_EQ(*result, succeed);
+    }
+    {
+        expected<int, int> exp(0);
+        auto result = std::move(exp).transform(f);
+        CHECK(result);
+        CHECK_EQ(*result, succeed);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = std::move(exp).transform(f);
+        CHECK(result);
+        CHECK_EQ(*result, succeed);
+    }
+    {
+        expected<int, int> exp(unexpect, 1);
+        auto result = exp.transform(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), 1);
+    }
+    {
+        const expected<int, int> exp(unexpect, 1);
+        auto result = exp.transform(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), 1);
+    }
+    {
+        expected<int, int> exp(unexpect, 1);
+        auto result = std::move(exp).transform(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), 1);
+    }
+    {
+        const expected<int, int> exp(unexpect, 1);
+        auto result = std::move(exp).transform(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), 1);
+    }
+}
+
+TEST_CASE("expected<T, E>: transform_error")
+{
+    static const auto error = std::string_view("error");
+    auto f = [](int) { return error; };
+
+    {
+        expected<int, int> exp(0);
+        auto result = exp.transform_error(f);
+        CHECK(result);
+        CHECK_EQ(*result, 0);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = std::move(exp).transform_error(f);
+        CHECK(result);
+        CHECK_EQ(*result, 0);
+    }
+    {
+        expected<int, int> exp(0);
+        auto result = exp.transform_error(f);
+        CHECK(result);
+        CHECK_EQ(*result, 0);
+    }
+    {
+        const expected<int, int> exp(0);
+        auto result = std::move(exp).transform_error(f);
+        CHECK(result);
+        CHECK_EQ(*result, 0);
+    }
+    {
+        expected<int, int> exp(unexpect, 1);
+        auto result = exp.transform_error(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), error);
+    }
+    {
+        const expected<int, int> exp(unexpect, 1);
+        auto result = std::move(exp).transform_error(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), error);
+    }
+    {
+        expected<int, int> exp(unexpect, 1);
+        auto result = exp.transform_error(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), error);
+    }
+    {
+        const expected<int, int> exp(unexpect, 1);
+        auto result = std::move(exp).transform_error(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), error);
+    }
+}
+
+TEST_CASE("expected<void, E>: and_then")
+{
+    auto then_succeed = []() { return expected<void, int>(); };
+    auto then_fail = []() { return expected<void, int>(unexpect, -1); };
+
+    {
+        expected<void, int> exp;
+        auto result = exp.and_then(then_succeed);
+        CHECK(result);
+    }
+    {
+        const expected<void, int> exp;
+        auto result = exp.and_then(then_succeed);
+        CHECK(result);
+    }
+    {
+        expected<void, int> exp;
+        auto result = std::move(exp).and_then(then_succeed);
+        CHECK(result);
+    }
+    {
+        const expected<void, int> exp;
+        auto result = std::move(exp).and_then(then_succeed);
+        CHECK(result);
+    }
+    {
+        expected<void, int> exp;
+        auto result = exp.and_then(then_fail);
+        CHECK(!result);
+        CHECK_EQ(result.error(), -1);
+    }
+    {
+        const expected<void, int> exp;
+        auto result = exp.and_then(then_fail);
+        CHECK(!result);
+        CHECK_EQ(result.error(), -1);
+    }
+    {
+        expected<void, int> exp;
+        auto result = std::move(exp).and_then(then_fail);
+        CHECK(!result);
+        CHECK_EQ(result.error(), -1);
+    }
+    {
+        const expected<void, int> exp;
+        auto result = std::move(exp).and_then(then_fail);
+        CHECK(!result);
+        CHECK_EQ(result.error(), -1);
+    }
+}
+
+TEST_CASE("expected<void, E>: or_else")
+{
+    int check = 0;
+    auto handle_error = [&]() { check += 1; };
+
+    SUBCASE("")
+    {
+        expected<void, int> exp;
+        auto result = exp.or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(check, 0);
+    }
+    SUBCASE("")
+    {
+        const expected<void, int> exp;
+        auto result = exp.or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(check, 0);
+    }
+    SUBCASE("")
+    {
+        expected<void, int> exp;
+        auto result = std::move(exp).or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(check, 0);
+    }
+    SUBCASE("")
+    {
+        const expected<void, int> exp;
+        auto result = std::move(exp).or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(check, 0);
+    }
+    SUBCASE("")
+    {
+        expected<void, int> exp(unexpect, 2);
+        auto result = exp.or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(check, 1);
+    }
+    SUBCASE("")
+    {
+        const expected<void, int> exp(unexpect, 2);
+        auto result = exp.or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(check, 1);
+    }
+    SUBCASE("")
+    {
+        expected<void, int> exp(unexpect, 2);
+        auto result = std::move(exp).or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(check, 1);
+    }
+    SUBCASE("")
+    {
+        const expected<void, int> exp(unexpect, 2);
+        auto result = std::move(exp).or_else(handle_error);
+        CHECK(result);
+        CHECK_EQ(check, 1);
+    }
+}
+
+TEST_CASE("expected<void, E>: transform")
+{
+    static const auto succeed = std::string_view("succeed");
+    auto f = []() { return expected<std::string_view, int>(succeed); };
+
+    {
+        expected<void, int> exp;
+        auto result = exp.transform(f);
+        CHECK(result);
+        CHECK_EQ(*result, succeed);
+    }
+    {
+        const expected<void, int> exp;
+        auto result = exp.transform(f);
+        CHECK(result);
+        CHECK_EQ(*result, succeed);
+    }
+    {
+        expected<void, int> exp;
+        auto result = std::move(exp).transform(f);
+        CHECK(result);
+        CHECK_EQ(*result, succeed);
+    }
+    {
+        const expected<void, int> exp;
+        auto result = std::move(exp).transform(f);
+        CHECK(result);
+        CHECK_EQ(*result, succeed);
+    }
+    {
+        expected<void, int> exp(unexpect, 1);
+        auto result = exp.transform(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), 1);
+    }
+    {
+        const expected<void, int> exp(unexpect, 1);
+        auto result = exp.transform(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), 1);
+    }
+    {
+        expected<void, int> exp(unexpect, 1);
+        auto result = std::move(exp).transform(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), 1);
+    }
+    {
+        const expected<void, int> exp(unexpect, 1);
+        auto result = std::move(exp).transform(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), 1);
+    }
+}
+
+TEST_CASE("expected<void, E>: transform_error")
+{
+    static const auto error = std::string_view("error");
+    auto f = [](int) { return error; };
+
+    {
+        expected<void, int> exp;
+        auto result = exp.transform_error(f);
+        CHECK(result);
+    }
+    {
+        const expected<void, int> exp;
+        auto result = std::move(exp).transform_error(f);
+        CHECK(result);
+    }
+    {
+        expected<void, int> exp;
+        auto result = exp.transform_error(f);
+        CHECK(result);
+    }
+    {
+        const expected<void, int> exp;
+        auto result = std::move(exp).transform_error(f);
+        CHECK(result);
+    }
+    {
+        expected<void, int> exp(unexpect, 1);
+        auto result = exp.transform_error(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), error);
+    }
+    {
+        const expected<void, int> exp(unexpect, 1);
+        auto result = std::move(exp).transform_error(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), error);
+    }
+    {
+        expected<void, int> exp(unexpect, 1);
+        auto result = exp.transform_error(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), error);
+    }
+    {
+        const expected<void, int> exp(unexpect, 1);
+        auto result = std::move(exp).transform_error(f);
+        CHECK(!result);
+        CHECK_EQ(result.error(), error);
+    }
+}
+
 TEST_SUITE_END();
