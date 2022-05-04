@@ -88,9 +88,9 @@ target_link_libraries(your-exe PRIVATE iris)
   * `utf<Unicode, UTF>`
 * Type Traits
   * `is_scoped_enum` ([P1048R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1048r1.pdf))
-  * `is_specialization_of`
-  * `front_of`
-  * `back_of`
+  * `is_specialization_of<T, Template>`
+  * `front_of<Default, Ts...>`
+  * `back_of<Default, Ts...>`
 * Utilities
   * `expected<T, E>` ([P0323R12](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p0323r12.html) [P2505R2](www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2505r2.html))
   * `out_ptr` ([P1132R8](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1132r8.html))
@@ -100,16 +100,16 @@ target_link_libraries(your-exe PRIVATE iris)
   * `to_underlying` ([P1682R3](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1682r3.html))
   * `to_unsigned`
   * `to_signed`
-  * `semver`
-  * `scope_exit`
-  * `scope_failure`
-  * `scope_success`
+  * `semver` (*Experimental*)
+  * `scope_exit<Fn>`
+  * `scope_failure<Fn>`
+  * `scope_success<Fn>`
 * Networking
-  * `net::mac_address`
-  * `net::ipv4_address`
-  * `net::ipv6_address`
-  * `net::ip_address`
-  * `net::network_interface`
+  * `net::mac_address` (*Experimental*)
+  * `net::ipv4_address` (*Experimental*)
+  * `net::ipv6_address` (*Experimental*)
+  * `net::ip_address` (*Experimental*)
+  * `net::network_interface` (*Experimental*)
 
 ## License
 
