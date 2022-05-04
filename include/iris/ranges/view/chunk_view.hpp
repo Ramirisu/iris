@@ -7,6 +7,8 @@
 #include <iris/ranges/range_adaptor_closure.hpp>
 #include <iris/utility.hpp>
 
+#include <algorithm>
+
 namespace iris::ranges {
 
 template <std::ranges::view View>

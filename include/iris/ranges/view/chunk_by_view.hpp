@@ -5,6 +5,7 @@
 #include <iris/ranges/__detail/copyable_box.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
 
+#include <algorithm>
 #include <functional>
 
 namespace iris::ranges {
