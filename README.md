@@ -9,15 +9,32 @@
 CMake
 
 ```cmake
-# clone into your project's subdirectory
+# clone iris as your project's subfolder
 add_subdirectory(path/to/iris)
-add_executable(your-exe ...)
-target_link_libraries(your-exe PRIVATE iris)
+
+# link against iris with the executable
+add_executable(main ...)
+target_link_libraries(main PRIVATE iris)
+```
+
+## Building
+
+CMake
+
+|      Options       |   Description    | Value  |
+| :----------------: | :--------------: | :----: |
+| IRIS_BUILD_EXAMPLE |  Build examples  | ON/OFF |
+| IRIS_BUILD_TESTING | Build unit tests | ON/OFF |
+
+```sh
+cd iris/
+cmake -B build -DIRIS_BUILD_EXAMPLE=ON -DIRIS_BUILD_TESTING=ON
+cmake --build build
+cd build && ctest && cd ..
 ```
 
 ## Supported Compilers
 
-* Visual Studio 2022 19.1 (`/std:latest`)
 * Visual Studio 2022 19.2 (`/std:c++20`)
 * GCC 11.2 (`-std=c++20`)
 
@@ -92,7 +109,7 @@ target_link_libraries(your-exe PRIVATE iris)
   * `front_of<Default, Ts...>`
   * `back_of<Default, Ts...>`
 * Utilities
-  * `expected<T, E>` ([P0323R12](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p0323r12.html) [P2505R2](www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2505r2.html))
+  * `expected<T, E>` ([P0323R12](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p0323r12.html), [P2505R2](www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2505r2.html))
   * `out_ptr` ([P1132R8](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1132r8.html))
   * `inout_ptr` ([P1132R8](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1132r8.html))
   * `bind_front`
