@@ -117,7 +117,6 @@ cd build && ctest && cd ..
   * `to_underlying` ([P1682R3](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1682r3.html))
   * `to_unsigned`
   * `to_signed`
-  * `semver` (*Experimental*)
   * `scope_exit<Fn>`
   * `scope_failure<Fn>`
   * `scope_success<Fn>`
