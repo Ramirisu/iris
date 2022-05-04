@@ -5,6 +5,8 @@
 #include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
 
+#include <algorithm>
+
 namespace iris::ranges {
 namespace __zip_view_detail {
     template <typename... Ranges>
