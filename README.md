@@ -92,7 +92,7 @@ target_link_libraries(main PRIVATE iris)
   * `front_of<Default, Ts...>`
   * `back_of<Default, Ts...>`
 * Utilities
-  * `expected<T, E>` ([P0323R12](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p0323r12.html), [P2505R2](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2505r2.html))
+  * `expected<T, E>` ([P0323R12](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p0323r12.html), [P2549R0](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2549r0.html), [P2505R2](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2505r2.html))
   * `out_ptr` ([P1132R8](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1132r8.html))
   * `inout_ptr` ([P1132R8](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p1132r8.html))
   * `bind_front`
