@@ -41,9 +41,7 @@ public:
     class iterator {
         friend class adjacent_transform_view;
 
-        using Parent
-            = __detail::__maybe_const<Const,
-                                      adjacent_transform_view<View, Fn, N>>;
+        using Parent = __detail::__maybe_const<Const, adjacent_transform_view>;
         using Base = __detail::__maybe_const<Const, View>;
 
     public:
@@ -78,8 +76,8 @@ public:
             typename InnerIterator<Const>::iterator_concept;
         using value_type
             = std::remove_cvref_t<__detail::__invoke_result_repeat_n_t<
-                Fn&,
-                std::ranges::range_reference_t<View>,
+                __detail::__maybe_const<Const, Fn>&,
+                std::ranges::range_reference_t<Base>,
                 N>>;
         using difference_type = std::ranges::range_difference_t<Base>;
 
