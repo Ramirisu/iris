@@ -32,10 +32,17 @@ TEST_CASE("value_type: value or reference")
     static const int lvalue[] = { 0, 1, 2 };
     static_assert(
         std::same_as<std::ranges::range_value_t<decltype(views::zip(lvalue))>,
-                     std::tuple<const int&>>);
+                     std::tuple<int>>);
+    static_assert(std::same_as<
+                  std::ranges::range_reference_t<decltype(views::zip(lvalue))>,
+                  std::tuple<const int&>>);
     static_assert(std::same_as<std::ranges::range_value_t<decltype(views::zip(
                                    std::views::iota(0, 1)))>,
                                std::tuple<int>>);
+    static_assert(
+        std::same_as<std::ranges::range_reference_t<decltype(views::zip(
+                         std::views::iota(0, 1)))>,
+                     std::tuple<int>>);
 }
 
 TEST_CASE("forward_range")

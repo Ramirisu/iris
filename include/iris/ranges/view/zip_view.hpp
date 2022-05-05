@@ -98,10 +98,8 @@ public:
                     std::forward_iterator_tag,
                     std::input_iterator_tag>>>;
         using value_type
-            = __detail::__tuple_or_pair_t<std::ranges::range_reference_t<
-                __detail::__maybe_const<Const, Views>>...>; // TODO: paper
-                                                            // uses
-                                                            // range_value_t
+            = __detail::__tuple_or_pair_t<std::ranges::range_value_t<
+                __detail::__maybe_const<Const, Views>>...>;
         using difference_type
             = std::common_type_t<std::ranges::range_difference_t<
                 __detail::__maybe_const<Const, Views>>...>;
