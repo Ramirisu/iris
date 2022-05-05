@@ -52,8 +52,6 @@ public:
                                             - *parent_->current_);
             }
 
-// disable due to gcc 11.1 ice
-#if !defined(__GNUC__) || __GNUC__ > 11 || __GNUC__ == 11 && __GNUC_MINOR__ >= 2
             friend constexpr difference_type
             operator-(std::default_sentinel_t, const outer_iterator& rhs)
                 //
@@ -71,7 +69,6 @@ public:
                                             rhs.parent_->__n())
                     + 1;
             }
-#endif
 
             friend constexpr difference_type
             operator-(const outer_iterator& lhs, std::default_sentinel_t rhs)
@@ -181,11 +178,8 @@ public:
             return lhs.get_remainder() == 0;
         }
 
-// disable due to gcc 11.1 ice
-#if !defined(__GNUC__) || __GNUC__ > 11 || __GNUC__ == 11 && __GNUC_MINOR__ >= 2
         friend constexpr difference_type operator-(std::default_sentinel_t,
-                                                   const inner_iterator& rhs)
-            //
+                                                   const inner_iterator& rhs) //
             requires std::sized_sentinel_for<std::ranges::sentinel_t<View>,
                                              std::ranges::iterator_t<View>>
         {
@@ -193,11 +187,10 @@ public:
                                     std::ranges::end(rhs.parent_->base_)
                                         - *rhs.parent_->current_);
         }
-#endif
 
-        friend constexpr difference_type operator-(const inner_iterator& lhs,
-                                                   std::default_sentinel_t rhs)
-            //
+        friend constexpr difference_type
+        operator-(const inner_iterator& lhs,
+                  std::default_sentinel_t rhs) //
             requires std::sized_sentinel_for<std::ranges::sentinel_t<View>,
                                              std::ranges::iterator_t<View>>
         {
@@ -564,32 +557,34 @@ public:
 
     constexpr auto end() requires(!__detail::__simple_view<View>)
     {
-        if constexpr (std::ranges::common_range<
-                          View> && std::ranges::sized_range<View>) {
+        // clang-format off
+        if constexpr (std::ranges::common_range<View> 
+            && std::ranges::sized_range<View>) {
             auto missing = (n_ - std::ranges::distance(base_) % n_) % n_;
             return iterator<false> { *this, std::ranges::end(base_), missing };
-        } else if constexpr (
-            std::ranges::common_range<
-                View> && !std::ranges::bidirectional_range<View>) {
+        } else if constexpr (std::ranges::common_range<View> 
+            && !std::ranges::bidirectional_range<View>) {
             return iterator<false> { *this, std::ranges::end(base_) };
         } else {
             return std::default_sentinel;
         }
+        // clang-format on
     }
 
     constexpr auto end() const requires std::ranges::forward_range<const View>
     {
-        if constexpr (std::ranges::common_range<
-                          View> && std::ranges::sized_range<View>) {
+        // clang-format off
+        if constexpr (std::ranges::common_range<View> 
+            && std::ranges::sized_range<View>) {
             auto missing = (n_ - std::ranges::distance(base_) % n_) % n_;
             return iterator<true> { *this, std::ranges::end(base_), missing };
-        } else if constexpr (
-            std::ranges::common_range<
-                View> && !std::ranges::bidirectional_range<View>) {
+        } else if constexpr (std::ranges::common_range<View> 
+            && !std::ranges::bidirectional_range<View>) {
             return iterator<true> { *this, std::ranges::end(base_) };
         } else {
             return std::default_sentinel;
         }
+        // clang-format on
     }
 
     constexpr auto size() requires std::ranges::sized_range<View>
