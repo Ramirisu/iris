@@ -69,6 +69,7 @@ target_link_libraries(main PRIVATE iris)
   * `ranges::to` ([P1206R7](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1206r7.pdf))
   * `ranges::elements_of`
 * Range Algorithms
+  * `ranges::find_last` ([P1223R4](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1223r4.pdf))
   * `ranges::iota` ([P2440R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2440r1.html))
   * `ranges::shift_left` ([P2440R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2440r1.html))
   * `ranges::shift_right` ([P2440R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2440r1.html))
