@@ -67,7 +67,7 @@ target_link_libraries(main PRIVATE iris)
   * `views::from_utf`
 * Range Utilities
   * `ranges::to` ([P1206R7](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1206r7.pdf))
-  * `ranges::elements_of`
+  * `ranges::elements_of` ([P2502R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2502r1.pdf))
 * Range Algorithms
   * `ranges::find_last` ([P1223R4](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p1223r4.pdf))
   * `ranges::iota` ([P2440R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2440r1.html))
@@ -82,7 +82,7 @@ target_link_libraries(main PRIVATE iris)
   * `ranges::fold_right` ([P2322R5](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2322r5.html))
   * `ranges::fold_right_last` ([P2322R5](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2322r5.html))
 * Coroutine Types
-  * `generator<R, V, Allocator>`
+  * `generator<R, V, Allocator>` ([P2502R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2502r1.pdf))
   * `lazy<T>` ([P2506R0](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2506r0.pdf))
 * Encoding
   * `base64<Binary, Text>`

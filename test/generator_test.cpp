@@ -149,4 +149,39 @@ TEST_CASE("nested generator body throws exception")
     CHECK_THROWS_AS(run(), std::exception);
 }
 
+template <typename T>
+class my_allocator {
+public:
+    using value_type = T;
+    using size_type = std::size_t;
+    using difference_type = std::ptrdiff_t;
+    using is_always_equal = std::false_type;
+
+    T* allocate(size_type n)
+    {
+        return static_cast<T*>(std::malloc(n * sizeof(T)));
+    }
+
+    void deallocate(T* pointer, size_type n)
+    {
+        IRIS_UNUSED(n);
+        std::free(pointer);
+    }
+};
+
+TEST_CASE("operator new(std::size_t) with custom allocator")
+{
+    auto g = []() -> generator<const int&, int, my_allocator<int>> {
+        for (int i = 0; i < 10; ++i) {
+            co_yield i;
+        }
+    };
+
+    int count = 0;
+    for (auto&& value : g()) {
+        CHECK_EQ(count++, value);
+    }
+    CHECK_EQ(count, 10);
+}
+
 TEST_SUITE_END();

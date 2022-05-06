@@ -9,12 +9,73 @@
 #include <type_traits>
 
 namespace iris {
+namespace __generator_detail {
+    struct alignas(__STDCPP_DEFAULT_NEW_ALIGNMENT__) __default_new_alignment {
+        std::byte d[__STDCPP_DEFAULT_NEW_ALIGNMENT__];
+    };
+
+    constexpr std::size_t __aligned_allocated_count(std::size_t size)
+    {
+        return (size + __STDCPP_DEFAULT_NEW_ALIGNMENT__ - 1)
+            / __STDCPP_DEFAULT_NEW_ALIGNMENT__;
+    }
+
+    template <typename Allocator>
+    class __frame_allocator {
+    public:
+        using pointer = typename std::allocator_traits<Allocator>::pointer;
+
+        static constexpr void* allocate(Allocator allocator, std::size_t size)
+        {
+            auto n = __aligned_allocated_count(size);
+            auto a = std::size_t(0);
+            if constexpr (!std::allocator_traits<
+                              Allocator>::is_always_equal::value) {
+                a = __aligned_allocated_count(sizeof(Allocator));
+            }
+
+            auto p = allocator.allocate(n + a);
+
+            if constexpr (!std::allocator_traits<
+                              Allocator>::is_always_equal::value) {
+                std::construct_at(get_allocator(p, n), std::move(allocator));
+            }
+
+            return p;
+        }
+
+        static constexpr void deallocate(void* p, std::size_t size)
+        {
+            auto n = __aligned_allocated_count(size);
+            if constexpr (!std::allocator_traits<
+                              Allocator>::is_always_equal::value) {
+                Allocator allocator = std::move(*get_allocator(p, n));
+                std::destroy_at(get_allocator(p, n));
+                auto a = __aligned_allocated_count(sizeof(Allocator));
+                allocator.deallocate(static_cast<pointer>(p), n + a);
+            } else {
+                Allocator allocator;
+                allocator.deallocate(static_cast<pointer>(p), n);
+            }
+        }
+
+    private:
+        static constexpr Allocator* get_allocator(void* p, std::size_t n)
+        {
+            return reinterpret_cast<Allocator*>(static_cast<pointer>(p) + n);
+        }
+    };
+}
 
 template <typename R, typename V = void, typename Allocator = void>
 class [[nodiscard]] generator {
+public:
     using value
         = std::conditional_t<std::is_void_v<V>, std::remove_cvref_t<R>, V>;
     using reference = std::conditional_t<std::is_void_v<V>, R&&, R>;
+    using yielded = std::conditional_t<std::is_reference_v<reference>,
+                                       reference,
+                                       const reference&>;
 
     // clang-format off
     static_assert(!std::is_const_v<value> && !std::is_reference_v<value>);
@@ -23,11 +84,6 @@ class [[nodiscard]] generator {
             && !std::is_reference_v<reference> 
             && std::is_copy_constructible_v<reference>));
     // clang-format on
-
-public:
-    using yielded = std::conditional_t<std::is_reference_v<reference>,
-                                       reference,
-                                       const reference&>;
 
     class promise_type;
     class iterator;
@@ -177,27 +233,36 @@ public:
             generator child_;
         };
 
-        template <typename T2, typename V2, typename Allocator2>
-        auto yield_value(ranges::elements_of<generator<T2, V2, Allocator2>&&>
-                             range) noexcept requires
+        template <typename T2,
+                  typename V2,
+                  typename Allocator2,
+                  typename Unused>
+        auto yield_value(ranges::elements_of<generator<T2, V2, Allocator2>&&,
+                                             Unused> range) noexcept requires
             std::same_as<typename generator<T2, V2, Allocator2>::yielded,
                          yielded>
         {
-            return yield_generator_awaitable { std::move(range.range) };
+            return yield_generator_awaitable(std::move(range.range));
         }
 
-        template <std::ranges::input_range Range>
-        auto yield_value(ranges::elements_of<Range> range) noexcept requires
+        template <std::ranges::input_range Range, typename Allocator2>
+        auto yield_value(
+            ranges::elements_of<Range, Allocator2> range) noexcept requires
             std::convertible_to<std::ranges::range_reference_t<Range>, yielded>
         {
-            auto nested = [](auto* range) -> generator<yielded, V, Allocator> {
+            auto nested = [](std::allocator_arg_t, Allocator2,
+                             auto* range) -> generator<yielded, V, Allocator>
+            // TODO:
+            // -> generator<yielded, std::ranges::range_value_t<Range>,
+            // Allocator2>
+            {
                 for (auto&& element : *range)
                     co_yield static_cast<yielded>(
                         std::forward<decltype(element)>(element));
             };
 
-            auto& r = range.range;
-            return yield_value(ranges::elements_of(nested(&r)));
+            return yield_value(ranges::elements_of(
+                nested(std::allocator_arg, range.allocator, &range.range)));
         }
 
         void await_transform() = delete;
@@ -212,6 +277,65 @@ public:
         void resume()
         {
             root_.resume();
+        }
+
+        static void* operator new(std::size_t size) requires
+            std::same_as<Allocator,
+                         void> || std::default_initializable<Allocator>
+        {
+            using U = __generator_detail::__default_new_alignment;
+            using BAlloc = std::allocator_traits<std::conditional_t<
+                std::same_as<Allocator, void>, std::allocator<void>,
+                Allocator>>::template rebind_alloc<U>;
+
+            return __generator_detail::__frame_allocator<BAlloc>::allocate(
+                BAlloc(), size);
+        }
+
+        template <typename Alloc, typename... Args>
+            requires std::same_as<Allocator,
+                                  void> || std::convertible_to<Alloc, Allocator>
+        static void* operator new(std::size_t size,
+                                  std::allocator_arg_t,
+                                  Alloc&& alloc,
+                                  Args&...)
+        {
+            using U = __generator_detail::__default_new_alignment;
+            using BAlloc = std::allocator_traits<std::conditional_t<
+                std::same_as<Allocator, void>, std::allocator<void>,
+                Allocator>>::template rebind_alloc<U>;
+
+            return __generator_detail::__frame_allocator<BAlloc>::allocate(
+                std::forward<Alloc>(alloc), size);
+        }
+
+        template <typename This, typename Alloc, typename... Args>
+            requires std::same_as<Allocator,
+                                  void> || std::convertible_to<Alloc, Allocator>
+        static void* operator new(std::size_t size,
+                                  This&,
+                                  std::allocator_arg_t,
+                                  Alloc&& alloc,
+                                  Args&...)
+        {
+            using U = __generator_detail::__default_new_alignment;
+            using BAlloc = std::allocator_traits<std::conditional_t<
+                std::same_as<Allocator, void>, std::allocator<void>,
+                Allocator>>::template rebind_alloc<U>;
+
+            return __generator_detail::__frame_allocator<BAlloc>::allocate(
+                std::forward<Alloc>(alloc), size);
+        }
+
+        static void operator delete(void* pointer, std::size_t size)
+        {
+            using U = __generator_detail::__default_new_alignment;
+            using BAlloc = std::allocator_traits<std::conditional_t<
+                std::same_as<Allocator, void>, std::allocator<void>,
+                Allocator>>::template rebind_alloc<U>;
+
+            return __generator_detail::__frame_allocator<BAlloc>::deallocate(
+                pointer, size);
         }
 
     private:
