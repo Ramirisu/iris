@@ -13,6 +13,7 @@
 #include <iris/ranges/view/cartesian_product_view.hpp>
 #include <iris/ranges/view/chunk_by_view.hpp>
 #include <iris/ranges/view/chunk_view.hpp>
+#include <iris/ranges/view/concat_view.hpp>
 #include <iris/ranges/view/enumerate_view.hpp>
 #include <iris/ranges/view/join_with_view.hpp>
 #include <iris/ranges/view/repeat_view.hpp>

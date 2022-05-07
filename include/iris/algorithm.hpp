@@ -4,6 +4,7 @@
 
 #include <iris/ranges/algorithm/contains.hpp>
 #include <iris/ranges/algorithm/ends_with.hpp>
+#include <iris/ranges/algorithm/find_last.hpp>
 #include <iris/ranges/algorithm/fold.hpp>
 #include <iris/ranges/algorithm/iota.hpp>
 #include <iris/ranges/algorithm/shift.hpp>
