@@ -90,7 +90,7 @@ namespace views {
                               std::ranges::range_reference_t<Range>>) {
                 return std::views::all(std::forward<Range>(range));
             } else {
-                return as_rvalue_view { std::forward<Range>(range) };
+                return as_rvalue_view(std::forward<Range>(range));
             }
         }
     };

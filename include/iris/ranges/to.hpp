@@ -142,9 +142,8 @@ template <typename Container, typename... Args>
     requires(!std::ranges::view<Container>)
 constexpr auto to(Args&&... args)
 {
-    return range_adaptor_closure<__to_fn<Container>, Args...> {
-        std::forward<Args>(args)...
-    };
+    return range_adaptor_closure<__to_fn<Container>, Args...>(
+        std::forward<Args>(args)...);
 }
 
 template <template <typename...> class Container>
@@ -160,9 +159,8 @@ struct __to_auto_fn {
 template <template <typename...> class Container, typename... Args>
 constexpr auto to(Args&&... args)
 {
-    return range_adaptor_closure<__to_auto_fn<Container>, Args...> {
-        std::forward<Args>(args)...
-    };
+    return range_adaptor_closure<__to_auto_fn<Container>, Args...>(
+        std::forward<Args>(args)...);
 }
 
 }

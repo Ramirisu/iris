@@ -512,19 +512,26 @@ namespace views {
     public:
         template <std::ranges::viewable_range Range, typename Pattern>
         constexpr auto operator()(Range&& range, Pattern&& pattern) const
+            noexcept(noexcept(join_with_view(
+                std::forward<Range>(range),
+                std::forward<Pattern>(pattern)))) requires requires
+        {
+            join_with_view(std::forward<Range>(range),
+                           std::forward<Pattern>(pattern));
+        }
         {
             return join_with_view(std::forward<Range>(range),
                                   std::forward<Pattern>(pattern));
         }
 
         template <typename Pattern>
-            requires std::constructible_from<std::decay_t<Pattern>, Pattern>
         constexpr auto operator()(Pattern&& pattern) const
+            noexcept(std::is_nothrow_constructible_v<std::decay_t<Pattern>,
+                                                     Pattern>) requires
+            std::constructible_from<std::decay_t<Pattern>, Pattern>
         {
-            return range_adaptor_closure<__join_with_fn,
-                                         std::decay_t<Pattern>> {
-                std::forward<Pattern>(pattern)
-            };
+            return range_adaptor_closure<__join_with_fn, std::decay_t<Pattern>>(
+                std::forward<Pattern>(pattern));
         }
     };
 

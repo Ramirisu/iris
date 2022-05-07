@@ -401,19 +401,22 @@ namespace views {
         constexpr auto
         operator()(Range&& range,
                    std::ranges::range_difference_t<Range> n) const
-            noexcept(noexcept(stride_view { std::forward<Range>(range),
-                                            n })) requires requires
+            noexcept(noexcept(stride_view(std::forward<Range>(range),
+                                          n))) requires requires
         {
-            stride_view { std::forward<Range>(range), n };
+            stride_view(std::forward<Range>(range), n);
         }
         {
-            return stride_view { std::forward<Range>(range), n };
+            return stride_view(std::forward<Range>(range), n);
         }
 
-        template <std::integral N>
-        constexpr auto operator()(N n) const
+        template <typename N>
+        constexpr auto operator()(N&& n) const noexcept(
+            std::is_nothrow_constructible_v<std::decay_t<N>, N>) requires
+            std::constructible_from<std::decay_t<N>, N>
         {
-            return range_adaptor_closure<__stride_fn, N>(n);
+            return range_adaptor_closure<__stride_fn, std::decay_t<N>>(
+                std::forward<N>(n));
         }
     };
 

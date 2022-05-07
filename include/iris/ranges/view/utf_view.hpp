@@ -401,14 +401,13 @@ namespace views {
     class __from_utf_fn : public range_adaptor_closure<__from_utf_fn> {
     public:
         template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const
-            noexcept(noexcept(from_utf_view {
-                std::forward<Range>(range) })) requires requires
+        constexpr auto operator()(Range&& range) const noexcept(noexcept(
+            from_utf_view(std::forward<Range>(range)))) requires requires
         {
-            from_utf_view { std::forward<Range>(range) };
+            from_utf_view(std::forward<Range>(range));
         }
         {
-            return from_utf_view { std::forward<Range>(range) };
+            return from_utf_view(std::forward<Range>(range));
         }
     };
 
