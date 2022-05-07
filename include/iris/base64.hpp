@@ -17,6 +17,8 @@ template <typename T, std::size_t N>
 using base64_result = __detail::__static_storage<T, N>;
 
 template <typename Binary, typename Text>
+    requires(sizeof(Binary) == sizeof(std::uint8_t)
+             && sizeof(Text) == sizeof(std::uint8_t))
 class base64 {
 public:
     using text_result_type = expected<base64_result<Text, 4>, base64_error>;
