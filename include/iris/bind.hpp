@@ -2,7 +2,9 @@
 
 #include <iris/config.hpp>
 
+#include <functional>
 #include <tuple>
+#include <type_traits>
 
 namespace iris {
 namespace __bind_detail {
