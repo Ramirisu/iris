@@ -104,12 +104,6 @@ target_link_libraries(main PRIVATE iris)
   * `scope_exit<Fn>`
   * `scope_failure<Fn>`
   * `scope_success<Fn>`
-* Networking
-  * `net::mac_address` (*Experimental*)
-  * `net::ipv4_address` (*Experimental*)
-  * `net::ipv6_address` (*Experimental*)
-  * `net::ip_address` (*Experimental*)
-  * `net::network_interface` (*Experimental*)
 
 ## Building
 

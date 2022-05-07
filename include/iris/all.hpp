@@ -16,9 +16,3 @@
 #include <iris/type_traits.hpp>
 #include <iris/utf.hpp>
 #include <iris/utility.hpp>
-
-#include <iris/net/ip_address.hpp>
-#include <iris/net/ipv4_address.hpp>
-#include <iris/net/ipv6_address.hpp>
-#include <iris/net/mac_address.hpp>
-#include <iris/net/network_interface.hpp>
