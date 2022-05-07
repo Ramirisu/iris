@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <iris/bind.hpp>
 #include <iris/ranges/__detail/copyable_box.hpp>
 #include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
@@ -388,9 +389,8 @@ namespace views {
         constexpr auto operator()(Fn&& fn) const
             noexcept(std::is_nothrow_constructible_v<std::decay_t<Fn>, Fn>)
         {
-            return range_adaptor_closure<__adjacent_transform_fn,
-                                         std::decay_t<Fn>>(
-                std::forward<Fn>(fn));
+            return range_adaptor_closure(
+                bind_back(*this, std::forward<Fn>(fn)));
         }
     };
 

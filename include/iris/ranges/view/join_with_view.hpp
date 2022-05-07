@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <iris/bind.hpp>
 #include <iris/ranges/__detail/non_propagating_cache.hpp>
 #include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
@@ -530,8 +531,8 @@ namespace views {
                                                      Pattern>) requires
             std::constructible_from<std::decay_t<Pattern>, Pattern>
         {
-            return range_adaptor_closure<__join_with_fn, std::decay_t<Pattern>>(
-                std::forward<Pattern>(pattern));
+            return range_adaptor_closure(
+                bind_back(*this, std::forward<Pattern>(pattern)));
         }
     };
 

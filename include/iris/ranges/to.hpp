@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <iris/bind.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
 #include <iris/type_traits.hpp>
 
@@ -142,8 +143,8 @@ template <typename Container, typename... Args>
     requires(!std::ranges::view<Container>)
 constexpr auto to(Args&&... args)
 {
-    return range_adaptor_closure<__to_fn<Container>, Args...>(
-        std::forward<Args>(args)...);
+    return range_adaptor_closure(
+        bind_back(__to_fn<Container> {}, std::forward<Args>(args)...));
 }
 
 template <template <typename...> class Container>
@@ -159,8 +160,8 @@ struct __to_auto_fn {
 template <template <typename...> class Container, typename... Args>
 constexpr auto to(Args&&... args)
 {
-    return range_adaptor_closure<__to_auto_fn<Container>, Args...>(
-        std::forward<Args>(args)...);
+    return range_adaptor_closure(
+        bind_back(__to_auto_fn<Container> {}, std::forward<Args>(args)...));
 }
 
 }

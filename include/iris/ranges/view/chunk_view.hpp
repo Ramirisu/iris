@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <iris/bind.hpp>
 #include <iris/ranges/__detail/non_propagating_cache.hpp>
 #include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
@@ -632,8 +633,7 @@ namespace views {
             std::is_nothrow_constructible_v<std::decay_t<N>, N>) requires
             std::constructible_from<std::decay_t<N>, N>
         {
-            return range_adaptor_closure<__chunk_fn, std::decay_t<N>>(
-                std::forward<N>(n));
+            return range_adaptor_closure(bind_back(*this, std::forward<N>(n)));
         }
     };
 

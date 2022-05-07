@@ -2,6 +2,7 @@
 
 #include <iris/config.hpp>
 
+#include <iris/bind.hpp>
 #include <iris/ranges/__detail/copyable_box.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
 
@@ -193,8 +194,8 @@ namespace views {
                                                      Pred>) //
             requires std::constructible_from<std::decay_t<Pred>, Pred>
         {
-            return range_adaptor_closure<__chunk_by_fn, std::decay_t<Pred>>(
-                std::forward<Pred>(pred));
+            return range_adaptor_closure(
+                bind_back(*this, std::forward<Pred>(pred)));
         }
     };
 
