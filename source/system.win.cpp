@@ -17,8 +17,15 @@ expected<std::string, std::error_code> get_host_name() noexcept
     DWORD size = MAX_COMPUTERNAME_LENGTH + 1;
     if (GetComputerNameW(buffer, &size) == TRUE) {
         buffer[size + 1] = 0;
-        return std::wstring_view(buffer) | views::from_utf | views::unwrap
-            | views::to_utf<char> | views::unwrap | ranges::to<std::string>();
+        try {
+            return std::wstring_view(buffer) | views::from_utf | views::unwrap
+                | views::to_utf<char> | views::unwrap
+                | ranges::to<std::string>();
+        } catch (bad_expected_access<utf_error>& ex) {
+            IRIS_UNUSED(ex);
+            return unexpected(
+                std::make_error_code(std::errc::illegal_byte_sequence));
+        }
     }
 
     return unexpected(std::error_code(GetLastError(), std::system_category()));
@@ -30,8 +37,15 @@ expected<std::string, std::error_code> get_user_name() noexcept
     DWORD size = UNLEN + 1;
     if (GetUserNameW(buffer, &size) == TRUE) {
         buffer[size] = 0;
-        return std::wstring_view(buffer) | views::from_utf | views::unwrap
-            | views::to_utf<char> | views::unwrap | ranges::to<std::string>();
+        try {
+            return std::wstring_view(buffer) | views::from_utf | views::unwrap
+                | views::to_utf<char> | views::unwrap
+                | ranges::to<std::string>();
+        } catch (bad_expected_access<utf_error>& ex) {
+            IRIS_UNUSED(ex);
+            return unexpected(
+                std::make_error_code(std::errc::illegal_byte_sequence));
+        }
     }
 
     return unexpected(std::error_code(GetLastError(), std::system_category()));
