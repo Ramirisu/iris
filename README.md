@@ -18,6 +18,7 @@ target_link_libraries(main PRIVATE iris)
 ```
 ## Supported Compilers
 
+* Visual Studio 2022 19.1 (`/std:latest`)
 * Visual Studio 2022 19.2 (`/std:c++20`)
 * GCC 11.2 (`-std=c++20`)
 
