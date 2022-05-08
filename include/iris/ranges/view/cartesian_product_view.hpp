@@ -3,6 +3,7 @@
 #include <iris/config.hpp>
 
 #include <iris/ranges/__detail/utility.hpp>
+#include <iris/type_traits.hpp>
 #include <iris/utility.hpp>
 
 #include <array>
@@ -381,7 +382,7 @@ public:
         {
         }
 
-        template <std::size_t N = sizeof...(Rests)>
+        template <std::size_t N = pack_size_v<Rests...>>
         void next()
         {
             auto& it = std::get<N>(current_);
@@ -394,7 +395,7 @@ public:
             }
         }
 
-        template <std::size_t N = sizeof...(Rests)>
+        template <std::size_t N = pack_size_v<Rests...>>
         void prev()
         {
             auto& it = std::get<N>(current_);
@@ -553,7 +554,7 @@ namespace views {
         }
 
         template <std::ranges::viewable_range... Ranges>
-            requires(sizeof...(Ranges) > 0)
+            requires(pack_size_v<Ranges...> > 0)
         constexpr auto operator()(Ranges&&... ranges) const noexcept(
             noexcept(cartesian_product_view<std::views::all_t<Ranges&&>...>(
                 std::forward<Ranges>(ranges)...)))

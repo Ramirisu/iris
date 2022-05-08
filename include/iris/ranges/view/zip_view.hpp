@@ -4,14 +4,15 @@
 
 #include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
+#include <iris/type_traits.hpp>
 
 #include <algorithm>
 
 namespace iris::ranges {
 namespace __zip_view_detail {
     template <typename... Ranges>
-    concept __zip_is_common
-        = (sizeof...(Ranges) == 1 && (std::ranges::common_range<Ranges> && ...))
+    concept __zip_is_common = (pack_size_v<Ranges...> == 1
+                               && (std::ranges::common_range<Ranges> && ...))
         || (!(std::ranges::bidirectional_range<Ranges> && ...)
             && (std::ranges::common_range<Ranges> && ...))
         || ((std::ranges::random_access_range<Ranges> && ...)
@@ -68,7 +69,7 @@ namespace __zip_view_detail {
 }
 
 template <std::ranges::input_range... Views>
-    requires((std::ranges::view<Views> && ...) && (sizeof...(Views) > 0))
+    requires((std::ranges::view<Views> && ...) && (pack_size_v<Views...> > 0))
 class zip_view : public std::ranges::view_interface<zip_view<Views...>> {
 public:
     template <bool Const>
@@ -498,7 +499,7 @@ namespace views {
         }
 
         template <std::ranges::viewable_range... Ranges>
-            requires(sizeof...(Ranges) > 0)
+            requires(pack_size_v<Ranges...> > 0)
         constexpr auto operator()(Ranges&&... ranges) const
             noexcept(noexcept(zip_view<std::views::all_t<Ranges&&>...>(
                 std::forward<Ranges>(ranges)...)))

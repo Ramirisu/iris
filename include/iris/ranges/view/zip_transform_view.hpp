@@ -5,6 +5,7 @@
 #include <iris/ranges/__detail/copyable_box.hpp>
 #include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/view/zip_view.hpp>
+#include <iris/type_traits.hpp>
 
 namespace iris::ranges {
 namespace __zip_transform_view_detail {
@@ -22,7 +23,7 @@ namespace __zip_transform_view_detail {
 template <std::copy_constructible Fn, std::ranges::input_range... Views>
     // clang-format off
     requires (std::ranges::view<Views> && ...) 
-        && (sizeof...(Views) > 0)
+        && (pack_size_v<Views...> > 0)
         && std::is_object_v<Fn> 
         && std::regular_invocable<Fn&, std::ranges::range_reference_t<Views>...> 
         && __detail::__can_reference<
@@ -400,7 +401,7 @@ namespace views {
         }
 
         template <typename Fn, std::ranges::viewable_range... Ranges>
-            requires(sizeof...(Ranges) > 0)
+            requires(pack_size_v<Ranges...> > 0)
         constexpr auto operator()(Fn&& fn, Ranges&&... ranges) const noexcept(
             noexcept(zip_transform_view<Fn, std::views::all_t<Ranges&&>...>(
                 std::forward<Fn>(fn), std::forward<Ranges>(ranges)...)))

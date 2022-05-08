@@ -2,6 +2,8 @@
 
 #include <iris/config.hpp>
 
+#include <iris/type_traits.hpp>
+
 #include <cstddef>
 
 namespace iris::__detail {
@@ -12,7 +14,7 @@ public:
     __static_storage() = default;
 
     template <typename... Ts>
-    constexpr __static_storage(Ts&&... ts) requires(sizeof...(Ts) <= N)
+    constexpr __static_storage(Ts&&... ts) requires(pack_size_v<Ts...> <= N)
         : data_ { static_cast<T>(std::forward<Ts>(ts))... }
         , size_(sizeof...(Ts))
     {

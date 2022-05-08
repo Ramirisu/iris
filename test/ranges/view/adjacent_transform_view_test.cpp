@@ -18,8 +18,8 @@ struct multiply {
     }
 
     template <typename... Ts>
-        requires(sizeof...(Ts) > 0)
-    constexpr front_of_t<T, Ts...> operator()(Ts... ts) const
+        requires(pack_size_v<Ts...> > 0)
+    constexpr front_of_pack_element_t<Ts..., T> operator()(Ts... ts) const
     {
         return (ts * ...);
     }

@@ -68,7 +68,7 @@ namespace __concat_view_detail {
     template <typename... Ranges>
     concept __concat_bidirectional
         = (std::ranges::bidirectional_range<Ranges> && ...)
-        && __constant_time_reversible<back_of_t<void, Ranges...>>;
+        && __constant_time_reversible<back_of_pack_element_t<Ranges...>>;
 
     template <std::size_t N, typename F, typename Variant>
     constexpr auto __visit(F&& f, Variant&& v)
@@ -89,7 +89,7 @@ namespace __concat_view_detail {
 }
 
 template <std::ranges::input_range... Views>
-    requires((std::ranges::view<Views> && ...) && (sizeof...(Views) > 0)
+    requires((std::ranges::view<Views> && ...) && (pack_size_v<Views...> > 0)
              && __concat_view_detail::__concatable<Views...>)
 class concat_view : public std::ranges::view_interface<concat_view<Views...>> {
 public:
@@ -188,7 +188,7 @@ public:
         constexpr iterator& operator++()
         {
             IRIS_ASSERT(!it_.valueless_by_exception());
-            __concat_view_detail::__visit<sizeof...(Views) - 1>(
+            __concat_view_detail::__visit<pack_size_v<Views...> - 1>(
                 [&](auto I, auto& it) {
                     ++std::get<I>(it);
                     satisfy<I>();
@@ -214,7 +214,7 @@ public:
                 __detail::__maybe_const<Const, Views>...>
         {
             IRIS_ASSERT(!it_.valueless_by_exception());
-            __concat_view_detail::__visit<sizeof...(Views) - 1>(
+            __concat_view_detail::__visit<pack_size_v<Views...> - 1>(
                 [&](auto I, auto& it) {
                     IRIS_UNUSED(it);
                     prev<I>();
@@ -239,7 +239,7 @@ public:
         {
             IRIS_ASSERT(!it_.valueless_by_exception());
             if (offset > 0) {
-                __concat_view_detail::__visit<sizeof...(Views) - 1>(
+                __concat_view_detail::__visit<pack_size_v<Views...> - 1>(
                     [&](auto I, auto& it) {
                         advance_fwd<I>(std::get<I>(it)
                                            - std::ranges::begin(
@@ -248,7 +248,7 @@ public:
                     },
                     it_);
             } else if (offset < 0) {
-                __concat_view_detail::__visit<sizeof...(Views) - 1>(
+                __concat_view_detail::__visit<pack_size_v<Views...> - 1>(
                     [&](auto I, auto& it) {
                         advance_bwd<I>(std::get<I>(it)
                                            - std::ranges::begin(
@@ -290,7 +290,7 @@ public:
                                          std::default_sentinel_t)
         {
             IRIS_ASSERT(!lhs.it_.valueless_by_exception());
-            constexpr auto last_idx = sizeof...(Views) - 1;
+            constexpr auto last_idx = pack_size_v<Views...> - 1;
             return lhs.it_.index() == last_idx
                 && std::get<last_idx>(lhs.it_)
                 == std::ranges::end(std::get<last_idx>(lhs.__parent_bases()));
@@ -385,20 +385,22 @@ public:
             const auto il = lhs.it_.index();
             const auto ir = rhs.it_.index();
             if (il > ir) {
-                auto dr = __concat_view_detail::__visit<sizeof...(Views) - 1>(
-                    [&](auto I, auto& it) {
-                        return std::ranges::end(
-                                   std::get<I>(rhs.__parent_bases()))
-                            - std::get<I>(it);
-                    },
-                    rhs.it_);
-                auto dl = __concat_view_detail::__visit<sizeof...(Views) - 1>(
-                    [&](auto I, auto& it) {
-                        return std::get<I>(it)
-                            - std::ranges::begin(
-                                   std::get<I>(lhs.__parent_bases()));
-                    },
-                    lhs.it_);
+                auto dr
+                    = __concat_view_detail::__visit<pack_size_v<Views...> - 1>(
+                        [&](auto I, auto& it) {
+                            return std::ranges::end(
+                                       std::get<I>(rhs.__parent_bases()))
+                                - std::get<I>(it);
+                        },
+                        rhs.it_);
+                auto dl
+                    = __concat_view_detail::__visit<pack_size_v<Views...> - 1>(
+                        [&](auto I, auto& it) {
+                            return std::get<I>(it)
+                                - std::ranges::begin(
+                                       std::get<I>(lhs.__parent_bases()));
+                        },
+                        lhs.it_);
                 auto sizes = std::apply(
                     [](auto&... bases) {
                         return std::array { static_cast<difference_type>(
@@ -412,7 +414,7 @@ public:
             } else if (il < ir) {
                 return -(rhs - lhs);
             } else {
-                return __concat_view_detail::__visit<sizeof...(Views) - 1>(
+                return __concat_view_detail::__visit<pack_size_v<Views...> - 1>(
                     [&](auto I, auto& it) {
                         return std::get<I>(it) - std::get<I>(rhs.it_);
                     },
@@ -490,7 +492,7 @@ public:
         template <std::size_t N>
         constexpr void satisfy()
         {
-            if constexpr (N != (sizeof...(Views) - 1)) {
+            if constexpr (N != (pack_size_v<Views...> - 1)) {
                 if (std::get<N>(it_)
                     == std::ranges::end(std::get<N>(parent_->bases_))) {
                     it_.template emplace<N + 1>(
@@ -532,7 +534,7 @@ public:
         constexpr void advance_fwd(difference_type offset,
                                    difference_type steps)
         {
-            if constexpr (N == sizeof...(Views) - 1) {
+            if constexpr (N == pack_size_v<Views...> - 1) {
                 std::get<N>(it_) += steps;
             } else {
                 auto n_size = std::ranges::size(std::get<N>(__parent_bases()));
@@ -605,8 +607,9 @@ public:
 
     constexpr auto end() requires(!(__detail::__simple_view<Views> && ...))
     {
-        if constexpr (std::ranges::common_range<back_of_t<void, Views...>>) {
-            constexpr auto N = sizeof...(Views);
+        if constexpr (std::ranges::common_range<
+                          back_of_pack_element_t<Views...>>) {
+            constexpr auto N = pack_size_v<Views...>;
             return iterator<false>(*this, std::in_place_index<N - 1>,
                                    std::ranges::end(get<N - 1>(bases_)));
         } else {
@@ -616,8 +619,9 @@ public:
 
     constexpr auto end() const requires(std::ranges::range<const Views>&&...)
     {
-        if constexpr (std::ranges::common_range<back_of_t<void, Views...>>) {
-            constexpr auto N = sizeof...(Views);
+        if constexpr (std::ranges::common_range<
+                          back_of_pack_element_t<const Views...>>) {
+            constexpr auto N = pack_size_v<Views...>;
             return iterator<true>(this, std::in_place_index<N - 1>,
                                   std::ranges::end(get<N - 1>(bases_)));
         } else {
@@ -662,7 +666,7 @@ namespace views {
         }
 
         template <std::ranges::viewable_range... Ranges>
-            requires(sizeof...(Ranges) > 1)
+            requires(pack_size_v<Ranges...> > 1)
         constexpr auto operator()(Ranges&&... ranges) const
         {
             return concat_view(std::forward<Ranges>(ranges)...);

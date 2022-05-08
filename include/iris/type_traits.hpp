@@ -30,32 +30,41 @@ struct is_scoped_enum<E, true>
 template <typename E>
 inline constexpr bool is_scoped_enum_v = is_scoped_enum<E>::value;
 
-template <typename Default, typename... Ts>
-struct front_of;
-
-template <typename Default, typename First, typename... Ts>
-struct front_of<Default, First, Ts...> {
-    using type = First;
+template <typename... Ts>
+struct pack_size : std::integral_constant<std::size_t, sizeof...(Ts)> {
 };
 
-template <typename Default>
-struct front_of<Default> {
-    using type = Default;
+template <typename... Ts>
+inline constexpr auto pack_size_v = pack_size<Ts...>::value;
+
+template <std::size_t Index, typename T, typename... Ts>
+struct pack_element {
+    static_assert(Index < pack_size_v<T, Ts...>);
+    using type = typename pack_element<Index - 1, Ts...>::type;
 };
 
-template <typename Default, typename... Ts>
-using front_of_t = typename front_of<Default, Ts...>::type;
-
-template <typename Default, typename... Ts>
-struct back_of : back_of<Ts...> {
+template <typename T, typename... Ts>
+struct pack_element<0, T, Ts...> {
+    using type = T;
 };
 
-template <typename Default>
-struct back_of<Default> {
-    using type = Default;
+template <std::size_t Index, typename... Ts>
+using pack_element_t = typename pack_element<Index, Ts...>::type;
+
+template <typename... Ts>
+struct front_of_pack_element {
+    using type = pack_element_t<0, Ts...>;
 };
 
-template <typename Default, typename... Ts>
-using back_of_t = typename back_of<Default, Ts...>::type;
+template <typename... Ts>
+using front_of_pack_element_t = typename front_of_pack_element<Ts...>::type;
+
+template <typename... Ts>
+struct back_of_pack_element {
+    using type = pack_element_t<pack_size_v<Ts...> - 1, Ts...>;
+};
+
+template <typename... Ts>
+using back_of_pack_element_t = typename back_of_pack_element<Ts...>::type;
 
 }
