@@ -205,15 +205,13 @@ namespace views {
     class __to_utf_fn : public range_adaptor_closure<__to_utf_fn<UTF>> {
     public:
         template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const noexcept(noexcept(
-            to_utf_view<std::views::all_t<Range&&>,
-                        std::ranges::range_value_t<Range&&>,
-                        UTF>(std::forward<Range>(range)))) requires requires
-        {
-            to_utf_view<std::views::all_t<Range&&>,
-                        std::ranges::range_value_t<Range&&>, UTF>(
-                std::forward<Range>(range));
-        }
+        constexpr auto operator()(Range&& range) const
+            noexcept(noexcept(to_utf_view<std::views::all_t<Range&&>,
+                                          std::ranges::range_value_t<Range&&>,
+                                          UTF>(std::forward<Range>(range))))
+                -> decltype(to_utf_view<std::views::all_t<Range&&>,
+                                        std::ranges::range_value_t<Range&&>,
+                                        UTF>(std::forward<Range>(range)))
         {
             return to_utf_view<std::views::all_t<Range&&>,
                                std::ranges::range_value_t<Range&&>, UTF>(
@@ -401,11 +399,9 @@ namespace views {
     class __from_utf_fn : public range_adaptor_closure<__from_utf_fn> {
     public:
         template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const noexcept(noexcept(
-            from_utf_view(std::forward<Range>(range)))) requires requires
-        {
-            from_utf_view(std::forward<Range>(range));
-        }
+        constexpr auto operator()(Range&& range) const
+            noexcept(noexcept(from_utf_view(std::forward<Range>(range))))
+                -> decltype(from_utf_view(std::forward<Range>(range)))
         {
             return from_utf_view(std::forward<Range>(range));
         }

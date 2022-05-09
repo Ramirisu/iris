@@ -372,22 +372,36 @@ namespace views {
     class __adjacent_transform_fn {
     public:
         template <std::ranges::viewable_range Range, typename Fn>
+            requires(N == 0)
         constexpr auto operator()(Range&& range, Fn&& fn) const
+            noexcept(noexcept(zip_transform(std::forward<Fn>(fn))))
+                -> decltype(zip_transform(std::forward<Fn>(fn)))
         {
-            if constexpr (N == 0) {
-                IRIS_UNUSED(range);
-                return zip_transform(std::forward<Fn>(fn));
-            } else {
-                return adjacent_transform_view<std::views::all_t<Range&&>,
-                                               std::decay_t<Fn>, N>(
-                    std::forward<Range>(range), std::forward<Fn>(fn));
-            }
+            IRIS_UNUSED(range);
+            return zip_transform(std::forward<Fn>(fn));
+        }
+
+        template <std::ranges::viewable_range Range, typename Fn>
+            requires(N != 0)
+        constexpr auto operator()(Range&& range, Fn&& fn) const noexcept(
+            noexcept(adjacent_transform_view<std::views::all_t<Range&&>,
+                                             std::decay_t<Fn>,
+                                             N>(std::forward<Range>(range),
+                                                std::forward<Fn>(fn))))
+            -> decltype(adjacent_transform_view<std::views::all_t<Range&&>,
+                                                std::decay_t<Fn>,
+                                                N>(std::forward<Range>(range),
+                                                   std::forward<Fn>(fn)))
+        {
+            return adjacent_transform_view<std::views::all_t<Range&&>,
+                                           std::decay_t<Fn>, N>(
+                std::forward<Range>(range), std::forward<Fn>(fn));
         }
 
         template <typename Fn>
-            requires std::constructible_from<std::decay_t<Fn>, Fn>
-        constexpr auto operator()(Fn&& fn) const
-            noexcept(std::is_nothrow_constructible_v<std::decay_t<Fn>, Fn>)
+        constexpr auto operator()(Fn&& fn) const noexcept(
+            std::is_nothrow_constructible_v<std::decay_t<Fn>, Fn>) requires
+            std::constructible_from<std::decay_t<Fn>, Fn>
         {
             return range_adaptor_closure(
                 bind_back(*this, std::forward<Fn>(fn)));

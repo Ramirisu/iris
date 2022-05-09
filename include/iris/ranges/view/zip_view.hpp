@@ -503,6 +503,8 @@ namespace views {
         constexpr auto operator()(Ranges&&... ranges) const
             noexcept(noexcept(zip_view<std::views::all_t<Ranges&&>...>(
                 std::forward<Ranges>(ranges)...)))
+                -> decltype(zip_view<std::views::all_t<Ranges&&>...>(
+                    std::forward<Ranges>(ranges)...))
         {
             return zip_view<std::views::all_t<Ranges&&>...>(
                 std::forward<Ranges>(ranges)...);

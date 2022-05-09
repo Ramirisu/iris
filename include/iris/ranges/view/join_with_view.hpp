@@ -513,13 +513,10 @@ namespace views {
     public:
         template <std::ranges::viewable_range Range, typename Pattern>
         constexpr auto operator()(Range&& range, Pattern&& pattern) const
-            noexcept(noexcept(join_with_view(
-                std::forward<Range>(range),
-                std::forward<Pattern>(pattern)))) requires requires
-        {
-            join_with_view(std::forward<Range>(range),
-                           std::forward<Pattern>(pattern));
-        }
+            noexcept(noexcept(join_with_view(std::forward<Range>(range),
+                                             std::forward<Pattern>(pattern))))
+                -> decltype(join_with_view(std::forward<Range>(range),
+                                           std::forward<Pattern>(pattern)))
         {
             return join_with_view(std::forward<Range>(range),
                                   std::forward<Pattern>(pattern));

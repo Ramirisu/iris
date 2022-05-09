@@ -389,8 +389,8 @@ namespace views {
     public:
         // clang-format off
         template <typename Fn>
-            requires std::copy_constructible<std::decay_t<Fn>> 
-                && std::regular_invocable<std::decay_t<Fn>&> 
+            requires (std::copy_constructible<std::decay_t<Fn>> 
+                || std::regular_invocable<std::decay_t<Fn>&>)
                 && std::is_object_v<std::invoke_result_t<std::decay_t<Fn>&>>
             // clang-format on
             constexpr auto operator()(Fn&& fn) const
@@ -402,7 +402,11 @@ namespace views {
 
         template <typename Fn, std::ranges::viewable_range... Ranges>
             requires(pack_size_v<Ranges...> > 0)
-        constexpr auto operator()(Fn&& fn, Ranges&&... ranges) const
+        constexpr auto operator()(Fn&& fn, Ranges&&... ranges) const noexcept(
+            noexcept(zip_transform_view<Fn, std::views::all_t<Ranges&&>...>(
+                std::forward<Fn>(fn), std::forward<Ranges>(ranges)...)))
+            -> decltype(zip_transform_view<Fn, std::views::all_t<Ranges&&>...>(
+                std::forward<Fn>(fn), std::forward<Ranges>(ranges)...))
         {
             return zip_transform_view<Fn, std::views::all_t<Ranges&&>...>(
                 std::forward<Fn>(fn), std::forward<Ranges>(ranges)...);

@@ -661,6 +661,8 @@ namespace views {
     public:
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range range) const
+            noexcept(noexcept(std::views::all(std::forward<Range>(range))))
+                -> decltype(std::views::all(std::forward<Range>(range)))
         {
             return std::views::all(std::forward<Range>(range));
         }
@@ -668,6 +670,8 @@ namespace views {
         template <std::ranges::viewable_range... Ranges>
             requires(pack_size_v<Ranges...> > 1)
         constexpr auto operator()(Ranges&&... ranges) const
+            noexcept(noexcept(concat_view(std::forward<Ranges>(ranges)...)))
+                -> decltype(concat_view(std::forward<Ranges>(ranges)...))
         {
             return concat_view(std::forward<Ranges>(ranges)...);
         }

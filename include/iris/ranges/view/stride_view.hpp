@@ -402,11 +402,8 @@ namespace views {
         constexpr auto
         operator()(Range&& range,
                    std::ranges::range_difference_t<Range> n) const
-            noexcept(noexcept(stride_view(std::forward<Range>(range),
-                                          n))) requires requires
-        {
-            stride_view(std::forward<Range>(range), n);
-        }
+            noexcept(noexcept(stride_view(std::forward<Range>(range), n)))
+                -> decltype(stride_view(std::forward<Range>(range), n))
         {
             return stride_view(std::forward<Range>(range), n);
         }

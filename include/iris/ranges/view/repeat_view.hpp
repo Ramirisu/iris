@@ -212,22 +212,19 @@ namespace views {
     class __repeat_fn {
     public:
         template <typename Value>
-        constexpr auto operator()(Value&& value) const noexcept(
-            noexcept(repeat_view(std::forward<Value>(value)))) requires requires
-        {
-            repeat_view(std::forward<Value>(value));
-        }
+        constexpr auto operator()(Value&& value) const
+            noexcept(noexcept(repeat_view(std::forward<Value>(value))))
+                -> decltype(repeat_view(std::forward<Value>(value)))
         {
             return repeat_view(std::forward<Value>(value));
         }
 
         template <typename Value, typename Bound>
-        constexpr auto operator()(Value&& value, Bound&& bound) const noexcept(
-            noexcept(repeat_view(std::forward<Value>(value),
-                                 std::forward<Bound>(bound)))) requires requires
-        {
-            repeat_view(std::forward<Value>(value), std::forward<Bound>(bound));
-        }
+        constexpr auto operator()(Value&& value, Bound&& bound) const
+            noexcept(noexcept(repeat_view(std::forward<Value>(value),
+                                          std::forward<Bound>(bound))))
+                -> decltype(repeat_view(std::forward<Value>(value),
+                                        std::forward<Bound>(bound)))
         {
             return repeat_view(std::forward<Value>(value),
                                std::forward<Bound>(bound));

@@ -177,12 +177,11 @@ namespace views {
     class __chunk_by_fn {
     public:
         template <std::ranges::viewable_range Range, typename Pred>
-        constexpr auto operator()(Range&& range, Pred&& pred) const noexcept(
-            noexcept(chunk_by_view(std::forward<Range>(range),
-                                   std::forward<Pred>(pred)))) requires requires
-        {
-            chunk_by_view(std::forward<Range>(range), std::forward<Pred>(pred));
-        }
+        constexpr auto operator()(Range&& range, Pred&& pred) const
+            noexcept(noexcept(chunk_by_view(std::forward<Range>(range),
+                                            std::forward<Pred>(pred))))
+                -> decltype(chunk_by_view(std::forward<Range>(range),
+                                          std::forward<Pred>(pred)))
         {
             return chunk_by_view(std::forward<Range>(range),
                                  std::forward<Pred>(pred));

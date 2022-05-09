@@ -396,11 +396,8 @@ namespace views {
         constexpr auto
         operator()(Range&& range,
                    const std::ranges::range_difference_t<Range> n) const
-            noexcept(noexcept(slide_view(std::forward<Range>(range),
-                                         n))) requires requires
-        {
-            slide_view(std::forward<Range>(range), n);
-        }
+            noexcept(noexcept(slide_view(std::forward<Range>(range), n)))
+                -> decltype(slide_view(std::forward<Range>(range), n))
         {
             return slide_view(std::forward<Range>(range), n);
         }

@@ -198,11 +198,9 @@ namespace views {
     class __to_base64_fn : public range_adaptor_closure<__to_base64_fn> {
     public:
         template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const noexcept(noexcept(
-            to_base64_view(std::forward<Range>(range)))) requires requires
-        {
-            to_base64_view(std::forward<Range>(range));
-        }
+        constexpr auto operator()(Range&& range) const
+            noexcept(noexcept(to_base64_view(std::forward<Range>(range))))
+                -> decltype(to_base64_view(std::forward<Range>(range)))
         {
             return to_base64_view(std::forward<Range>(range));
         }
@@ -399,11 +397,9 @@ namespace views {
     class __from_base64_fn : public range_adaptor_closure<__from_base64_fn> {
     public:
         template <std::ranges::viewable_range Range>
-        constexpr auto operator()(Range&& range) const noexcept(noexcept(
-            from_base64_view(std::forward<Range>(range)))) requires requires
-        {
-            from_base64_view(std::forward<Range>(range));
-        }
+        constexpr auto operator()(Range&& range) const
+            noexcept(noexcept(from_base64_view(std::forward<Range>(range))))
+                -> decltype(from_base64_view(std::forward<Range>(range)))
         {
             return from_base64_view(std::forward<Range>(range));
         }

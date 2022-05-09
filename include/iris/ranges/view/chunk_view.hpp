@@ -619,11 +619,8 @@ namespace views {
         constexpr auto
         operator()(Range&& range,
                    const std::ranges::range_difference_t<Range> n) const
-            noexcept(noexcept(chunk_view(std::forward<Range>(range),
-                                         n))) requires requires
-        {
-            chunk_view(std::forward<Range>(range), n);
-        }
+            noexcept(noexcept(chunk_view(std::forward<Range>(range), n)))
+                -> decltype(chunk_view(std::forward<Range>(range), n))
         {
             return chunk_view(std::forward<Range>(range), n);
         }

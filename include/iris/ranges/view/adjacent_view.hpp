@@ -395,11 +395,9 @@ namespace views {
         template <std::ranges::viewable_range Range>
         constexpr auto operator()(Range&& range) const
             noexcept(noexcept(adjacent_view<std::views::all_t<Range&&>, N>(
-                std::forward<Range>(range)))) requires requires
-        {
-            adjacent_view<std::views::all_t<Range&&>, N>(
-                std::forward<Range>(range));
-        }
+                std::forward<Range>(range))))
+                -> decltype(adjacent_view<std::views::all_t<Range&&>, N>(
+                    std::forward<Range>(range)))
         {
             return adjacent_view<std::views::all_t<Range&&>, N>(
                 std::forward<Range>(range));

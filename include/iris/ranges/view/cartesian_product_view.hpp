@@ -558,6 +558,8 @@ namespace views {
         constexpr auto operator()(Ranges&&... ranges) const noexcept(
             noexcept(cartesian_product_view<std::views::all_t<Ranges&&>...>(
                 std::forward<Ranges>(ranges)...)))
+            -> decltype(cartesian_product_view<std::views::all_t<Ranges&&>...>(
+                std::forward<Ranges>(ranges)...))
         {
             return cartesian_product_view<std::views::all_t<Ranges&&>...>(
                 std::forward<Ranges>(ranges)...);
