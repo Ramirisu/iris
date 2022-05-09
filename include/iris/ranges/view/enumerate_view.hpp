@@ -138,8 +138,21 @@ public:
         using index_type = __enumerate_view_detail::__index_type_t<Base>;
 
     public:
-        using iterator_cateory = typename std::iterator_traits<
+        using iterator_category = typename std::iterator_traits<
             std::ranges::iterator_t<Base>>::iterator_category;
+        // clang-format off
+        using iterator_concept = 
+            std::conditional_t<
+                std::ranges::random_access_range<Base>, 
+                std::random_access_iterator_tag, 
+            std::conditional_t<
+                std::ranges::bidirectional_range<Base>, 
+                std::bidirectional_iterator_tag, 
+            std::conditional_t<
+                std::ranges::forward_range<Base>, 
+                std::forward_iterator_tag, 
+                std::input_iterator_tag>>>; // STRENGTHEN:
+        // clang-format on
         using value_type
             = std::tuple<index_type, std::ranges::range_value_t<Base>>;
         using reference
@@ -173,24 +186,22 @@ public:
             return reference { index_, *current_ };
         }
 
-        constexpr decltype(auto) operator++()
+        constexpr iterator& operator++()
         {
-            if constexpr (std::ranges::forward_range<Base>) {
-                ++current_;
-                ++index_;
-                return *this;
-            } else {
-                ++current_;
-                ++index_;
-            }
+            ++current_;
+            ++index_;
+            return *this;
         }
 
-        constexpr iterator operator++(int) //
-            requires std::ranges::forward_range<Base>
+        constexpr decltype(auto) operator++(int)
         {
-            auto tmp = *this;
-            ++*this;
-            return tmp;
+            if constexpr (std::ranges::forward_range<Base>) {
+                auto tmp = *this;
+                ++*this;
+                return tmp;
+            } else {
+                ++*this;
+            }
         }
 
         constexpr iterator& operator--() //

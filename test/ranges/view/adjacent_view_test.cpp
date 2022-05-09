@@ -36,6 +36,10 @@ TEST_CASE("forward_range")
     static const auto input = std::forward_list { 0, 1, 2, 3, 4 };
     auto view = input | views::adjacent<3>;
     using view_type = decltype(view);
+    static_assert(
+        std::same_as<typename std::iterator_traits<
+                         std::ranges::iterator_t<view_type>>::iterator_category,
+                     std::input_iterator_tag>);
     static_assert(std::same_as<
                   typename std::ranges::iterator_t<view_type>::iterator_concept,
                   std::forward_iterator_tag>);
@@ -51,6 +55,10 @@ TEST_CASE("bidirectional_range")
     static const auto input = std::list { 0, 1, 2, 3, 4 };
     auto view = input | views::adjacent<3>;
     using view_type = decltype(view);
+    static_assert(
+        std::same_as<typename std::iterator_traits<
+                         std::ranges::iterator_t<view_type>>::iterator_category,
+                     std::input_iterator_tag>);
     static_assert(std::same_as<
                   typename std::ranges::iterator_t<view_type>::iterator_concept,
                   std::bidirectional_iterator_tag>);
@@ -70,6 +78,10 @@ TEST_CASE("random_access_range")
     static const int input[] = { 0, 1, 2, 3, 4 };
     auto view = input | views::adjacent<3>;
     using view_type = decltype(view);
+    static_assert(
+        std::same_as<typename std::iterator_traits<
+                         std::ranges::iterator_t<view_type>>::iterator_category,
+                     std::input_iterator_tag>);
     static_assert(std::same_as<
                   typename std::ranges::iterator_t<view_type>::iterator_concept,
                   std::random_access_iterator_tag>);

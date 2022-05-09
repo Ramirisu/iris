@@ -402,9 +402,7 @@ namespace views {
 
         template <typename Fn, std::ranges::viewable_range... Ranges>
             requires(pack_size_v<Ranges...> > 0)
-        constexpr auto operator()(Fn&& fn, Ranges&&... ranges) const noexcept(
-            noexcept(zip_transform_view<Fn, std::views::all_t<Ranges&&>...>(
-                std::forward<Fn>(fn), std::forward<Ranges>(ranges)...)))
+        constexpr auto operator()(Fn&& fn, Ranges&&... ranges) const
         {
             return zip_transform_view<Fn, std::views::all_t<Ranges&&>...>(
                 std::forward<Fn>(fn), std::forward<Ranges>(ranges)...);
