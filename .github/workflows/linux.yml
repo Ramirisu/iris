@@ -12,8 +12,8 @@ jobs:
     strategy:
       matrix:
         cxx: [g++-11]
-        std: [20]
-        build_type: [Debug]
+        std: [20, 23]
+        build_type: [Debug, Release]
 
     steps:
     - uses: actions/checkout@v2
