@@ -83,15 +83,24 @@ namespace views {
     class __as_rvalue_fn : public range_adaptor_closure<__as_rvalue_fn> {
     public:
         template <std::ranges::viewable_range Range>
+            requires std::same_as<std::ranges::range_rvalue_reference_t<Range>,
+                                  std::ranges::range_reference_t<Range>>
         constexpr auto operator()(Range&& range) const
+            noexcept(noexcept(std::views::all(std::forward<Range>(range))))
+                -> decltype(std::views::all(std::forward<Range>(range)))
         {
-            if constexpr (std::same_as<
-                              std::ranges::range_rvalue_reference_t<Range>,
-                              std::ranges::range_reference_t<Range>>) {
-                return std::views::all(std::forward<Range>(range));
-            } else {
-                return as_rvalue_view(std::forward<Range>(range));
-            }
+            return std::views::all(std::forward<Range>(range));
+        }
+
+        template <std::ranges::viewable_range Range>
+            requires(!std::same_as<std::ranges::range_rvalue_reference_t<Range>,
+                                   std::ranges::range_reference_t<Range>>)
+        constexpr auto operator()(Range&& range) const
+            noexcept(noexcept(as_rvalue_view(std::forward<Range>(range))))
+                -> decltype(as_rvalue_view(std::forward<Range>(range)))
+        {
+
+            return as_rvalue_view(std::forward<Range>(range));
         }
     };
 

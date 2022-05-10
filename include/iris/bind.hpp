@@ -21,51 +21,51 @@ namespace __bind_detail {
         }
 
         template <typename... CallArgs>
+            requires std::invocable<Fn&, CallArgs..., Args&...>
         constexpr auto operator()(CallArgs&&... args) &
         {
             return std::apply(
-                [&](auto&&... bound) {
-                    return std::invoke(fn_,
-                                       std::forward<decltype(bound)>(bound)...,
+                [&](auto&... bound) {
+                    return std::invoke(fn_, bound...,
                                        std::forward<CallArgs>(args)...);
                 },
                 bound_);
         }
 
         template <typename... CallArgs>
+            requires std::invocable<Fn&, CallArgs..., const Args&...>
         constexpr auto operator()(CallArgs&&... args) const&
         {
             return std::apply(
-                [&](auto&&... bound) {
-                    return std::invoke(fn_,
-                                       std::forward<decltype(bound)>(bound)...,
+                [&](const auto&... bound) {
+                    return std::invoke(fn_, bound...,
                                        std::forward<CallArgs>(args)...);
                 },
                 bound_);
         }
 
         template <typename... CallArgs>
+            requires std::invocable<Fn, CallArgs..., Args...>
         constexpr auto operator()(CallArgs&&... args) &&
         {
             return std::apply(
-                [&](auto&&... bound) {
-                    return std::invoke(std::move(fn_),
-                                       std::forward<decltype(bound)>(bound)...,
+                [&](auto&... bound) {
+                    return std::invoke(std::move(fn_), std::move(bound)...,
                                        std::forward<CallArgs>(args)...);
                 },
-                std::move(bound_));
+                bound_);
         }
 
         template <typename... CallArgs>
+            requires std::invocable<Fn, CallArgs..., const Args...>
         constexpr auto operator()(CallArgs&&... args) const&&
         {
             return std::apply(
-                [&](auto&&... bound) {
-                    return std::invoke(std::move(fn_),
-                                       std::forward<decltype(bound)>(bound)...,
+                [&](const auto&... bound) {
+                    return std::invoke(std::move(fn_), std::move(bound)...,
                                        std::forward<CallArgs>(args)...);
                 },
-                std::move(bound_));
+                bound_);
         }
 
     private:
@@ -85,49 +85,53 @@ namespace __bind_detail {
         }
 
         template <typename... CallArgs>
+            requires std::invocable<Fn&, CallArgs..., Args&...>
         constexpr auto operator()(CallArgs&&... args) &
         {
             return std::apply(
-                [&](auto&&... bound) {
+                [&](auto&... bound) {
                     return std::invoke(fn_, std::forward<CallArgs>(args)...,
-                                       std::forward<decltype(bound)>(bound)...);
+                                       bound...);
                 },
                 bound_);
         }
 
         template <typename... CallArgs>
+            requires std::invocable<Fn&, CallArgs..., const Args&...>
         constexpr auto operator()(CallArgs&&... args) const&
         {
             return std::apply(
-                [&](auto&&... bound) {
+                [&](const auto&... bound) {
                     return std::invoke(fn_, std::forward<CallArgs>(args)...,
-                                       std::forward<decltype(bound)>(bound)...);
+                                       bound...);
                 },
                 bound_);
         }
 
         template <typename... CallArgs>
+            requires std::invocable<Fn, CallArgs..., Args...>
         constexpr auto operator()(CallArgs&&... args) &&
         {
             return std::apply(
-                [&](auto&&... bound) {
+                [&](auto&... bound) {
                     return std::invoke(std::move(fn_),
                                        std::forward<CallArgs>(args)...,
-                                       std::forward<decltype(bound)>(bound)...);
+                                       std::move(bound)...);
                 },
-                std::move(bound_));
+                bound_);
         }
 
         template <typename... CallArgs>
+            requires std::invocable<Fn, CallArgs..., const Args...>
         constexpr auto operator()(CallArgs&&... args) const&&
         {
             return std::apply(
-                [&](auto&&... bound) {
+                [&](const auto&... bound) {
                     return std::invoke(std::move(fn_),
                                        std::forward<CallArgs>(args)...,
-                                       std::forward<decltype(bound)>(bound)...);
+                                       std::move(bound)...);
                 },
-                std::move(bound_));
+                bound_);
         }
 
     private:

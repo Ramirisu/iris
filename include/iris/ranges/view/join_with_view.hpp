@@ -137,66 +137,6 @@ public:
 
         static constexpr bool ref_is_glvalue = std::is_reference_v<InnerBase>;
 
-        constexpr iterator(Parent& parent,
-                           std::ranges::iterator_t<View> outer_it)
-            : parent_(std::addressof(parent))
-            , outer_it_(std::move(outer_it))
-        {
-            if (outer_it_ != std::ranges::end(parent_->base_)) {
-                auto&& inner = update_inner(outer_it_);
-                inner_it_.template emplace<1>(std::ranges::begin(inner));
-                satisfy();
-            }
-        }
-
-        constexpr auto&& update_inner(const OuterIter& outer)
-        {
-            if constexpr (ref_is_glvalue) {
-                return *outer;
-            } else {
-                return parent_->inner_.emplace(*outer);
-            }
-        }
-
-        constexpr auto&& get_inner(const OuterIter& outer)
-        {
-            if constexpr (ref_is_glvalue) {
-                return *outer;
-            } else {
-                return *parent_->inner_;
-            }
-        }
-
-        constexpr void satisfy()
-        {
-            while (true) {
-                if (inner_it_.index() == 0) {
-                    if (std::get<0>(inner_it_)
-                        != std::ranges::end(parent_->pattern_)) {
-                        break;
-                    }
-
-                    auto&& inner = update_inner(outer_it_);
-                    inner_it_.template emplace<1>(std::ranges::begin(inner));
-                } else {
-                    auto&& inner = get_inner(outer_it_);
-                    if (std::get<1>(inner_it_) != std::ranges::end(inner)) {
-                        break;
-                    }
-
-                    if (++outer_it_ == std::ranges::end(parent_->base_)) {
-                        if constexpr (ref_is_glvalue) {
-                            inner_it_.template emplace<0>();
-                        }
-                        break;
-                    }
-
-                    inner_it_.template emplace<0>(
-                        std::ranges::begin(parent_->pattern_));
-                }
-            }
-        }
-
     public:
         // clang-format off
         using iterator_concept = std::conditional_t<
@@ -255,18 +195,17 @@ public:
             return *this;
         }
 
-        constexpr void operator++(int)
+        constexpr decltype(auto) operator++(int)
         {
-            ++*this;
-        }
-
-        constexpr iterator operator++(int) requires ref_is_glvalue
-            && std::forward_iterator<OuterIter> && std::forward_iterator<
-                InnerIter>
-        {
-            iterator tmp = *this;
-            ++*this;
-            return tmp;
+            if constexpr (ref_is_glvalue
+                          && std::forward_iterator<
+                              OuterIter> && std::forward_iterator<InnerIter>) {
+                auto tmp = *this;
+                ++*this;
+                return tmp;
+            } else {
+                ++*this;
+            }
         }
 
         constexpr iterator& operator--()
@@ -279,7 +218,7 @@ public:
         {
             if (outer_it_ == std::ranges::end(parent_->base_)) {
                 auto&& inner = *--outer_it_;
-                inner_it_.emplace<1>(std::ranges::end(inner));
+                inner_it_.template emplace<1>(std::ranges::end(inner));
             }
 
             while (true) {
@@ -287,7 +226,7 @@ public:
                     auto& it = std::get<0>(inner_it_);
                     if (it == std::ranges::begin(parent_->pattern_)) {
                         auto&& inner = *--outer_it_;
-                        inner_it_.emplace<1>(std::ranges::end(inner));
+                        inner_it_.template emplace<1>(std::ranges::end(inner));
                     } else {
                         break;
                     }
@@ -295,7 +234,7 @@ public:
                     auto& it = std::get<1>(inner_it_);
                     auto&& inner = *outer_it_;
                     if (it == std::ranges::begin(inner)) {
-                        inner_it_.emplace<0>(
+                        inner_it_.template emplace<0>(
                             std::ranges::end(parent_->pattern_));
                     } else {
                         break;
@@ -315,7 +254,7 @@ public:
                 && __join_with_view_detail::__bidirectional_common<PatternBase>
         // clang-format on
         {
-            iterator tmp = *this;
+            auto tmp = *this;
             --*this;
             return tmp;
         }
@@ -354,6 +293,66 @@ public:
         }
 
     private:
+        constexpr iterator(Parent& parent,
+                           std::ranges::iterator_t<View> outer_it)
+            : parent_(std::addressof(parent))
+            , outer_it_(std::move(outer_it))
+        {
+            if (outer_it_ != std::ranges::end(parent_->base_)) {
+                auto&& inner = update_inner(outer_it_);
+                inner_it_.template emplace<1>(std::ranges::begin(inner));
+                satisfy();
+            }
+        }
+
+        constexpr auto&& update_inner(const OuterIter& outer)
+        {
+            if constexpr (ref_is_glvalue) {
+                return *outer;
+            } else {
+                return parent_->inner_.emplace(*outer);
+            }
+        }
+
+        constexpr auto&& get_inner(const OuterIter& outer)
+        {
+            if constexpr (ref_is_glvalue) {
+                return *outer;
+            } else {
+                return *parent_->inner_;
+            }
+        }
+
+        constexpr void satisfy()
+        {
+            while (true) {
+                if (inner_it_.index() == 0) {
+                    if (std::get<0>(inner_it_)
+                        != std::ranges::end(parent_->pattern_)) {
+                        break;
+                    }
+
+                    auto&& inner = update_inner(outer_it_);
+                    inner_it_.template emplace<1>(std::ranges::begin(inner));
+                } else {
+                    auto&& inner = get_inner(outer_it_);
+                    if (std::get<1>(inner_it_) != std::ranges::end(inner)) {
+                        break;
+                    }
+
+                    if (++outer_it_ == std::ranges::end(parent_->base_)) {
+                        if constexpr (ref_is_glvalue) {
+                            inner_it_ = {};
+                        }
+                        break;
+                    }
+
+                    inner_it_.template emplace<0>(
+                        std::ranges::begin(parent_->pattern_));
+                }
+            }
+        }
+
         Parent* parent_ {};
         OuterIter outer_it_ {};
         std::variant<PatternIter, InnerIter> inner_it_ {};
