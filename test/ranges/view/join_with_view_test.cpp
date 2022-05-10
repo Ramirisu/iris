@@ -15,13 +15,7 @@ TEST_CASE("forward_range")
         { 0, 1 }, { 2 }, {}, { 3, 4, 5 }
     };
     static const auto pattern = std::forward_list { 8, 9 };
-#if defined(_MSC_VER) || defined(__GNUC__) && __GNUC >= 12
-    // requires owning_view to be implemented
-    // or obtain a dangling reference to the pattern parameter...
     auto view = input | views::join_with(pattern);
-#else
-    auto view = views::join_with(input, pattern);
-#endif
     using view_type = decltype(view);
     static_assert(
         std::same_as<typename std::iterator_traits<
@@ -51,13 +45,7 @@ TEST_CASE("bidirectional_range")
     static const auto input
         = std::list<std::list<int>> { { 0, 1 }, { 2 }, {}, { 3, 4, 5 } };
     static const auto pattern = std::list { 8, 9 };
-#if defined(_MSC_VER) || defined(__GNUC__) && __GNUC >= 12
-    // requires owning_view to be implemented
-    // or obtain a dangling reference to the pattern parameter...
     auto view = input | views::join_with(pattern);
-#else
-    auto view = views::join_with(input, pattern);
-#endif
     using view_type = decltype(view);
     static_assert(
         std::same_as<typename std::iterator_traits<
@@ -100,26 +88,16 @@ TEST_CASE("glvalue inner range")
     static const auto expected = std::string_view("the-quick-brown-fox");
     static const auto pattern = std::string_view("-");
     std::vector<std::string> range = { "the", "quick", "brown", "fox" };
-#if defined(_MSC_VER) || defined(__GNUC__) && __GNUC >= 12
     CHECK(std::ranges::equal(range | views::join_with(pattern), expected));
-#else
-    CHECK(std::ranges::equal(views::join_with(range, pattern), expected));
-#endif
 }
 
 TEST_CASE("non-glvalue inner range")
 {
     static const auto expected = std::string_view("the-quick-brown-fox");
     static const auto pattern = std::string_view("-");
-#if defined(_MSC_VER) || defined(__GNUC__) && __GNUC >= 12
     CHECK(std::ranges::equal(expected | std::views::split(pattern)
                                  | views::join_with(pattern),
                              expected));
-#else
-    CHECK(std::ranges::equal(
-        views::join_with(expected | std::views::split(pattern), pattern),
-        expected));
-#endif
 }
 
 TEST_SUITE_END();
