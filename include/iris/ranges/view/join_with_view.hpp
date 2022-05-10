@@ -521,6 +521,9 @@ namespace views {
                                   std::forward<Pattern>(pattern));
         }
 
+#if defined(_MSC_VER) || defined(__GNUC__) && __GNUC >= 12
+        // requires owning_view to be implemented
+        // or obtain a dangling reference to the pattern parameter...
         template <typename Pattern>
         constexpr auto operator()(Pattern&& pattern) const
             noexcept(std::is_nothrow_constructible_v<std::decay_t<Pattern>,
@@ -530,11 +533,11 @@ namespace views {
             return range_adaptor_closure(
                 bind_back(*this, std::forward<Pattern>(pattern)));
         }
+#endif
     };
 
     inline constexpr __join_with_fn join_with {};
 }
-
 }
 
 namespace iris {
