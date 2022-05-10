@@ -22,7 +22,8 @@ namespace __bind_detail {
 
         template <typename... CallArgs>
             requires std::invocable<Fn&, CallArgs..., Args&...>
-        constexpr auto operator()(CallArgs&&... args) &
+        constexpr auto operator()(CallArgs&&... args) & noexcept(
+            std::is_nothrow_invocable_v<Fn&, Args&..., CallArgs...>)
         {
             return std::apply(
                 [&](auto&... bound) {
@@ -33,8 +34,9 @@ namespace __bind_detail {
         }
 
         template <typename... CallArgs>
-            requires std::invocable<Fn&, CallArgs..., const Args&...>
-        constexpr auto operator()(CallArgs&&... args) const&
+            requires std::invocable<const Fn&, CallArgs..., const Args&...>
+        constexpr auto operator()(CallArgs&&... args) const& noexcept(
+            std::is_nothrow_invocable_v<const Fn&, const Args&..., CallArgs...>)
         {
             return std::apply(
                 [&](const auto&... bound) {
@@ -46,7 +48,8 @@ namespace __bind_detail {
 
         template <typename... CallArgs>
             requires std::invocable<Fn, CallArgs..., Args...>
-        constexpr auto operator()(CallArgs&&... args) &&
+        constexpr auto operator()(CallArgs&&... args) && noexcept(
+            std::is_nothrow_invocable_v<Fn, Args..., CallArgs...>)
         {
             return std::apply(
                 [&](auto&... bound) {
@@ -57,8 +60,9 @@ namespace __bind_detail {
         }
 
         template <typename... CallArgs>
-            requires std::invocable<Fn, CallArgs..., const Args...>
-        constexpr auto operator()(CallArgs&&... args) const&&
+            requires std::invocable<const Fn, CallArgs..., const Args...>
+        constexpr auto operator()(CallArgs&&... args) const&& noexcept(
+            std::is_nothrow_invocable_v<const Fn, const Args..., CallArgs...>)
         {
             return std::apply(
                 [&](const auto&... bound) {
@@ -86,7 +90,8 @@ namespace __bind_detail {
 
         template <typename... CallArgs>
             requires std::invocable<Fn&, CallArgs..., Args&...>
-        constexpr auto operator()(CallArgs&&... args) &
+        constexpr auto operator()(CallArgs&&... args) & noexcept(
+            std::is_nothrow_invocable_v<Fn&, CallArgs..., Args&...>)
         {
             return std::apply(
                 [&](auto&... bound) {
@@ -97,8 +102,9 @@ namespace __bind_detail {
         }
 
         template <typename... CallArgs>
-            requires std::invocable<Fn&, CallArgs..., const Args&...>
-        constexpr auto operator()(CallArgs&&... args) const&
+            requires std::invocable<const Fn&, CallArgs..., const Args&...>
+        constexpr auto operator()(CallArgs&&... args) const& noexcept(
+            std::is_nothrow_invocable_v<const Fn&, CallArgs..., const Args&...>)
         {
             return std::apply(
                 [&](const auto&... bound) {
@@ -110,7 +116,8 @@ namespace __bind_detail {
 
         template <typename... CallArgs>
             requires std::invocable<Fn, CallArgs..., Args...>
-        constexpr auto operator()(CallArgs&&... args) &&
+        constexpr auto operator()(CallArgs&&... args) && noexcept(
+            std::is_nothrow_invocable_v<Fn, CallArgs..., Args...>)
         {
             return std::apply(
                 [&](auto&... bound) {
@@ -122,8 +129,9 @@ namespace __bind_detail {
         }
 
         template <typename... CallArgs>
-            requires std::invocable<Fn, CallArgs..., const Args...>
-        constexpr auto operator()(CallArgs&&... args) const&&
+            requires std::invocable<const Fn, CallArgs..., const Args...>
+        constexpr auto operator()(CallArgs&&... args) const&& noexcept(
+            std::is_nothrow_invocable_v<const Fn, CallArgs..., const Args...>)
         {
             return std::apply(
                 [&](const auto&... bound) {
