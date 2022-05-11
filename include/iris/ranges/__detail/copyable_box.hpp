@@ -16,9 +16,15 @@ public:
         : __copyable_box { std::in_place }
     {
     }
+    template <typename T2>
+        requires(!std::same_as<std::remove_cvref_t<T2>, __copyable_box>)
+    constexpr __copyable_box(T2&& value)
+        : std::optional<T>(std::forward<T2>(value))
+    {
+    }
 
     template <typename... Args>
-    __copyable_box(std::in_place_t, Args&&... args)
+    constexpr __copyable_box(std::in_place_t, Args&&... args)
         : std::optional<T>(std::in_place, std::forward<Args>(args)...)
     {
     }

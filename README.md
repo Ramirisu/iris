@@ -39,6 +39,7 @@ target_link_libraries(main PRIVATE iris)
   * `ranges::cartesian_product_view<Ranges...>` ([P2374R3](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2374r3.html))
   * `ranges::enumerate_view<Range>` ([P2164R5](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2164r5.pdf))
   * `ranges::concat_view<Ranges...>` ([P2542R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2542r1.html))
+  * `ranges::maybe_view<Nullable>` ([P1255R7](http://isocpp.org/files/papers/P1255R7.html))
   * `ranges::unwrap_view<Range>`
   * `ranges::to_base64_view<Range, Binary, Text>`
   * `ranges::from_base64_view<Range, Binary, Text>`
@@ -61,6 +62,7 @@ target_link_libraries(main PRIVATE iris)
   * `views::cartesian_product` ([P2374R3](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2374r3.html))
   * `views::enumerate` ([P2164R5](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2021/p2164r5.pdf))
   * `views::concat` ([P2542R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2542r1.html))
+  * `views::maybe` ([P1255R7](http://isocpp.org/files/papers/P1255R7.html))
   * `views::unwrap`
   * `views::to_base64`
   * `views::from_base64`
