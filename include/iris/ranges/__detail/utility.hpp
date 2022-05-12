@@ -98,10 +98,15 @@ using __invoke_result_repeat_n_t =
     typename __invoke_result_repeat_n<Fn, T, N>::type;
 
 template <typename T>
-constexpr T __div_ceil(T num, T denom)
+constexpr T __div_ceil(T num, T denom) noexcept
 {
     IRIS_ASSERT(denom > 0);
-    return (num + denom - 1) / denom;
+    T r = num / denom;
+    if (num % denom) {
+        ++r;
+    }
+
+    return r;
 }
 
 template <typename... Ts>
