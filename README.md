@@ -21,6 +21,7 @@ target_link_libraries(main PRIVATE iris)
 * Visual Studio 2022 17.1 (`/std:latest`)
 * Visual Studio 2022 17.2 (`/std:c++20`)
 * GCC 11.2 (`-std=c++20`)
+* GCC 12.x (`-std=c++20`)
 
 ## Features
 
@@ -115,10 +116,10 @@ target_link_libraries(main PRIVATE iris)
 
 CMake
 
-|      Options       |   Description    | Value  |
-| :----------------: | :--------------: | :----: |
-| IRIS_BUILD_EXAMPLE |  Build examples  | ON/OFF |
-| IRIS_BUILD_TESTING | Build unit tests | ON/OFF |
+| Options            | Description      | Value  | Default |
+| :----------------- | :--------------- | :----: | :-----: |
+| IRIS_BUILD_EXAMPLE | Build examples   | ON/OFF |   OFF   |
+| IRIS_BUILD_TESTING | Build unit tests | ON/OFF |   OFF   |
 
 ```sh
 cd iris/
