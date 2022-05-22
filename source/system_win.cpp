@@ -1,9 +1,9 @@
 #include <iris/system.hpp>
 
+#include <iris/__detail/__win32/windows.hpp>
 #include <iris/ranges/to.hpp>
 #include <iris/ranges/view/unwrap_view.hpp>
 #include <iris/ranges/view/utf_view.hpp>
-#include <iris/win32/win32.hpp>
 
 #include <ranges>
 
