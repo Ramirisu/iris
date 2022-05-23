@@ -5,36 +5,37 @@
 #include <iris/__detail/static_storage.hpp>
 #include <iris/expected.hpp>
 
-namespace iris {
+namespace iris::__detail {
 
-enum class base64_error {
+enum class __base64_error {
     eof = 1,
     incomplete,
     illegal_character,
 };
 
 template <typename T, std::size_t N>
-using base64_result = __detail::__static_storage<T, N>;
+using __base64_result = __static_storage<T, N>;
 
 template <typename Binary, typename Text>
     requires(sizeof(Binary) == sizeof(std::uint8_t)
              && sizeof(Text) == sizeof(std::uint8_t))
-class base64 {
+class __base64 {
 public:
-    using text_result_type = expected<base64_result<Text, 4>, base64_error>;
-    using binary_result_type = expected<base64_result<Binary, 3>, base64_error>;
+    using text_result_type = expected<__base64_result<Text, 4>, __base64_error>;
+    using binary_result_type
+        = expected<__base64_result<Binary, 3>, __base64_error>;
 
     template <std::input_iterator I, std::sentinel_for<I> S>
-    static constexpr expected<base64_result<Text, 4>, base64_error>
-    encode(I& first, const S& last) noexcept
+    static constexpr expected<__base64_result<Text, 4>, __base64_error>
+    encode_next(I& first, const S& last) noexcept
     {
         if (first == last) {
-            return unexpected(base64_error::eof);
+            return unexpected(__base64_error::eof);
         }
 
         std::uint32_t b = *first++ << 16;
         if (first == last) {
-            return base64_result<Text, 4> {
+            return __base64_result<Text, 4> {
                 encode_table_[(b >> 18)],
                 encode_table_[(b >> 12) & 0x3f],
                 61,
@@ -43,7 +44,7 @@ public:
         }
         b |= *first++ << 8;
         if (first == last) {
-            return base64_result<Text, 4> {
+            return __base64_result<Text, 4> {
                 encode_table_[(b >> 18)],
                 encode_table_[(b >> 12) & 0x3f],
                 encode_table_[(b >> 6) & 0x3f],
@@ -51,7 +52,7 @@ public:
             };
         }
         b |= *first++;
-        return base64_result<Text, 4> {
+        return __base64_result<Text, 4> {
             encode_table_[(b >> 18)],
             encode_table_[(b >> 12) & 0x3f],
             encode_table_[(b >> 6) & 0x3f],
@@ -60,50 +61,50 @@ public:
     }
 
     template <std::input_iterator I, std::sentinel_for<I> S>
-    static constexpr expected<base64_result<Binary, 3>, base64_error>
-    decode(I& first, const S& last) noexcept
+    static constexpr expected<__base64_result<Binary, 3>, __base64_error>
+    decode_next(I& first, const S& last) noexcept
     {
         if (first == last) {
-            return unexpected(base64_error::eof);
+            return unexpected(__base64_error::eof);
         }
 
         std::uint8_t b0 = decode_table_[std::uint8_t(*first++)];
         if (b0 == eq || b0 == err) {
-            return unexpected(base64_error::illegal_character);
+            return unexpected(__base64_error::illegal_character);
         }
         if (first == last) {
-            return unexpected(base64_error::incomplete);
+            return unexpected(__base64_error::incomplete);
         }
         std::uint8_t b1 = decode_table_[std::uint8_t(*first++)];
         if (b1 == eq || b1 == err) {
-            return unexpected(base64_error::illegal_character);
+            return unexpected(__base64_error::illegal_character);
         }
         if (first == last) {
-            return unexpected(base64_error::incomplete);
+            return unexpected(__base64_error::incomplete);
         }
         std::uint8_t b2 = decode_table_[std::uint8_t(*first++)];
         if (b2 == err) {
-            return unexpected(base64_error::illegal_character);
+            return unexpected(__base64_error::illegal_character);
         }
         if (first == last) {
-            return unexpected(base64_error::incomplete);
+            return unexpected(__base64_error::incomplete);
         }
         std::uint8_t b3 = decode_table_[std::uint8_t(*first++)];
         if (b3 == err) {
-            return unexpected(base64_error::illegal_character);
+            return unexpected(__base64_error::illegal_character);
         }
 
         if (b2 != eq && b3 != eq) {
-            return base64_result<Binary, 3> { (b0 << 2) | (b1 >> 4),
-                                              (b1 & 0xf) << 4 | (b2 >> 2),
-                                              (b2 & 0x3) << 6 | b3 };
+            return __base64_result<Binary, 3> { (b0 << 2) | (b1 >> 4),
+                                                (b1 & 0xf) << 4 | (b2 >> 2),
+                                                (b2 & 0x3) << 6 | b3 };
         } else if (b2 != eq && b3 == eq) {
-            return base64_result<Binary, 3> { (b0 << 2) | (b1 >> 4),
-                                              (b1 & 0xf) << 4 | (b2 >> 2) };
+            return __base64_result<Binary, 3> { (b0 << 2) | (b1 >> 4),
+                                                (b1 & 0xf) << 4 | (b2 >> 2) };
         } else if (b2 == eq && b3 == eq) {
-            return base64_result<Binary, 3> { (b0 << 2) | (b1 >> 4) };
+            return __base64_result<Binary, 3> { (b0 << 2) | (b1 >> 4) };
         }
-        return unexpected(base64_error::illegal_character);
+        return unexpected(__base64_error::illegal_character);
     }
 
 private:

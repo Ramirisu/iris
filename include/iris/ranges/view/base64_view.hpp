@@ -2,10 +2,12 @@
 
 #include <iris/config.hpp>
 
-#include <iris/base64.hpp>
+#include <iris/__detail/base64.hpp>
 #include <iris/expected.hpp>
 #include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
+
+#include <system_error>
 
 namespace iris::ranges {
 
@@ -20,7 +22,7 @@ public:
 
         using Parent = __detail::__maybe_const<Const, to_base64_view>;
         using Base = __detail::__maybe_const<Const, View>;
-        using encoder = base64<Binary, Text>;
+        using Base64 = iris::__detail::__base64<Binary, Text>;
 
     public:
         using iterator_concept
@@ -83,7 +85,8 @@ public:
 
         constexpr bool operator==(std::default_sentinel_t) const
         {
-            return !result_ && result_.error() == base64_error::eof;
+            return !result_
+                && result_.error() == iris::__detail::__base64_error::eof;
         }
 
         friend constexpr bool operator==(const iterator& lhs,
@@ -104,13 +107,14 @@ public:
 
         void next()
         {
-            result_ = encoder::encode(curr_, std::ranges::end(parent_->base_));
+            result_
+                = Base64::encode_next(curr_, std::ranges::end(parent_->base_));
             offset_ = 0;
         }
 
         Parent* parent_ {};
         std::ranges::iterator_t<Base> curr_ {};
-        encoder::text_result_type result_ {};
+        Base64::text_result_type result_ {};
         std::size_t offset_ {};
     };
 
@@ -220,7 +224,7 @@ public:
 
         using Parent = __detail::__maybe_const<Const, from_base64_view>;
         using Base = __detail::__maybe_const<Const, View>;
-        using encoder = base64<Binary, Text>;
+        using Base64 = iris::__detail::__base64<Binary, Text>;
 
     public:
         using iterator_concept
@@ -234,7 +238,7 @@ public:
                 std::forward_iterator_tag>,
             std::forward_iterator_tag,
             std::input_iterator_tag>;
-        using value_type = expected<Binary, base64_error>;
+        using value_type = expected<Binary, std::error_code>;
         using reference = value_type&;
         using difference_type = std::ranges::range_difference_t<Base>;
 
@@ -284,12 +288,14 @@ public:
 
         constexpr bool operator==(std::default_sentinel_t) const
         {
-            return !value_ && value_.error() == base64_error::eof;
+            return !value_
+                && result_.error() == iris::__detail::__base64_error::eof;
         }
 
         friend constexpr bool operator==(const iterator& lhs,
                                          const iterator& rhs)
         {
+            IRIS_ASSERT(lhs.parent_ == rhs.parent_);
             return lhs.curr_ == rhs.curr_ && lhs.result_ == rhs.result_
                 && lhs.offset_ == rhs.offset_;
         }
@@ -306,7 +312,8 @@ public:
 
         void next()
         {
-            result_ = encoder::decode(curr_, std::ranges::end(parent_->base_));
+            result_
+                = Base64::decode_next(curr_, std::ranges::end(parent_->base_));
             offset_ = 0;
         }
 
@@ -315,13 +322,14 @@ public:
             if (result_) {
                 value_ = result_.value()[offset_];
             } else {
-                value_ = unexpected(result_.error());
+                value_ = unexpected(
+                    std::make_error_code(std::errc::illegal_byte_sequence));
             }
         }
 
         Parent* parent_ {};
         std::ranges::iterator_t<Base> curr_ {};
-        encoder::binary_result_type result_ {};
+        Base64::binary_result_type result_ {};
         std::size_t offset_ {};
         value_type value_;
     };

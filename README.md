@@ -90,7 +90,6 @@ target_link_libraries(main PRIVATE iris)
   * `generator<R, V, Allocator>` ([P2502R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2502r1.pdf))
   * `lazy<T>` ([P2506R0](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2022/p2506r0.pdf))
 * Encoding
-  * `base64<Binary, Text>`
   * `utf<Unicode, UTF>`
 * Type Traits
   * `is_scoped_enum` ([P1048R1](http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2020/p1048r1.pdf))

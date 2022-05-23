@@ -1,8 +1,8 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/base64.hpp>
+#include <iris/__detail/base64.hpp>
 
-using namespace iris;
+using namespace iris::__detail;
 
 TEST_SUITE_BEGIN("base64");
 
@@ -28,7 +28,7 @@ void test_base64_encode(InputRange input, ExpectedRange exp)
     auto last = std::ranges::end(input);
     auto iter = std::ranges::begin(exp);
     while (first != last) {
-        auto result = base64<Binary, Text>::encode(first, last);
+        auto result = __base64<Binary, Text>::encode_next(first, last);
         CHECK(result);
         const auto& value = result.value();
         for (std::size_t i = 0; i < value.size(); ++i) {
@@ -47,7 +47,7 @@ void test_base64_decode(InputRange input, ExpectedRange exp)
     auto last = std::ranges::end(input);
     auto iter = std::ranges::begin(exp);
     while (first != last) {
-        auto result = base64<Binary, Text>::decode(first, last);
+        auto result = __base64<Binary, Text>::decode_next(first, last);
         CHECK(result);
         const auto& value = result.value();
         for (std::size_t i = 0; i < value.size(); ++i) {
