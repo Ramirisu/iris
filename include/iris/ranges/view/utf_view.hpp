@@ -2,10 +2,12 @@
 
 #include <iris/config.hpp>
 
+#include <iris/__detail/utf.hpp>
 #include <iris/expected.hpp>
 #include <iris/ranges/__detail/utility.hpp>
 #include <iris/ranges/range_adaptor_closure.hpp>
-#include <iris/utf.hpp>
+
+#include <system_error>
 
 namespace iris::ranges {
 
@@ -20,7 +22,7 @@ public:
 
         using Parent = __detail::__maybe_const<Const, to_utf_view>;
         using Base = __detail::__maybe_const<Const, View>;
-        using encoder = utf<Unicode, UTF>;
+        using Utf = iris::__detail::__utf<Unicode, UTF>;
 
     public:
         using iterator_concept
@@ -34,7 +36,7 @@ public:
                 std::forward_iterator_tag>,
             std::forward_iterator_tag,
             std::input_iterator_tag>;
-        using value_type = expected<UTF, utf_error>;
+        using value_type = expected<UTF, std::error_code>;
         using reference = value_type&;
         using difference_type = std::ranges::range_difference_t<Base>;
 
@@ -84,7 +86,8 @@ public:
 
         constexpr bool operator==(std::default_sentinel_t) const
         {
-            return !value_ && value_.error() == utf_error::eof;
+            return !value_
+                && result_.error() == iris::__detail::__utf_error::eof;
         }
 
         friend constexpr bool operator==(const iterator& lhs,
@@ -105,7 +108,7 @@ public:
 
         void next()
         {
-            result_ = encoder::encode(curr_, std::ranges::end(parent_->base_));
+            result_ = Utf::encode_next(curr_, std::ranges::end(parent_->base_));
             offset_ = 0;
         }
 
@@ -114,13 +117,14 @@ public:
             if (result_) {
                 value_ = result_.value()[offset_];
             } else {
-                value_ = unexpected(result_.error());
+                value_ = unexpected(
+                    std::make_error_code(std::errc::illegal_byte_sequence));
             }
         }
 
         Parent* parent_ {};
         std::ranges::iterator_t<Base> curr_ {};
-        encoder::utf_result_type result_ {};
+        Utf::utf_result_type result_ {};
         std::size_t offset_ {};
         value_type value_;
     };
@@ -234,7 +238,7 @@ public:
 
         using Parent = __detail::__maybe_const<Const, from_utf_view>;
         using Base = __detail::__maybe_const<Const, View>;
-        using encoder = utf<Unicode, UTF>;
+        using Utf = iris::__detail::__utf<Unicode, UTF>;
 
     public:
         using iterator_concept
@@ -248,7 +252,7 @@ public:
                 std::forward_iterator_tag>,
             std::forward_iterator_tag,
             std::input_iterator_tag>;
-        using value_type = typename encoder::unicode_result_type;
+        using value_type = expected<Unicode, std::error_code>;
         using reference = value_type&;
         using difference_type = std::ranges::range_difference_t<Base>;
 
@@ -271,6 +275,7 @@ public:
         constexpr iterator& operator++()
         {
             next();
+            setup_result();
             return *this;
         }
 
@@ -287,7 +292,8 @@ public:
 
         constexpr bool operator==(std::default_sentinel_t) const
         {
-            return !value_ && value_.error() == utf_error::eof;
+            return !value_
+                && result_.error() == iris::__detail::__utf_error::eof;
         }
 
         friend constexpr bool operator==(const iterator& lhs,
@@ -303,16 +309,28 @@ public:
             , curr_(std::move(curr))
         {
             next();
+            setup_result();
         }
 
         void next()
         {
-            value_ = encoder::decode(curr_, std::ranges::end(parent_->base_));
+            result_ = Utf::decode_next(curr_, std::ranges::end(parent_->base_));
+        }
+
+        void setup_result()
+        {
+            if (result_) {
+                value_ = result_.value();
+            } else {
+                value_ = unexpected(
+                    std::make_error_code(std::errc::illegal_byte_sequence));
+            }
         }
 
         Parent* parent_ {};
         std::ranges::iterator_t<Base> curr_ {};
-        value_type value_;
+        Utf::unicode_result_type result_ {};
+        value_type value_ {};
     };
 
     from_utf_view() requires std::default_initializable<View>

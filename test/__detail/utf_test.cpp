@@ -1,6 +1,6 @@
 #include <thirdparty/test.hpp>
 
-#include <iris/utf.hpp>
+#include <iris/__detail/utf.hpp>
 #include <iris/utility.hpp>
 
 using namespace iris;
@@ -25,7 +25,7 @@ void test_utf_decode(InputRange input, ExpectedRange exp)
     auto last = std::ranges::end(input);
     auto iter = std::ranges::begin(exp);
     while (first != last) {
-        auto result = utf<Unicode, UTF>::decode(first, last);
+        auto result = __detail::__utf<Unicode, UTF>::decode_next(first, last);
         CHECK(result);
         CHECK_EQ(result.value(), *iter++);
     }
@@ -41,7 +41,7 @@ void test_utf_encode(InputRange input, ExpectedRange exp)
     auto last = std::ranges::end(input);
     auto iter = std::ranges::begin(exp);
     while (first != last) {
-        auto result = utf<Unicode, UTF>::encode(first, last);
+        auto result = __detail::__utf<Unicode, UTF>::encode_next(first, last);
         CHECK(result);
         const auto& value = result.value();
         for (std::size_t i = 0; i < value.size(); ++i) {

@@ -21,10 +21,9 @@ expected<std::string, std::error_code> get_host_name() noexcept
             return std::wstring_view(buffer) | views::from_utf | views::unwrap
                 | views::to_utf<char> | views::unwrap
                 | ranges::to<std::string>();
-        } catch (bad_expected_access<utf_error>& ex) {
+        } catch (bad_expected_access<std::error_code>& ex) {
             IRIS_UNUSED(ex);
-            return unexpected(
-                std::make_error_code(std::errc::illegal_byte_sequence));
+            return unexpected(ex.error());
         }
     }
 
@@ -41,10 +40,9 @@ expected<std::string, std::error_code> get_user_name() noexcept
             return std::wstring_view(buffer) | views::from_utf | views::unwrap
                 | views::to_utf<char> | views::unwrap
                 | ranges::to<std::string>();
-        } catch (bad_expected_access<utf_error>& ex) {
+        } catch (bad_expected_access<std::error_code>& ex) {
             IRIS_UNUSED(ex);
-            return unexpected(
-                std::make_error_code(std::errc::illegal_byte_sequence));
+            return unexpected(ex.error());
         }
     }
 
